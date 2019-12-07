@@ -1,6 +1,7 @@
 #include "computer.h"
 
 #include <type_traits>
+#include <variant>
 
 using namespace AdventOfCode;
 
