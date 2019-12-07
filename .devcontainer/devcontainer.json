@@ -30,6 +30,7 @@
 		"ms-vscode.cmake-tools",
 		"fireblackhat.conan-tools",
 		"hbenl.vscode-test-explorer",
-		"matepek.vscode-catch2-test-adapter"
+		"matepek.vscode-catch2-test-adapter",
+		"notskm.clang-tidy"
 	]
 }

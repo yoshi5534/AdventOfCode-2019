@@ -24,7 +24,7 @@ RUN apt-get update \
     && apt-get -y install git iproute2 procps lsb-release wget \
     #
     # Install C++ tools
-    && apt-get -y install build-essential cmake cppcheck valgrind \
+    && apt-get -y install build-essential cmake cppcheck valgrind clang-tidy \
     #
     # Install Python tools
     && apt-get -y install python3-venv python3-pip \
