@@ -1,8 +1,101 @@
 #include "computer.h"
 
+#include <type_traits>
+
 using namespace AdventOfCode;
 
-Computer::Program Computer::calculate (Computer::Program const& input)
+namespace
 {
-  return input;
+template <typename E>
+constexpr auto to_underlying(E e) noexcept
+{
+    return static_cast<std::underlying_type_t<E>>(e);
+}
+
+enum class Intcode
+{
+  Add = 1,
+  Multiply = 2,
+  Halt = 99
+};
+
+struct Add
+{
+  int summand_1;
+  int summand_2;
+  int result;
+};
+
+struct Multiply
+{
+  int factor_1;
+  int factor_2;
+  int result;
+};
+
+struct Halt
+{};
+
+struct Interpretor
+{
+  Program& out_;
+
+  Interpretor(Program& out) : out_ {out} {}
+
+  void operator() (Add const& add)
+  {
+    out_ [add.result] = out_[add.summand_1] + out_[add.summand_2];
+  }
+
+  void operator() (Multiply const& mult)
+  {
+    out_ [mult.result] = out_[mult.factor_1] * out_[mult.factor_2];
+  }
+
+  void operator() (Halt const&)
+  {
+  }
+
+  void operator() (std::monostate)
+  {
+  }
+};
+
+using Command = std::variant <std::monostate, Add, Multiply, Halt>;
+
+Command getCommand (Program const& input, int position)
+{
+  if (input [position] == to_underlying (Intcode::Add))
+  {
+    return Add {input[position + 1], input[position + 2], input[position + 3]};
+  }
+  else if (input [position] == to_underlying (Intcode::Multiply))
+  {
+    return Multiply {input[position + 1], input[position + 2], input[position + 3]};
+  }
+  else if (input [position] == to_underlying (Intcode::Halt))
+  {
+    return Halt {};
+  }
+
+  return std::monostate ();
+}
+
+Program& operator<< (Program& program, Command const& command)
+{
+  std::visit(Interpretor {program}, command);
+  return program;
+}
+}
+
+void Computer::calculate (Program& input)
+{
+  int pos = 0;
+  auto command = getCommand (input, pos);
+  while (!std::holds_alternative<Halt> (command))
+  {
+    input << command;
+    pos+= 4;
+    command = getCommand (input, pos);
+  }
 }

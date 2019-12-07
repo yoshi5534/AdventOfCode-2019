@@ -1,13 +1,15 @@
 #pragma once
 #include <vector>
+#include <variant>
 
 namespace AdventOfCode
 {
+using Program = std::vector<int>;
+
 class Computer
 {
 public:
-using Program = std::vector<int>;
 
-static Program calculate (Program const& input);
+static void calculate (Program& input);
 };
 }
