@@ -1,5 +1,6 @@
 #include "password.h"
 
+#include <algorithm>
 #include <array>
 #include <charconv>
 
@@ -15,20 +16,6 @@ namespace
     return true;
   }
 
-  bool hasToAdjacent(int password)
-  {
-    std::array<char, 6> digits;
-    std::to_chars (digits.data (), digits.data () + digits.size (), password);
-
-    for (int i = 0; i < digits.size () - 1; ++i)
-    {
-      if (digits[i] == digits [i+1])
-        return true;
-    }
-
-    return false;
-  }
-
   bool isIncreasing(int password)
   {
     std::array<char, 6> digits;
@@ -42,11 +29,26 @@ namespace
 
     return true;
   }
+
+  bool hasTwoAdjacent(int password)
+  {
+    std::array<char, 6> digits;
+    std::to_chars (digits.data (), digits.data () + digits.size (), password);
+
+    for (char c = '0'; c <= '9'; ++c)
+    {
+      int num = std::count (digits.data (), digits.data () + digits.size (), c);
+      if (num == 2)
+        return true;
+    }
+
+    return false;
+  }
 }
 
 bool AdventOfCode::isValidPassword (int password)
 {
-  if (!isSixDigit(password) || !hasToAdjacent(password) || !isIncreasing (password))
+  if (!isSixDigit(password) || !isIncreasing (password) || !hasTwoAdjacent(password))
     return false;
 
   return true;
