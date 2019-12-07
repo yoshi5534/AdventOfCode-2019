@@ -10,6 +10,6 @@ class Computer
 {
 public:
 
-static void calculate (Program& input);
+static void calculate (Program& memory);
 };
 }

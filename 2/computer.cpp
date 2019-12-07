@@ -61,9 +61,9 @@ struct Interpretor
   }
 };
 
-using Command = std::variant <std::monostate, Add, Multiply, Halt>;
+using Instruction = std::variant <std::monostate, Add, Multiply, Halt>;
 
-Command getCommand (Program const& input, int position)
+Instruction getCommand (Program const& input, int position)
 {
   if (input [position] == to_underlying (Intcode::Add))
   {
@@ -81,21 +81,21 @@ Command getCommand (Program const& input, int position)
   return std::monostate ();
 }
 
-Program& operator<< (Program& program, Command const& command)
+Program& operator<< (Program& program, Instruction const& instruction)
 {
-  std::visit(Interpretor {program}, command);
+  std::visit(Interpretor {program}, instruction);
   return program;
 }
 }
 
 void Computer::calculate (Program& input)
 {
-  int pos = 0;
-  auto command = getCommand (input, pos);
-  while (!std::holds_alternative<Halt> (command))
+  int address = 0;
+  auto instruction = getCommand (input, address);
+  while (!std::holds_alternative<Halt> (instruction))
   {
-    input << command;
-    pos+= 4;
-    command = getCommand (input, pos);
+    input << instruction;
+    address+= 4;
+    instruction = getCommand (input, address);
   }
 }
