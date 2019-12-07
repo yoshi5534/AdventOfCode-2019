@@ -22,12 +22,13 @@
 	// "appPort": [],
 
 	// Uncomment the next line to run commands after the container is created.
-	// "postCreateCommand": "gcc -v",
+	"postCreateCommand": "cd build && conan install ..",
 
 	// Add the IDs of extensions you want installed when the container is created in the array below.
 	"extensions": [
 		"ms-vscode.cpptools",
 		"ms-vscode.cmake-tools",
-		"fireblackhat.conan-tools"
+		"fireblackhat.conan-tools",
+		"hbenl.vscode-test-explorer"
 	]
 }
