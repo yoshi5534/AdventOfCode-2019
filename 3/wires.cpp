@@ -129,10 +129,27 @@ ManhattenDistances AdventOfCode::distances (Intersections const& crossings)
   ManhattenDistances result {};
   for(auto const& location : crossings)
   {
-    int distance = std::get<0> (location) + std::get<1> (location);
+    int distance = std::abs (std::get<0> (location)) + std::abs (std::get<1> (location));
     if (distance > 0)
       result.push_back (distance);
   }
   std::sort (std::begin (result), std::end (result));
   return result;
+}
+
+int AdventOfCode::minimalSignalDelay (WirePath const& path1, WirePath const& path2, Intersections const& crossings)
+{
+  std::vector <int> steps {};
+  for (auto const location : crossings)
+  {
+    auto steps1 = std::find (std::begin(path1), std::end(path1), location)-path1.begin ();
+    auto steps2 = std::find (std::begin(path2), std::end(path2), location)-path2.begin ();
+
+    auto total = steps1 + steps2;
+    if (total > 0)
+      steps.push_back (total);
+  }
+
+  std::sort (std::begin (steps), std::end (steps));
+  return steps [0];
 }

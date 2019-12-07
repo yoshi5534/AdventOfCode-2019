@@ -15,4 +15,6 @@ namespace AdventOfCode
   Intersections intersects (WirePath path1, WirePath path2);
 
   ManhattenDistances distances (Intersections const& crossings);
+
+  int minimalSignalDelay (WirePath const& path1, WirePath const& path2, Intersections const& crossings);
 }
