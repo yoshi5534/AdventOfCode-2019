@@ -167,6 +167,38 @@ TEST_CASE("Support jumps") {
   }
 }
 
+TEST_CASE("longer example") {
+  Program program{3,  21,  1008, 21,   8,   20, 1005, 20,   22,   107,
+                  8,  21,  20,   1006, 20,  31, 1106, 0,    36,   98,
+                  0,  0,   1002, 21,   125, 20, 4,    20,   1105, 1,
+                  46, 104, 999,  1105, 1,   46, 1101, 1000, 1,    20,
+                  4,  20,  1105, 1,    46,  98, 99};
+
+  SECTION("input lower 8") {
+    Computer computer;
+    computer.writeInput({0});
+    computer.calculate(program);
+    auto output = computer.readOutput();
+    REQUIRE(output == 999);
+  }
+
+  SECTION("input equal 8") {
+    Computer computer;
+    computer.writeInput({8});
+    computer.calculate(program);
+    auto output = computer.readOutput();
+    REQUIRE(output == 1000);
+  }
+
+  SECTION("input greater 8") {
+    Computer computer;
+    computer.writeInput({9});
+    computer.calculate(program);
+    auto output = computer.readOutput();
+    REQUIRE(output == 1001);
+  }
+}
+
 TEST_CASE("day 5 - puzzle 1") {
   Program program{
       3,     225,  1,     225,   6,     6,     1100,  1,     238,  225,   104,
@@ -231,9 +263,18 @@ TEST_CASE("day 5 - puzzle 1") {
       223,   2,    223,   1005,  224,   659,   101,   1,     223,  223,   1007,
       677,   226,  224,   1002,  223,   2,     223,   1005,  224,  674,   1001,
       223,   1,    223,   4,     223,   99,    226};
-  Computer computer;
-  computer.writeInput({1});
-  computer.calculate(program);
+  {
+    Computer computer;
+    computer.writeInput({1});
+    computer.calculate(program);
 
-  auto output = computer.readOutput();
+    auto output = computer.readOutput();
+  }
+  {
+    Computer computer;
+    computer.writeInput({5});
+    computer.calculate(program);
+
+    auto output = computer.readOutput();
+  }
 }

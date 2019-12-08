@@ -47,6 +47,7 @@ struct Input : public InstructionCount<2> {
 
 struct Output : public InstructionCount<2> {
   int outputPosition;
+  int mask;
 };
 
 struct JumpIfTrue : public InstructionCount<3> {
@@ -58,6 +59,20 @@ struct JumpIfTrue : public InstructionCount<3> {
 struct JumpIfFalse : public InstructionCount<3> {
   int jumper;
   int position;
+  int mask;
+};
+
+struct LessThan : public InstructionCount<4> {
+  int left;
+  int right;
+  int result;
+  int mask;
+};
+
+struct EqualTo : public InstructionCount<4> {
+  int left;
+  int right;
+  int result;
   int mask;
 };
 
@@ -103,12 +118,42 @@ struct Interpretor {
 
   void operator()(Output const &out) {
     auto memory = computer_.readMemory();
-    computer_.writeOutput({memory[out.outputPosition]});
+    auto value = isPositionMode (1, out.mask) ? memory[out.outputPosition] : out.outputPosition;
+    computer_.writeOutput({value});
   }
 
   void operator()(JumpIfTrue const &) {}
 
   void operator()(JumpIfFalse const &) {}
+
+  void operator()(LessThan const & instruction) {
+    auto memory = computer_.readMemory();
+    auto left =
+        isPositionMode(1, instruction.mask) ? memory[instruction.left] : instruction.left;
+    auto right =
+        isPositionMode(2, instruction.mask) ? memory[instruction.right] : instruction.right;
+    if (left < right)  {
+      memory[instruction.result] = 1;
+    } else {
+      memory[instruction.result] = 0;
+    }
+    computer_.writeMemory(memory);
+  }
+
+  void operator()(EqualTo const & instruction) {
+    auto memory = computer_.readMemory();
+    auto left =
+        isPositionMode(1, instruction.mask) ? memory[instruction.left] : instruction.left;
+    auto right =
+        isPositionMode(2, instruction.mask) ? memory[instruction.right] : instruction.right;
+    
+    if (left == right) {
+      memory[instruction.result] = 1;
+    } else {
+      memory[instruction.result] = 0;
+    }
+    computer_.writeMemory(memory);
+  }
 
   void operator()(Halt const &) {}
 };
@@ -156,13 +201,21 @@ struct InstructionIncrement {
       computer_.moveInstructionPointer(instruction.increment());
   }
 
+  void operator()(LessThan const &instruction) {
+    computer_.moveInstructionPointer(instruction.increment());
+  }
+
+  void operator()(EqualTo const &instruction) {
+    computer_.moveInstructionPointer(instruction.increment());
+  }
+
   void operator()(Halt const &halt) {
     computer_.moveInstructionPointer(halt.increment());
   }
 };
 
 using Instruction =
-    std::variant<Add, Multiply, Input, Output, JumpIfTrue, JumpIfFalse, Halt>;
+    std::variant<Add, Multiply, Input, Output, JumpIfTrue, JumpIfFalse, LessThan, EqualTo, Halt>;
 
 Instruction getCommand(Program const &input, int position) {
   int opcode = input[position] % 100;
@@ -180,7 +233,8 @@ Instruction getCommand(Program const &input, int position) {
   } else if (opcode == to_underlying(Intcode::Input)) {
     return Input{.inputPosition = input[position + 1]};
   } else if (opcode == to_underlying(Intcode::Output)) {
-    return Output{.outputPosition = input[position + 1]};
+    return Output{.outputPosition = input[position + 1],
+                  .mask = parameterMask};
   } else if (opcode == to_underlying(Intcode::JumpIfTrue)) {
     return JumpIfTrue{.jumper = input[position + 1],
                       .position = input[position + 2],
@@ -189,6 +243,16 @@ Instruction getCommand(Program const &input, int position) {
     return JumpIfFalse{.jumper = input[position + 1],
                        .position = input[position + 2],
                        .mask = parameterMask};
+  } else if (opcode == to_underlying(Intcode::LessThan)) {
+    return LessThan{.left = input[position + 1],
+                    .right = input[position + 2],
+                    .result = input[position + 3],
+                    .mask = parameterMask};
+  } else if (opcode == to_underlying(Intcode::EqualTo)) {
+    return EqualTo{ .left = input[position + 1],
+                    .right = input[position + 2],
+                    .result = input[position + 3],
+                    .mask = parameterMask};
   } else if (opcode == to_underlying(Intcode::Halt)) {
     return Halt{};
   }
