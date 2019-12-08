@@ -48,3 +48,23 @@ SCENARIO( "Parameters can have different modes" )
     }
   }
 }
+
+SCENARIO( "Parameters can be negative" )
+{
+  GIVEN( "A program with negative parameters" )
+  {
+    WHEN ("the operation is calculated")
+    {
+      Program program {1101,100,-1,4,0};
+      Computer computer;
+      computer.calculate (program);
+
+      THEN ("a substraction is performed")
+      {
+        Memory expected = {1101,100,-1,4,99};
+        auto result = computer.readMemory ();
+        REQUIRE (result == expected);
+      }
+    }
+  }
+}
