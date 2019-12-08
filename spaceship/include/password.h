@@ -1,7 +1,5 @@
 #pragma once
 
-
-namespace AdventOfCode 
-{
-  bool isValidPassword (int password);
+namespace AdventOfCode {
+bool isValidPassword(int password);
 }
