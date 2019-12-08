@@ -31,6 +31,6 @@
 		"fireblackhat.conan-tools",
 		"hbenl.vscode-test-explorer",
 		"matepek.vscode-catch2-test-adapter",
-		"notskm.clang-tidy"
+		"llvm-vs-code-extensions.vscode-clangd"
 	]
 }
