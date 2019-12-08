@@ -11,11 +11,15 @@ SCENARIO( "computer can handle input and output" )
     WHEN ("a specific value is given")
     {
       Program program {3,0,4,0,99};
-      Computer::calculate (program);
+      Computer computer;
+      computer << Input {1};
+      computer.calculate (program);
 
       THEN ("the output should be the same")
       {
-
+        Memory expected = {1,0,4,0,99};
+        auto result = computer.readMemory ();
+        REQUIRE (result == expected);
       }
     }
   }

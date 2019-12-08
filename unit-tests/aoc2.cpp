@@ -15,8 +15,9 @@ SCENARIO( "computer can handle programs" )
 
       THEN ("the output should be 2")
       {
-        Program correct = {1,0,0,2,99};
-        REQUIRE (program == correct);
+        Memory expected = {1,0,0,2,99};
+        auto result = computer.readMemory ();
+        REQUIRE (result == expected);
       }
     }
 
@@ -28,8 +29,9 @@ SCENARIO( "computer can handle programs" )
 
       THEN ("the output should be 4")
       {
-        Program correct = {2,0,0,4,99};
-        REQUIRE (program == correct);
+        Memory expected = {2,0,0,4,99};
+        auto result = computer.readMemory ();
+        REQUIRE (result == expected);
       }
     }
   }
@@ -44,8 +46,9 @@ SCENARIO( "computer can handle programs" )
 
       THEN ("all calculations should be done")
       {
-        Program correct = {2,3,0,6,2,8,8,9,99,9801};
-        REQUIRE (program == correct);
+        Memory expected = {2,3,0,6,2,8,8,9,99,9801};
+        auto result = computer.readMemory ();
+        REQUIRE (result == expected);
       }
     }
 
@@ -57,8 +60,9 @@ SCENARIO( "computer can handle programs" )
 
       THEN ("only the first calculation should be done")
       {
-        Program correct = {2,3,0,6,99,2,8,8,9,99,0};
-        REQUIRE (program == correct);
+        Memory expected = {2,3,0,6,99,2,8,8,9,99,0};
+        auto result = computer.readMemory ();
+        REQUIRE (result == expected);
       }
     }
   }
