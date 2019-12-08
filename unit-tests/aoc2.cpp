@@ -10,7 +10,8 @@ SCENARIO( "computer can handle programs" )
     WHEN ("the program should add 1 and 1")
     {
       Program program {1,0,0,3,99};
-      Computer::calculate (program);
+      Computer computer;
+      computer.calculate (program);
 
       THEN ("the output should be 2")
       {
@@ -22,7 +23,8 @@ SCENARIO( "computer can handle programs" )
     WHEN ("the program should multiply 2 and 2")
     {
       Program program {2,0,0,3,99};
-      Computer::calculate (program);
+      Computer computer;
+      computer.calculate (program);
 
       THEN ("the output should be 4")
       {
@@ -37,7 +39,8 @@ SCENARIO( "computer can handle programs" )
     WHEN ("the halt command is at the end")
     {
       Program program {2,3,0,3,2,8,8,9,99,0};
-      Computer::calculate (program);
+      Computer computer;
+      computer.calculate (program);
 
       THEN ("all calculations should be done")
       {
@@ -49,7 +52,8 @@ SCENARIO( "computer can handle programs" )
     WHEN ("the halt command is in the middle")
     {
       Program program {2,3,0,3,99,2,8,8,9,99,0};
-      Computer::calculate (program);
+      Computer computer;
+      computer.calculate (program);
 
       THEN ("only the first calculation should be done")
       {

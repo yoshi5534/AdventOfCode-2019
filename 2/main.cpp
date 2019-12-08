@@ -32,7 +32,8 @@ int main (int argc, char** argv)
   program [1] = noun;
   program [2] = verb;
 
-  Computer::calculate (program);
+  Computer computer;
+  computer.calculate (program);
   std::cout << program [0];
 
   return 0;

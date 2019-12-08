@@ -91,12 +91,26 @@ Program& operator<< (Program& program, Instruction const& instruction)
 
 void Computer::calculate (Program& input)
 {
+  writeMemory (input);
+
   int address = 0;
-  auto instruction = getCommand (input, address);
+  auto instruction = getCommand (memory_, address);
   while (!std::holds_alternative<Halt> (instruction))
   {
-    input << instruction;
+    memory_ << instruction;
     address+= 4;
-    instruction = getCommand (input, address);
+    instruction = getCommand (memory_, address);
   }
+
+  input = readMemory ();
+}
+
+void Computer::writeMemory (Memory const& memory)
+{
+  memory_ = memory;
+}
+
+Memory Computer::readMemory () const
+{
+  return memory_;
 }
