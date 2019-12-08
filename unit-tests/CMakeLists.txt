@@ -1,14 +1,4 @@
-add_executable (AOC2test aoc2.cpp)
-target_link_libraries (AOC2test spaceship ${CONAN_LIBS})
+add_executable (AOCtests main.cpp aoc2.cpp aoc3.cpp aoc4.cpp)
+target_link_libraries (AOCtests spaceship ${CONAN_LIBS})
 
-catch_discover_tests(AOC2test)
-
-add_executable (AOC3test aoc3.cpp)
-target_link_libraries (AOC3test spaceship ${CONAN_LIBS})
-
-catch_discover_tests(AOC3test)
-
-add_executable (AOC4test aoc4.cpp)
-target_link_libraries (AOC4test spaceship ${CONAN_LIBS})
-
-catch_discover_tests(AOC4test)
+catch_discover_tests(AOCtests)
