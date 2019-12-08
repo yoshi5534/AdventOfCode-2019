@@ -22,10 +22,15 @@ int readInput ();
 void writeOutput (Output const& output);
 int readOutput ();
 
+void moveInstructionPointer (int offset);
+void setInstructionPointer (int address);
+int getInstructionPointer () const;
+
 private:
 Memory memory_;
 Input input_;
 Output output_;
+int instructionPointer_;
 };
 
 }
