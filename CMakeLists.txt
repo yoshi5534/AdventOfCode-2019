@@ -10,6 +10,8 @@ find_package(Catch2 REQUIRED)
 include(CTest)
 include(Catch)
 
+add_subdirectory (spaceship)
+
 add_subdirectory (1)
 add_subdirectory (2)
 add_subdirectory (3)

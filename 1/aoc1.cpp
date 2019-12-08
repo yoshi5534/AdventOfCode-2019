@@ -2,7 +2,7 @@
 #include <cstdint>
 #include <string>
 
-#include "aoc1.h"
+#include <fuel.h>
 
 int main (int argc, char** argv)
 {
