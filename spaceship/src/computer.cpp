@@ -1,5 +1,6 @@
 #include "computer.h"
 
+#include <math.h>
 #include <type_traits>
 #include <variant>
 
@@ -36,6 +37,7 @@ struct Add : public InstructionCount<4>
   int summand_1;
   int summand_2;
   int result;
+  int mask;
 };
 
 struct Multiply: public InstructionCount<4>
@@ -43,6 +45,7 @@ struct Multiply: public InstructionCount<4>
   int factor_1;
   int factor_2;
   int result;
+  int mask;
 };
 
 struct Input : public InstructionCount<2>
@@ -58,6 +61,12 @@ struct Output : public InstructionCount<2>
 struct Halt: public InstructionCount<1>
 {};
 
+bool isPositionMode (int parameter, int mask)
+{
+  auto bit = static_cast<int>(mask / std::pow (10., parameter -1)) % static_cast <int> (std::pow (10., parameter));
+  return bit == 0;
+}
+
 struct Interpretor
 {
   Computer& computer_;
@@ -67,14 +76,18 @@ struct Interpretor
   void operator() (Add const& add)
   {
     auto memory =computer_.readMemory ();
-    memory [add.result] = memory[add.summand_1] + memory[add.summand_2];
+    auto summand_1 = isPositionMode (1, add.mask) ? memory[add.summand_1] : add.summand_1;
+    auto summand_2 = isPositionMode (2, add.mask) ? memory[add.summand_2] : add.summand_2;
+    memory [add.result] = summand_1 + summand_2;
     computer_.writeMemory (memory);
   }
 
   void operator() (Multiply const& mult)
   {
     auto memory =computer_.readMemory ();
-    memory [mult.result] = memory[mult.factor_1] * memory[mult.factor_2];
+    auto factor_1 = isPositionMode (1, mult.mask) ? memory[mult.factor_1] : mult.factor_1;
+    auto factor_2 = isPositionMode (2, mult.mask) ? memory[mult.factor_2] : mult.factor_2;
+    memory [mult.result] = factor_1 * factor_2;
     computer_.writeMemory (memory);
   }
 
@@ -132,29 +145,33 @@ using Instruction = std::variant <Add, Multiply, Input, Output, Halt>;
 
 Instruction getCommand (Program const& input, int position)
 {
-  if (input [position] == to_underlying (Intcode::Add))
+  int opcode = input [position] % 100;
+  int parameterMask = std::floor (input [position] / 100);
+  if (opcode == to_underlying (Intcode::Add))
   {
     return Add {.summand_1 = input[position + 1], 
                 .summand_2 = input[position + 2], 
-                .result =input[position + 3]
+                .result =input[position + 3],
+                .mask = parameterMask
           };
   }
-  else if (input [position] == to_underlying (Intcode::Multiply))
+  else if (opcode == to_underlying (Intcode::Multiply))
   {
     return Multiply { .factor_1 = input[position + 1], 
                       .factor_2 = input[position + 2], 
-                      .result = input[position + 3]
+                      .result = input[position + 3],
+                      .mask = parameterMask
           };
   }
-  else if (input [position] == to_underlying (Intcode::Input))
+  else if (opcode == to_underlying (Intcode::Input))
   {
     return Input {.inputPosition = input[position + 1]};
   }
-  else if (input [position] == to_underlying (Intcode::Output))
+  else if (opcode == to_underlying (Intcode::Output))
   {
     return Output {.outputPosition = input[position + 1]};
   }
-  else if (input [position] == to_underlying (Intcode::Halt))
+  else if (opcode == to_underlying (Intcode::Halt))
   {
     return Halt {};
   }

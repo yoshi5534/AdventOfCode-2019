@@ -27,3 +27,24 @@ SCENARIO( "computer can handle input and output" )
     }
   }
 }
+
+
+SCENARIO( "Parameters can have different modes" )
+{
+  GIVEN( "A program with different parameter modes" )
+  {
+    WHEN ("the operation is performed")
+    {
+      Program program {1002,4,3,4,33};
+      Computer computer;
+      computer.calculate (program);
+
+      THEN ("the parameters are interpreted correctly")
+      {
+        Memory expected = {1002,4,3,4,99};
+        auto result = computer.readMemory ();
+        REQUIRE (result == expected);
+      }
+    }
+  }
+}
