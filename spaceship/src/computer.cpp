@@ -60,26 +60,36 @@ struct Halt: public InstructionCount<1>
 
 struct Interpretor
 {
-  Program& out_;
+  Computer& computer_;
 
-  Interpretor(Program& out) : out_ {out} {}
+  Interpretor(Computer& out) : computer_ {out} {}
 
   void operator() (Add const& add)
   {
-    out_ [add.result] = out_[add.summand_1] + out_[add.summand_2];
+    auto memory =computer_.readMemory ();
+    memory [add.result] = memory[add.summand_1] + memory[add.summand_2];
+    computer_.writeMemory (memory);
   }
 
   void operator() (Multiply const& mult)
   {
-    out_ [mult.result] = out_[mult.factor_1] * out_[mult.factor_2];
+    auto memory =computer_.readMemory ();
+    memory [mult.result] = memory[mult.factor_1] * memory[mult.factor_2];
+    computer_.writeMemory (memory);
   }
 
   void operator() (Input const& in)
   {
+    auto memory =computer_.readMemory ();
+    auto input = computer_.readInput ();
+    memory[in.inputPosition] = input;
+    computer_.writeMemory (memory);
   }
 
   void operator() (Output const& out)
   {
+    auto memory = computer_.readMemory ();
+    computer_.writeOutput ({memory[out.outputPosition]});
   }
 
   void operator() (Halt const&)
@@ -152,10 +162,9 @@ Instruction getCommand (Program const& input, int position)
   return Halt {};
 }
 
-Program& operator<< (Program& program, Instruction const& instruction)
+void runCommand (Computer& computer, Instruction const& instruction)
 {
-  std::visit(Interpretor {program}, instruction);
-  return program;
+  std::visit(Interpretor {computer}, instruction);
 }
 
 void incrementAddress (int& address, Instruction const& instruction)
@@ -172,7 +181,7 @@ void Computer::calculate (Program const& input)
   auto instruction = getCommand (memory_, address);
   while (!std::holds_alternative<Halt> (instruction))
   {
-    memory_ << instruction;
+    runCommand (*this, instruction);
     incrementAddress (address, instruction);
     instruction = getCommand (memory_, address);
   }
@@ -186,4 +195,24 @@ void Computer::writeMemory (Memory const& memory)
 Memory Computer::readMemory () const
 {
   return memory_;
+}
+
+void Computer::writeInput (Input const& input)
+{
+  input_.insert (std::end (input_), std::begin (input), std::end (input));
+}
+
+int Computer::readInput ()
+{
+  return *input_.erase (input_.begin ());
+}
+
+void Computer::writeOutput (Output const& output)
+{
+  output_.insert (std::end (output_), std::begin (output), std::end (output));
+}
+
+int Computer::readOutput ()
+{
+  return *output_.erase (output_.begin ());
 }

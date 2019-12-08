@@ -5,7 +5,8 @@ namespace AdventOfCode
 {
 using Program = std::vector<int>;
 using Memory = std::vector<int>;
-using Input = std::vector<int>;
+using Input = Memory;
+using Output = Memory;
 
 class Computer
 {
@@ -15,15 +16,16 @@ Memory readMemory () const;
 
 void calculate (Program const& memory);
 
-friend Computer& operator<< (Computer& computer, Input const& input)
-{
-  computer.input_.insert (std::end (computer.input_), std::begin (input), std::end (input));
-  return computer;
-}
+void writeInput (Input const& input);
+int readInput ();
+
+void writeOutput (Output const& output);
+int readOutput ();
 
 private:
 Memory memory_;
 Input input_;
+Output output_;
 };
 
 }

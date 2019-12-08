@@ -12,7 +12,7 @@ SCENARIO( "computer can handle input and output" )
     {
       Program program {3,0,4,0,99};
       Computer computer;
-      computer << Input {1};
+      computer.writeInput ({1});
       computer.calculate (program);
 
       THEN ("the output should be the same")
@@ -20,6 +20,9 @@ SCENARIO( "computer can handle input and output" )
         Memory expected = {1,0,4,0,99};
         auto result = computer.readMemory ();
         REQUIRE (result == expected);
+
+        auto output = computer.readOutput ();
+        REQUIRE (output == 1);
       }
     }
   }
