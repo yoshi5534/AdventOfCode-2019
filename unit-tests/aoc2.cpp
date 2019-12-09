@@ -12,7 +12,7 @@ SCENARIO("computer can handle programs") {
 
       THEN("the output should be 2") {
         Memory expected = {1, 0, 0, 2, 99};
-        auto result = computer.readMemory();
+        auto result = computer.accessMemory();
         REQUIRE(result == expected);
       }
     }
@@ -24,7 +24,7 @@ SCENARIO("computer can handle programs") {
 
       THEN("the output should be 4") {
         Memory expected = {2, 0, 0, 4, 99};
-        auto result = computer.readMemory();
+        auto result = computer.accessMemory();
         REQUIRE(result == expected);
       }
     }
@@ -38,7 +38,7 @@ SCENARIO("computer can handle programs") {
 
       THEN("all calculations should be done") {
         Memory expected = {2, 3, 0, 6, 2, 8, 8, 9, 99, 9801};
-        auto result = computer.readMemory();
+        auto result = computer.accessMemory();
         REQUIRE(result == expected);
       }
     }
@@ -50,7 +50,7 @@ SCENARIO("computer can handle programs") {
 
       THEN("only the first calculation should be done") {
         Memory expected = {2, 3, 0, 6, 99, 2, 8, 8, 9, 99, 0};
-        auto result = computer.readMemory();
+        auto result = computer.accessMemory();
         REQUIRE(result == expected);
       }
     }

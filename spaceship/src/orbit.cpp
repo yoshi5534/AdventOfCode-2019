@@ -27,17 +27,18 @@ void Map::addOrbit(std::string const &mapEntry) {
 
   Object *c = (orbits_.find(center)->second);
   Object *o = (orbits_.find(orbiter)->second);
-  c->orbiters.push_back(o);
+  c->orbiters[o->name] = o;
 }
 
 int Map::checksum() { return 0; }
 
-int findPath(std::string const &name) const {
+int Map::findPath(std::string const &name) const {
   int path = 0;
-  if (object == "COM")
+  if (name == "COM")
     return path;
-  auto it = orbits_.find(object);
+  auto it = orbits_.find(name);
   if (it == orbits_.end())
     return path;
-  
+
+  return 0;
 }

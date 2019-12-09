@@ -90,34 +90,31 @@ struct Interpretor {
   Interpretor(Computer &computer) : computer_{computer} {}
 
   void operator()(Add const &add) {
-    auto memory = computer_.readMemory();
+    auto& memory = computer_.accessMemory();
     auto summand_1 =
         isPositionMode(1, add.mask) ? memory[add.summand_1] : add.summand_1;
     auto summand_2 =
         isPositionMode(2, add.mask) ? memory[add.summand_2] : add.summand_2;
     memory[add.result] = summand_1 + summand_2;
-    computer_.writeMemory(memory);
   }
 
   void operator()(Multiply const &mult) {
-    auto memory = computer_.readMemory();
+    auto& memory = computer_.accessMemory();
     auto factor_1 =
         isPositionMode(1, mult.mask) ? memory[mult.factor_1] : mult.factor_1;
     auto factor_2 =
         isPositionMode(2, mult.mask) ? memory[mult.factor_2] : mult.factor_2;
     memory[mult.result] = factor_1 * factor_2;
-    computer_.writeMemory(memory);
   }
 
   void operator()(Input const &in) {
-    auto memory = computer_.readMemory();
+    auto& memory = computer_.accessMemory();
     auto input = computer_.readInput();
     memory[in.inputPosition] = input;
-    computer_.writeMemory(memory);
   }
 
   void operator()(Output const &out) {
-    auto memory = computer_.readMemory();
+    auto& memory = computer_.accessMemory();
     auto value = isPositionMode (1, out.mask) ? memory[out.outputPosition] : out.outputPosition;
     computer_.writeOutput({value});
   }
@@ -127,7 +124,7 @@ struct Interpretor {
   void operator()(JumpIfFalse const &) {}
 
   void operator()(LessThan const & instruction) {
-    auto memory = computer_.readMemory();
+    auto& memory = computer_.accessMemory();
     auto left =
         isPositionMode(1, instruction.mask) ? memory[instruction.left] : instruction.left;
     auto right =
@@ -137,11 +134,10 @@ struct Interpretor {
     } else {
       memory[instruction.result] = 0;
     }
-    computer_.writeMemory(memory);
   }
 
   void operator()(EqualTo const & instruction) {
-    auto memory = computer_.readMemory();
+    auto& memory = computer_.accessMemory();
     auto left =
         isPositionMode(1, instruction.mask) ? memory[instruction.left] : instruction.left;
     auto right =
@@ -152,7 +148,6 @@ struct Interpretor {
     } else {
       memory[instruction.result] = 0;
     }
-    computer_.writeMemory(memory);
   }
 
   void operator()(Halt const &) {}
@@ -179,7 +174,7 @@ struct InstructionIncrement {
   }
 
   bool jump(bool equalTrue, int jumper, int position, int mask) {
-    auto memory = computer_.readMemory();
+    auto& memory = computer_.accessMemory();
     bool jumpValue = (0 != isPositionMode(1, mask) ? memory[jumper] : jumper);
     if (jumpValue == equalTrue) {
       auto address = isPositionMode(2, mask) ? memory[position] : position;
@@ -270,7 +265,7 @@ void incrementAddress(Computer &computer, Instruction const &instruction) {
 } // namespace
 
 void Computer::calculate(Program const &input) {
-  writeMemory(input);
+  memory_ = input;
   instructionPointer_ = 0;
 
   auto instruction = getCommand(memory_, instructionPointer_);
@@ -281,9 +276,7 @@ void Computer::calculate(Program const &input) {
   }
 }
 
-void Computer::writeMemory(Memory const &memory) { memory_ = memory; }
-
-Memory Computer::readMemory() const { return memory_; }
+Memory& Computer::accessMemory() { return memory_; }
 
 void Computer::writeInput(Input const &input) {
   input_.insert(std::end(input_), std::begin(input), std::end(input));
