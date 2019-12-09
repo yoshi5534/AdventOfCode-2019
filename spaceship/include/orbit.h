@@ -19,7 +19,7 @@ public:
   int checksum ();
 
 private:
-int findPath (std::string const& object) const;
+int findPath (std::string const& start, std::string const& object) const;
 std::map <std::string, Object*> orbits_;
 };
 

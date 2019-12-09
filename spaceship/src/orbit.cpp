@@ -20,6 +20,9 @@ std::tuple<std::string, std::string> splitEntry(std::string const &entry) {
 }
 
 void Map::addOrbit(std::string const &mapEntry) {
+  if (mapEntry.empty())
+    return;
+
   auto [center, orbiter] = splitEntry(mapEntry);
 
   addObject(center);
@@ -33,7 +36,7 @@ void Map::addOrbit(std::string const &mapEntry) {
 int Map::checksum() {
   int sum = 0;
   for (auto const obj : orbits_) {
-    sum += findPath(obj.first);
+    sum += findPath("COM", obj.first);
   }
 
   return sum;
@@ -53,16 +56,16 @@ int length(std::string const &name, std::vector<Object *> orbiters, int path) {
   return 0;
 }
 
-int Map::findPath(std::string const &name) const {
+int Map::findPath(std::string const& start, std::string const &name) const {
   int path = 0;
-  if (name == "COM")
+  if (start == name)
     return path;
   auto it = orbits_.find(name);
   if (it == orbits_.end())
     return path;
 
   for (auto const obj : orbits_) {
-    int l = length(name, orbits_.find("COM")->second->orbiters, 0);
+    int l = length(name, orbits_.find(start)->second->orbiters, 0);
     if (l > 0)
       return l;
   }
