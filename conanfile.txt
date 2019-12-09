@@ -1,5 +1,6 @@
 [requires]
 catch2/2.5.0@bincrafters/stable
+range-v3/0.10.0@ericniebler/stable
 
 [generators]
 cmake
