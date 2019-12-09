@@ -8,7 +8,7 @@ namespace AdventOfCode {
 
 struct Object {
   std::string name;
-  std::map <std::string, Object*> orbiters;
+  std::vector <Object*> orbiters;
 };
 
 class Map {
