@@ -14,5 +14,6 @@ add_subdirectory (spaceship)
 
 add_subdirectory (1)
 add_subdirectory (2)
+add_subdirectory (6)
 
 add_subdirectory (unit-tests)
