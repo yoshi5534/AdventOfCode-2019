@@ -16,7 +16,8 @@ public:
   void addObject (std::string const& name);
   void addOrbit(std::string const& mapEntry);
 
-  int checksum ();
+  int checksum () const;
+  int minimumOrbitalTransfer (std::string const& start, std::string const& target) const;
 
 private:
 int findPath (std::string const& start, std::string const& object) const;

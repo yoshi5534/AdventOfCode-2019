@@ -33,7 +33,7 @@ void Map::addOrbit(std::string const &mapEntry) {
   c->orbiters.push_back(o);
 }
 
-int Map::checksum() {
+int Map::checksum() const {
   int sum = 0;
   for (auto const obj : orbits_) {
     sum += findPath("COM", obj.first);
@@ -42,6 +42,27 @@ int Map::checksum() {
   return sum;
 }
 
+int Map::minimumOrbitalTransfer(std::string const &start,
+                           std::string const &target) const {
+
+  int minimum = INT_MAX;
+
+  for (auto const obj : orbits_) {
+    int pathStart = findPath(obj.first, start);
+    int pathTarget = findPath(obj.first, target);
+
+    if (pathStart > 0 && pathTarget > 0)
+    {
+      int sum = pathStart -1 + pathTarget -1;
+      if (sum < minimum)
+        minimum = sum;
+    }
+  }
+
+  return minimum;
+}
+
+namespace {
 int length(std::string const &name, std::vector<Object *> orbiters, int path) {
   for (auto const o : orbiters) {
     if (o->name == name)
@@ -55,8 +76,9 @@ int length(std::string const &name, std::vector<Object *> orbiters, int path) {
 
   return 0;
 }
+} // namespace
 
-int Map::findPath(std::string const& start, std::string const &name) const {
+int Map::findPath(std::string const &start, std::string const &name) const {
   int path = 0;
   if (start == name)
     return path;
