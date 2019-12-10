@@ -1,7 +1,6 @@
 #include <amplifier.h>
 
 #include <algorithm>
-#include <random>
 
 using namespace AdventOfCode;
 
@@ -24,14 +23,19 @@ int AmplifierChain::maxThrusterSignal(Program const &program) {
   Input phaseSetting{0, 1, 2, 3, 4};
 
   int maxThrusterSignal = 0;
-  auto rng = std::default_random_engine{};
-  for (auto i = 0; i < 5*4*3*2*2; ++i)
-  {
-    std::shuffle(std::begin(phaseSetting), std::end(phaseSetting), rng);
-    int signal = getSignal (phaseSetting, program);
+  do {
+    int signal = getSignal(phaseSetting, program);
     if (signal > maxThrusterSignal)
       maxThrusterSignal = signal;
-  }
+  } while (
+      std::next_permutation(std::begin(phaseSetting), std::end(phaseSetting)));
 
   return maxThrusterSignal;
 }
+
+FeedbackLoop::FeedbackLoop(Program const &program)
+    : program_{program}, amplifiers_(5) {}
+
+int FeedbackLoop::maxOutputSignal() { return 0; }
+
+int FeedbackLoop::outputSignal(Input const &phaseSetting) { return 0; }
