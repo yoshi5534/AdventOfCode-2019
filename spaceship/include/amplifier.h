@@ -19,6 +19,5 @@ private:
   int outputSignal (Input const& phaseSetting);
 
   std::vector <Computer> amplifiers_;
-  Program program_;
 };
 } // namespace AdventOfCode

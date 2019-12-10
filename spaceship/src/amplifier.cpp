@@ -8,10 +8,10 @@ namespace {
 int getSignal(Input phaseSetting, Program const &program) {
   int signal = 0;
   for (int i = 0; i < 5; ++i) {
-    Computer amplifier;
+    Computer amplifier(program);
     amplifier.writeInput({phaseSetting[i]});
     amplifier.writeInput({signal});
-    amplifier.calculate(program);
+    amplifier.calculate();
     signal = {amplifier.readOutput()};
   }
 
@@ -33,8 +33,10 @@ int AmplifierChain::maxThrusterSignal(Program const &program) {
   return maxThrusterSignal;
 }
 
-FeedbackLoop::FeedbackLoop(Program const &program)
-    : program_{program}, amplifiers_(5) {}
+FeedbackLoop::FeedbackLoop(Program const &program) {
+  for (int i = 0; i < 5; ++i)
+    amplifiers_.push_back(Computer{program});
+}
 
 int FeedbackLoop::maxOutputSignal() { return 0; }
 

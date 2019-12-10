@@ -264,10 +264,10 @@ void incrementAddress(Computer &computer, Instruction const &instruction) {
 }
 } // namespace
 
-void Computer::calculate(Program const &input) {
-  memory_ = input;
-  instructionPointer_ = 0;
+Computer::Computer(Program const &program)
+    : memory_{program}, instructionPointer_{0} {}
 
+void Computer::calculate() {
   auto instruction = getCommand(memory_, instructionPointer_);
   while (!std::holds_alternative<Halt>(instruction)) {
     runCommand(*this, instruction);

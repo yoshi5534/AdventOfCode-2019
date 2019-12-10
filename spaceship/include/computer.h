@@ -10,9 +10,11 @@ using Output = Memory;
 
 class Computer {
 public:
+  Computer (Program const& program);
+
   Memory& accessMemory ();
   
-  void calculate(Program const &memory);
+  void calculate();
 
   void writeInput(Input const &input);
   int readInput();
