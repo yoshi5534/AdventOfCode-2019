@@ -43,20 +43,21 @@ int Map::checksum() const {
 }
 
 int Map::minimumOrbitalTransfer(std::string const &start,
-                           std::string const &target) const {
+                                std::string const &target) const {
 
   int minimum = INT_MAX;
 
   for (auto const obj : orbits_) {
     int pathStart = findPath(obj.first, start);
+    if (pathStart == 0)
+      continue;
     int pathTarget = findPath(obj.first, target);
+    if (pathTarget == 0)
+      continue;
 
-    if (pathStart > 0 && pathTarget > 0)
-    {
-      int sum = pathStart -1 + pathTarget -1;
-      if (sum < minimum)
-        minimum = sum;
-    }
+    int sum = pathStart - 1 + pathTarget - 1;
+    if (sum < minimum)
+      minimum = sum;
   }
 
   return minimum;
