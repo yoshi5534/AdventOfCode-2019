@@ -1,10 +1,11 @@
 #pragma once
+#include <deque>
 #include <vector>
 
 namespace AdventOfCode {
 using Program = std::vector<int>;
 using Memory = std::vector<int>;
-using Input = Memory;
+using Input = std::deque<int>;
 using Output = Memory;
 
 class Computer {
