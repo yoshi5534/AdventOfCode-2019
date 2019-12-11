@@ -33,11 +33,47 @@ int AmplifierChain::maxThrusterSignal(Program const &program) {
   return maxThrusterSignal;
 }
 
-FeedbackLoop::FeedbackLoop(Program const &program) {
-  for (int i = 0; i < 5; ++i)
-    amplifiers_.push_back(Computer{program});
+FeedbackLoop::FeedbackLoop(Program const &program) : program_{program} {}
+
+int FeedbackLoop::maxOutputSignal() {
+  Input phaseSetting{5, 6, 7, 8, 9};
+
+  int maxThrusterSignal = 0;
+  do {
+    int signal = outputSignal(phaseSetting);
+    if (signal > maxThrusterSignal)
+      maxThrusterSignal = signal;
+  } while (
+      std::next_permutation(std::begin(phaseSetting), std::end(phaseSetting)));
+
+  return maxThrusterSignal;
 }
 
-int FeedbackLoop::maxOutputSignal() { return 0; }
+int FeedbackLoop::outputSignal(Input const &phaseSetting) {
+  amplifiers_.clear();
+  for (int i = 0; i < 5; ++i) {
+    Computer computer{program_};
+    computer.writeInput({phaseSetting[i]});
+    amplifiers_.push_back(computer);
+  }
 
-int FeedbackLoop::outputSignal(Input const &phaseSetting) { return 0; }
+  amplifiers_[0].writeInput({0});
+  int current = 0;
+  int lastOutput = 0;
+  Intcode lastCode = Intcode::Input;
+  while (!(current == 0 && lastCode == Intcode::Halt)) {
+    do {
+      lastCode = amplifiers_[current].runInstruction();
+    } while (lastCode != Intcode::Output && lastCode != Intcode::Halt);
+
+    int next = (current + 1) % 5;
+    if (lastCode == Intcode::Output) {
+      lastOutput = amplifiers_[current].readOutput();
+      amplifiers_[next].writeInput({lastOutput});
+    }
+
+    current = next;
+  }
+
+  return lastOutput;
+}

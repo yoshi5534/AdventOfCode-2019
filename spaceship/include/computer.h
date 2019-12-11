@@ -8,6 +8,18 @@ using Memory = std::vector<int>;
 using Input = std::deque<int>;
 using Output = Memory;
 
+enum class Intcode {
+  Add = 1,
+  Multiply = 2,
+  Input = 3,
+  Output = 4,
+  JumpIfTrue = 5,
+  JumpIfFalse = 6,
+  LessThan = 7,
+  EqualTo = 8,
+  Halt = 99
+};
+
 class Computer {
 public:
   Computer (Program const& program);
@@ -15,6 +27,7 @@ public:
   Memory& accessMemory ();
   
   void calculate();
+  Intcode runInstruction ();
 
   void writeInput(Input const &input);
   int readInput();

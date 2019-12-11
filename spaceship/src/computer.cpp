@@ -7,21 +7,27 @@
 using namespace AdventOfCode;
 
 namespace {
-template <typename E> constexpr auto to_underlying(E e) noexcept {
-  return static_cast<std::underlying_type_t<E>>(e);
+namespace details {
+
+template <typename E>
+using enable_enum_t =
+    typename std::enable_if<std::is_enum<E>::value,
+                            typename std::underlying_type<E>::type>::type;
+
+} // namespace details
+
+template <typename E>
+constexpr inline details::enable_enum_t<E> 
+to_underlying(E e) noexcept {
+  return static_cast<typename std::underlying_type<E>::type>(e);
 }
 
-enum class Intcode {
-  Add = 1,
-  Multiply = 2,
-  Input = 3,
-  Output = 4,
-  JumpIfTrue = 5,
-  JumpIfFalse = 6,
-  LessThan = 7,
-  EqualTo = 8,
-  Halt = 99
-};
+template <typename E, typename T>
+constexpr inline typename std::enable_if<
+    std::is_enum<E>::value && std::is_integral<T>::value, E>::type
+to_enum(T value) noexcept {
+  return static_cast<E>(value);
+}
 
 template <int T> struct InstructionCount {
   constexpr int increment() const { return T; }
@@ -274,6 +280,14 @@ void Computer::calculate() {
     incrementAddress(*this, instruction);
     instruction = getCommand(memory_, instructionPointer_);
   }
+}
+
+Intcode Computer::runInstruction() {
+  int opCode = memory_[instructionPointer_] % 100;
+  auto instruction = getCommand(memory_, instructionPointer_);
+  runCommand(*this, instruction);
+  incrementAddress(*this, instruction);
+  return to_enum<Intcode> (opCode);
 }
 
 Memory &Computer::accessMemory() { return memory_; }
