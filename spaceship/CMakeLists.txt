@@ -5,6 +5,7 @@ add_library (spaceship
   include/computer.h src/computer.cpp
   include/orbit.h src/orbit.cpp
   include/password.h src/password.cpp
+  include/spaceimage.h src/spaceimage.cpp
   include/wires.h src/wires.cpp
   )
 target_link_libraries (spaceship ${CONAN_LIBS})
