@@ -6,7 +6,7 @@ namespace AdventOfCode {
 using Program = std::vector<int>;
 using Memory = std::vector<int>;
 using Input = std::deque<int>;
-using Output = Memory;
+using Output = std::deque<int>;
 
 enum class Intcode {
   Add = 1,
@@ -27,6 +27,7 @@ public:
 
   Memory& accessMemory ();
   int relativeBase () const;
+  void adjustBase (int offset);
   
   void calculate();
   Intcode runInstruction ();

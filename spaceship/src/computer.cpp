@@ -174,6 +174,10 @@ struct Interpretor {
     }
   }
 
+  void operator()(AdjustBase const &adjustment) {
+    computer_.adjustBase(adjustment.offset);
+  }
+
   void operator()(Halt const &) {}
 };
 
@@ -227,13 +231,18 @@ struct InstructionIncrement {
     computer_.moveInstructionPointer(instruction.increment());
   }
 
+  void operator()(AdjustBase const &instruction) {
+    computer_.moveInstructionPointer(instruction.increment());
+  }
+
   void operator()(Halt const &halt) {
     computer_.moveInstructionPointer(halt.increment());
   }
 };
 
-using Instruction = std::variant<Add, Multiply, Input, Output, JumpIfTrue,
-                                 JumpIfFalse, LessThan, EqualTo, Halt>;
+using Instruction =
+    std::variant<Add, Multiply, Input, Output, JumpIfTrue, JumpIfFalse,
+                 LessThan, EqualTo, AdjustBase, Halt>;
 
 Instruction getCommand(Program const &input, int position) {
   int opcode = input[position] % 100;
@@ -270,6 +279,8 @@ Instruction getCommand(Program const &input, int position) {
                    .right = input[position + 2],
                    .result = input[position + 3],
                    .mask = parameterMask};
+  } else if (opcode == to_underlying(Intcode::AdjustBase)) {
+    return AdjustBase{.offset = input[position + 1]};
   } else if (opcode == to_underlying(Intcode::Halt)) {
     return Halt{};
   }
@@ -287,7 +298,10 @@ void incrementAddress(Computer &computer, Instruction const &instruction) {
 } // namespace
 
 Computer::Computer(Program const &program)
-    : memory_{program}, instructionPointer_{0}, relativeBase_{0} {}
+    : memory_{program}, instructionPointer_{0}, relativeBase_{0} {
+  memory_.resize(program.size() * 10);
+  std::fill(std::begin(memory_) + program.size(), std::end(memory_), 0);
+}
 
 void Computer::calculate() {
   auto instruction = getCommand(memory_, instructionPointer_);
@@ -309,6 +323,7 @@ Intcode Computer::runInstruction() {
 Memory &Computer::accessMemory() { return memory_; }
 
 int Computer::relativeBase() const { return relativeBase_; }
+void Computer::adjustBase(int offset) { relativeBase_ += offset; }
 
 void Computer::writeInput(Input const &input) {
   input_.insert(std::end(input_), std::begin(input), std::end(input));
@@ -324,7 +339,11 @@ void Computer::writeOutput(Output const &output) {
   output_.insert(std::end(output_), std::begin(output), std::end(output));
 }
 
-int Computer::readOutput() { return *output_.erase(output_.begin()); }
+int Computer::readOutput() {
+  int next = output_.front();
+  output_.pop_front();
+  return next;
+}
 
 void Computer::moveInstructionPointer(int offset) {
   instructionPointer_ += offset;

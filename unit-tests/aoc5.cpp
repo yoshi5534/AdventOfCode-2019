@@ -3,6 +3,8 @@
 #include <computer.h>
 using namespace AdventOfCode;
 
+bool memoryComparsion (Memory const& left, Memory const& right);
+
 SCENARIO("computer can handle input and output") {
   GIVEN("A program with new Intcode commands 3 and 4") {
     WHEN("a specific value is given") {
@@ -14,7 +16,7 @@ SCENARIO("computer can handle input and output") {
       THEN("the output should be the same") {
         Memory expected = {1, 0, 4, 0, 99};
         auto result = computer.accessMemory();
-        REQUIRE(result == expected);
+        REQUIRE(memoryComparsion(result, expected));
 
         auto output = computer.readOutput();
         REQUIRE(output == 1);
@@ -33,7 +35,7 @@ SCENARIO("Parameters can have different modes") {
       THEN("the parameters are interpreted correctly") {
         Memory expected = {1002, 4, 3, 4, 99};
         auto result = computer.accessMemory();
-        REQUIRE(result == expected);
+        REQUIRE(memoryComparsion(result, expected));
       }
     }
   }
@@ -49,7 +51,7 @@ SCENARIO("Parameters can be negative") {
       THEN("a substraction is performed") {
         Memory expected = {1101, 100, -1, 4, 99};
         auto result = computer.accessMemory();
-        REQUIRE(result == expected);
+        REQUIRE(memoryComparsion(result, expected));
       }
     }
   }

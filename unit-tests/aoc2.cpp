@@ -1,7 +1,17 @@
 #include <catch2/catch.hpp>
 
 #include <computer.h>
+
+#include <algorithm>
 using namespace AdventOfCode;
+
+bool memoryComparsion (Memory const& left, Memory const& right)
+{
+  Memory memoryBegin (right.size ());
+  std::copy (std::begin (left), std::begin (left) + right.size (), std::begin (memoryBegin));
+
+  return memoryBegin == right;
+}
 
 SCENARIO("computer can handle programs") {
   GIVEN("A program with a valid Intcode command") {
@@ -13,7 +23,7 @@ SCENARIO("computer can handle programs") {
       THEN("the output should be 2") {
         Memory expected = {1, 0, 0, 2, 99};
         auto result = computer.accessMemory();
-        REQUIRE(result == expected);
+        REQUIRE(memoryComparsion(result, expected));
       }
     }
 
@@ -25,7 +35,7 @@ SCENARIO("computer can handle programs") {
       THEN("the output should be 4") {
         Memory expected = {2, 0, 0, 4, 99};
         auto result = computer.accessMemory();
-        REQUIRE(result == expected);
+        REQUIRE(memoryComparsion(result, expected));
       }
     }
   }
@@ -39,7 +49,7 @@ SCENARIO("computer can handle programs") {
       THEN("all calculations should be done") {
         Memory expected = {2, 3, 0, 6, 2, 8, 8, 9, 99, 9801};
         auto result = computer.accessMemory();
-        REQUIRE(result == expected);
+        REQUIRE(memoryComparsion(result, expected));
       }
     }
 
@@ -51,7 +61,7 @@ SCENARIO("computer can handle programs") {
       THEN("only the first calculation should be done") {
         Memory expected = {2, 3, 0, 6, 99, 2, 8, 8, 9, 99, 0};
         auto result = computer.accessMemory();
-        REQUIRE(result == expected);
+        REQUIRE(memoryComparsion(result, expected));
       }
     }
   }
