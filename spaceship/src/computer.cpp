@@ -17,8 +17,7 @@ using enable_enum_t =
 } // namespace details
 
 template <typename E>
-constexpr inline details::enable_enum_t<E> 
-to_underlying(E e) noexcept {
+constexpr inline details::enable_enum_t<E> to_underlying(E e) noexcept {
   return static_cast<typename std::underlying_type<E>::type>(e);
 }
 
@@ -82,12 +81,36 @@ struct EqualTo : public InstructionCount<4> {
   int mask;
 };
 
+struct AdjustBase : public InstructionCount<2> {
+  int offset;
+};
+
 struct Halt : public InstructionCount<1> {};
 
-bool isPositionMode(int parameter, int mask) {
+enum class ParameterMode { Position, Absolute, Relative };
+
+ParameterMode getMode(int parameter, int mask) {
   auto bit = static_cast<int>(mask / std::pow(10., parameter - 1)) %
              static_cast<int>(std::pow(10., parameter));
-  return bit == 0;
+  if (bit == 0)
+    return ParameterMode::Position;
+  else if (bit == 1)
+    return ParameterMode::Absolute;
+  else if (bit == 2)
+    return ParameterMode::Relative;
+
+  return ParameterMode::Position;
+}
+
+int getValue(ParameterMode mode, int parameter, Computer &computer) {
+  switch (mode) {
+  case ParameterMode::Position:
+    return computer.accessMemory()[parameter];
+  case ParameterMode::Absolute:
+    return parameter;
+  case ParameterMode::Relative:
+    return computer.accessMemory()[parameter + computer.relativeBase()];
+  }
 }
 
 struct Interpretor {
@@ -97,19 +120,15 @@ struct Interpretor {
 
   void operator()(Add const &add) {
     auto &memory = computer_.accessMemory();
-    auto summand_1 =
-        isPositionMode(1, add.mask) ? memory[add.summand_1] : add.summand_1;
-    auto summand_2 =
-        isPositionMode(2, add.mask) ? memory[add.summand_2] : add.summand_2;
+    auto summand_1 = getValue(getMode(1, add.mask), add.summand_1, computer_);
+    auto summand_2 = getValue(getMode(2, add.mask), add.summand_2, computer_);
     memory[add.result] = summand_1 + summand_2;
   }
 
   void operator()(Multiply const &mult) {
     auto &memory = computer_.accessMemory();
-    auto factor_1 =
-        isPositionMode(1, mult.mask) ? memory[mult.factor_1] : mult.factor_1;
-    auto factor_2 =
-        isPositionMode(2, mult.mask) ? memory[mult.factor_2] : mult.factor_2;
+    auto factor_1 = getValue(getMode(1, mult.mask), mult.factor_1, computer_);
+    auto factor_2 = getValue(getMode(2, mult.mask), mult.factor_2, computer_);
     memory[mult.result] = factor_1 * factor_2;
   }
 
@@ -120,9 +139,7 @@ struct Interpretor {
   }
 
   void operator()(Output const &out) {
-    auto &memory = computer_.accessMemory();
-    auto value = isPositionMode(1, out.mask) ? memory[out.outputPosition]
-                                             : out.outputPosition;
+    auto value = getValue(getMode(1, out.mask), out.outputPosition, computer_);
     computer_.writeOutput({value});
   }
 
@@ -132,10 +149,10 @@ struct Interpretor {
 
   void operator()(LessThan const &instruction) {
     auto &memory = computer_.accessMemory();
-    auto left = isPositionMode(1, instruction.mask) ? memory[instruction.left]
-                                                    : instruction.left;
-    auto right = isPositionMode(2, instruction.mask) ? memory[instruction.right]
-                                                     : instruction.right;
+    auto left =
+        getValue(getMode(1, instruction.mask), instruction.left, computer_);
+    auto right =
+        getValue(getMode(2, instruction.mask), instruction.right, computer_);
     if (left < right) {
       memory[instruction.result] = 1;
     } else {
@@ -145,10 +162,10 @@ struct Interpretor {
 
   void operator()(EqualTo const &instruction) {
     auto &memory = computer_.accessMemory();
-    auto left = isPositionMode(1, instruction.mask) ? memory[instruction.left]
-                                                    : instruction.left;
-    auto right = isPositionMode(2, instruction.mask) ? memory[instruction.right]
-                                                     : instruction.right;
+    auto left =
+        getValue(getMode(1, instruction.mask), instruction.left, computer_);
+    auto right =
+        getValue(getMode(2, instruction.mask), instruction.right, computer_);
 
     if (left == right) {
       memory[instruction.result] = 1;
@@ -181,10 +198,9 @@ struct InstructionIncrement {
   }
 
   bool jump(bool equalTrue, int jumper, int position, int mask) {
-    auto &memory = computer_.accessMemory();
-    bool jumpValue = (0 != isPositionMode(1, mask) ? memory[jumper] : jumper);
+    bool jumpValue = (0 != getValue(getMode(1, mask), jumper, computer_));
     if (jumpValue == equalTrue) {
-      auto address = isPositionMode(2, mask) ? memory[position] : position;
+      auto address = getValue(getMode(2, mask), position, computer_);
       computer_.setInstructionPointer(address);
       return true;
     }
@@ -221,7 +237,7 @@ using Instruction = std::variant<Add, Multiply, Input, Output, JumpIfTrue,
 
 Instruction getCommand(Program const &input, int position) {
   int opcode = input[position] % 100;
-  int parameterMask = std::floor(input[position] / 100);
+  int parameterMask = input[position] / 100;
   if (opcode == to_underlying(Intcode::Add)) {
     return Add{.summand_1 = input[position + 1],
                .summand_2 = input[position + 2],
@@ -271,7 +287,7 @@ void incrementAddress(Computer &computer, Instruction const &instruction) {
 } // namespace
 
 Computer::Computer(Program const &program)
-    : memory_{program}, instructionPointer_{0} {}
+    : memory_{program}, instructionPointer_{0}, relativeBase_{0} {}
 
 void Computer::calculate() {
   auto instruction = getCommand(memory_, instructionPointer_);
@@ -287,10 +303,12 @@ Intcode Computer::runInstruction() {
   auto instruction = getCommand(memory_, instructionPointer_);
   runCommand(*this, instruction);
   incrementAddress(*this, instruction);
-  return to_enum<Intcode> (opCode);
+  return to_enum<Intcode>(opCode);
 }
 
 Memory &Computer::accessMemory() { return memory_; }
+
+int Computer::relativeBase() const { return relativeBase_; }
 
 void Computer::writeInput(Input const &input) {
   input_.insert(std::end(input_), std::begin(input), std::end(input));

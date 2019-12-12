@@ -17,6 +17,7 @@ enum class Intcode {
   JumpIfFalse = 6,
   LessThan = 7,
   EqualTo = 8,
+  AdjustBase = 9,
   Halt = 99
 };
 
@@ -25,6 +26,7 @@ public:
   Computer (Program const& program);
 
   Memory& accessMemory ();
+  int relativeBase () const;
   
   void calculate();
   Intcode runInstruction ();
@@ -44,6 +46,7 @@ private:
   Input input_;
   Output output_;
   int instructionPointer_;
+  int relativeBase_;
 };
 
 } // namespace AdventOfCode
