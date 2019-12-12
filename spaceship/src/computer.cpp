@@ -33,65 +33,67 @@ template <int T> struct InstructionCount {
 };
 
 struct Add : public InstructionCount<4> {
-  int summand_1;
-  int summand_2;
-  int result;
-  int mask;
+  int64_t summand_1;
+  int64_t summand_2;
+  int64_t result;
+  int64_t mask;
 };
 
 struct Multiply : public InstructionCount<4> {
-  int factor_1;
-  int factor_2;
-  int result;
-  int mask;
+  int64_t factor_1;
+  int64_t factor_2;
+  int64_t result;
+  int64_t mask;
 };
 
 struct Input : public InstructionCount<2> {
-  int inputPosition;
+  int64_t inputPosition;
+  int64_t mask;
 };
 
 struct Output : public InstructionCount<2> {
-  int outputPosition;
-  int mask;
+  int64_t outputPosition;
+  int64_t mask;
 };
 
 struct JumpIfTrue : public InstructionCount<3> {
-  int jumper;
-  int position;
-  int mask;
+  int64_t jumper;
+  int64_t position;
+  int64_t mask;
 };
 
 struct JumpIfFalse : public InstructionCount<3> {
-  int jumper;
-  int position;
-  int mask;
+  int64_t jumper;
+  int64_t position;
+  int64_t mask;
 };
 
 struct LessThan : public InstructionCount<4> {
-  int left;
-  int right;
-  int result;
-  int mask;
+  int64_t left;
+  int64_t right;
+  int64_t result;
+  int64_t mask;
 };
 
 struct EqualTo : public InstructionCount<4> {
-  int left;
-  int right;
-  int result;
-  int mask;
+  int64_t left;
+  int64_t right;
+  int64_t result;
+  int64_t mask;
 };
 
 struct AdjustBase : public InstructionCount<2> {
-  int offset;
+  int64_t offset;
+  int64_t mask;
 };
 
 struct Halt : public InstructionCount<1> {};
 
 enum class ParameterMode { Position, Absolute, Relative };
 
-ParameterMode getMode(int parameter, int mask) {
-  auto bit = static_cast<int>(mask / std::pow(10., parameter - 1)) %
-             static_cast<int>(std::pow(10., parameter));
+ParameterMode getMode(int64_t parameter, int64_t mask) {
+  auto bit = static_cast<int64_t>(mask / std::pow(10., parameter - 1)) %
+             static_cast<int64_t>(std::pow(10., parameter));
   if (bit == 0)
     return ParameterMode::Position;
   else if (bit == 1)
@@ -102,7 +104,7 @@ ParameterMode getMode(int parameter, int mask) {
   return ParameterMode::Position;
 }
 
-int getValue(ParameterMode mode, int parameter, Computer &computer) {
+int64_t getValue(ParameterMode mode, int64_t parameter, Computer &computer) {
   switch (mode) {
   case ParameterMode::Position:
     return computer.accessMemory()[parameter];
@@ -112,6 +114,17 @@ int getValue(ParameterMode mode, int parameter, Computer &computer) {
     return computer.accessMemory()[parameter + computer.relativeBase()];
   }
 }
+void writeValue(ParameterMode mode, int64_t parameter, Computer &computer,
+                int64_t value) {
+  switch (mode) {
+  case ParameterMode::Position:
+    computer.accessMemory()[parameter] = value;
+  case ParameterMode::Absolute:
+    break;
+  case ParameterMode::Relative:
+    computer.accessMemory()[parameter + computer.relativeBase()] = value;
+  }
+}
 
 struct Interpretor {
   Computer &computer_;
@@ -119,23 +132,22 @@ struct Interpretor {
   Interpretor(Computer &computer) : computer_{computer} {}
 
   void operator()(Add const &add) {
-    auto &memory = computer_.accessMemory();
     auto summand_1 = getValue(getMode(1, add.mask), add.summand_1, computer_);
     auto summand_2 = getValue(getMode(2, add.mask), add.summand_2, computer_);
-    memory[add.result] = summand_1 + summand_2;
+    writeValue(getMode(3, add.mask), add.result, computer_,
+               summand_1 + summand_2);
   }
 
   void operator()(Multiply const &mult) {
-    auto &memory = computer_.accessMemory();
     auto factor_1 = getValue(getMode(1, mult.mask), mult.factor_1, computer_);
     auto factor_2 = getValue(getMode(2, mult.mask), mult.factor_2, computer_);
-    memory[mult.result] = factor_1 * factor_2;
+    writeValue(getMode(3, mult.mask), mult.result, computer_,
+               factor_1 * factor_2);
   }
 
   void operator()(Input const &in) {
-    auto &memory = computer_.accessMemory();
     auto input = computer_.readInput();
-    memory[in.inputPosition] = input;
+    writeValue(getMode(1, in.mask), in.inputPosition, computer_, input);
   }
 
   void operator()(Output const &out) {
@@ -148,34 +160,29 @@ struct Interpretor {
   void operator()(JumpIfFalse const &) {}
 
   void operator()(LessThan const &instruction) {
-    auto &memory = computer_.accessMemory();
     auto left =
         getValue(getMode(1, instruction.mask), instruction.left, computer_);
     auto right =
         getValue(getMode(2, instruction.mask), instruction.right, computer_);
-    if (left < right) {
-      memory[instruction.result] = 1;
-    } else {
-      memory[instruction.result] = 0;
-    }
+
+    writeValue(getMode(3, instruction.mask), instruction.result, computer_,
+               (left < right) ? 1 : 0);
   }
 
   void operator()(EqualTo const &instruction) {
-    auto &memory = computer_.accessMemory();
     auto left =
         getValue(getMode(1, instruction.mask), instruction.left, computer_);
     auto right =
         getValue(getMode(2, instruction.mask), instruction.right, computer_);
 
-    if (left == right) {
-      memory[instruction.result] = 1;
-    } else {
-      memory[instruction.result] = 0;
-    }
+    writeValue(getMode(3, instruction.mask), instruction.result, computer_,
+               (left == right) ? 1 : 0);
   }
 
   void operator()(AdjustBase const &adjustment) {
-    computer_.adjustBase(adjustment.offset);
+    auto offset =
+        getValue(getMode(1, adjustment.mask), adjustment.offset, computer_);
+    computer_.adjustBase(offset);
   }
 
   void operator()(Halt const &) {}
@@ -201,7 +208,7 @@ struct InstructionIncrement {
     computer_.moveInstructionPointer(out.increment());
   }
 
-  bool jump(bool equalTrue, int jumper, int position, int mask) {
+  bool jump(bool equalTrue, int64_t jumper, int64_t position, int64_t mask) {
     bool jumpValue = (0 != getValue(getMode(1, mask), jumper, computer_));
     if (jumpValue == equalTrue) {
       auto address = getValue(getMode(2, mask), position, computer_);
@@ -244,9 +251,9 @@ using Instruction =
     std::variant<Add, Multiply, Input, Output, JumpIfTrue, JumpIfFalse,
                  LessThan, EqualTo, AdjustBase, Halt>;
 
-Instruction getCommand(Program const &input, int position) {
-  int opcode = input[position] % 100;
-  int parameterMask = input[position] / 100;
+Instruction getCommand(Program const &input, int64_t position) {
+  int64_t opcode = input[position] % 100;
+  int64_t parameterMask = input[position] / 100;
   if (opcode == to_underlying(Intcode::Add)) {
     return Add{.summand_1 = input[position + 1],
                .summand_2 = input[position + 2],
@@ -258,7 +265,7 @@ Instruction getCommand(Program const &input, int position) {
                     .result = input[position + 3],
                     .mask = parameterMask};
   } else if (opcode == to_underlying(Intcode::Input)) {
-    return Input{.inputPosition = input[position + 1]};
+    return Input{.inputPosition = input[position + 1], .mask = parameterMask};
   } else if (opcode == to_underlying(Intcode::Output)) {
     return Output{.outputPosition = input[position + 1], .mask = parameterMask};
   } else if (opcode == to_underlying(Intcode::JumpIfTrue)) {
@@ -280,7 +287,7 @@ Instruction getCommand(Program const &input, int position) {
                    .result = input[position + 3],
                    .mask = parameterMask};
   } else if (opcode == to_underlying(Intcode::AdjustBase)) {
-    return AdjustBase{.offset = input[position + 1]};
+    return AdjustBase{.offset = input[position + 1], .mask = parameterMask};
   } else if (opcode == to_underlying(Intcode::Halt)) {
     return Halt{};
   }
@@ -313,7 +320,7 @@ void Computer::calculate() {
 }
 
 Intcode Computer::runInstruction() {
-  int opCode = memory_[instructionPointer_] % 100;
+  int64_t opCode = memory_[instructionPointer_] % 100;
   auto instruction = getCommand(memory_, instructionPointer_);
   runCommand(*this, instruction);
   incrementAddress(*this, instruction);
@@ -322,15 +329,15 @@ Intcode Computer::runInstruction() {
 
 Memory &Computer::accessMemory() { return memory_; }
 
-int Computer::relativeBase() const { return relativeBase_; }
-void Computer::adjustBase(int offset) { relativeBase_ += offset; }
+int64_t Computer::relativeBase() const { return relativeBase_; }
+void Computer::adjustBase(int64_t offset) { relativeBase_ += offset; }
 
 void Computer::writeInput(Input const &input) {
   input_.insert(std::end(input_), std::begin(input), std::end(input));
 }
 
-int Computer::readInput() {
-  int next = input_.front();
+int64_t Computer::readInput() {
+  int64_t next = input_.front();
   input_.pop_front();
   return next;
 }
@@ -339,18 +346,18 @@ void Computer::writeOutput(Output const &output) {
   output_.insert(std::end(output_), std::begin(output), std::end(output));
 }
 
-int Computer::readOutput() {
-  int next = output_.front();
+int64_t Computer::readOutput() {
+  int64_t next = output_.front();
   output_.pop_front();
   return next;
 }
 
-void Computer::moveInstructionPointer(int offset) {
+void Computer::moveInstructionPointer(int64_t offset) {
   instructionPointer_ += offset;
 }
 
-void Computer::setInstructionPointer(int address) {
+void Computer::setInstructionPointer(int64_t address) {
   instructionPointer_ = address;
 }
 
-int Computer::getInstructionPointer() const { return instructionPointer_; }
+int64_t Computer::getInstructionPointer() const { return instructionPointer_; }
