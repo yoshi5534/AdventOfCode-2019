@@ -1,6 +1,9 @@
 #include <catch2/catch.hpp>
 
 #include <spaceimage.h>
+
+#include <iostream>
+
 using namespace AdventOfCode;
 
 TEST_CASE("two layers") {
@@ -11,6 +14,25 @@ TEST_CASE("two layers") {
       SpaceImage::fromDigitalSendingNetwork(3, 2, "123456789012");
 
   REQUIRE(image == reference);
+}
+
+void printImage(int width, int height, ImageLayer image) {
+  for (int y = 0; y < height; ++y) {
+    for (int x = 0; x < width; ++x) {
+      if (image[width * y + x] == 1)
+        std::cout << '1';
+      else
+        std::cout << ' ';
+    }
+    std::cout << '\n';
+  }
+}
+
+TEST_CASE("Image") {
+  SpaceImage image =
+      SpaceImage::fromDigitalSendingNetwork(2, 2, "0222112222120000");
+
+  printImage(2, 2, image.finalImage ());
 }
 
 TEST_CASE("AOC8") {
@@ -227,6 +249,9 @@ TEST_CASE("AOC8") {
 
   SpaceImage image = SpaceImage::fromDigitalSendingNetwork(25, 6, imageData);
   int expected = 1792;
-  
-  REQUIRE (expected == image.checksum ());
+
+  REQUIRE(expected == image.checksum());
+
+  auto final = image.finalImage();
+  printImage (25, 6, final);
 }

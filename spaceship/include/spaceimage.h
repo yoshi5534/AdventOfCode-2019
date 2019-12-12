@@ -11,6 +11,8 @@ class SpaceImage {
 public:
   SpaceImage(int width, int height, Format data);
 
+  ImageLayer finalImage () const;
+  
   bool operator==(SpaceImage const &other) const;
 
   static SpaceImage fromDigitalSendingNetwork(int width, int height,

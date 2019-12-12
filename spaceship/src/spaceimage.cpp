@@ -16,6 +16,28 @@ SpaceImage::SpaceImage(int width, int height, Format data)
   }
 }
 
+
+ImageLayer SpaceImage::finalImage () const
+{
+  ImageLayer image;
+  image.resize (width_ * height_);
+  std::fill (std::begin(image), std::end(image), 2);
+
+  for (auto const& layer : layers_)
+  {
+    for (int y = 0; y < height_; ++y)
+    {
+      for (int x = 0; x < width_; ++x)
+      {
+        if (image[width_*y + x] == 2)
+          image [width_*y + x] = layer [width_*y + x];
+      }
+    }
+  }
+
+  return image;
+}
+
 bool SpaceImage::operator ==(SpaceImage const& other) const{
   return (layers_ == other.layers_ && width_ == other.width_ && height_ == other.height_);
 }
