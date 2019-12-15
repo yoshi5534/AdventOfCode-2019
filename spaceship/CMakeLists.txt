@@ -2,6 +2,7 @@ find_package (range-v3)
 add_library (spaceship 
   include/fuel.h
   include/amplifier.h src/amplifier.cpp
+  include/asteroids.h src/asteroids.cpp
   include/computer.h src/computer.cpp
   include/orbit.h src/orbit.cpp
   include/password.h src/password.cpp
