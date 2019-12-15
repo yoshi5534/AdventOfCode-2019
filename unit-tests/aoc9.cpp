@@ -155,12 +155,25 @@ TEST_CASE("AOC9") {
       -2,    -3,       1,        21101, 0,     955,   0,        1105,  1,
       920,   22201,    1,        -1,    -2,    1106,  0,        966,   22102,
       1,     -2,       -2,       109,   -3,    2105,  1,        0};
-  Computer computer(program);
-  computer.writeInput ({1});
-  computer.calculate();
-
-  int64_t expected = 3013554615;
-  auto out = computer.readOutput(); 
   
-  REQUIRE(expected == out);
+  {
+    Computer computer(program);
+    computer.writeInput ({1});
+    computer.calculate();
+
+    int64_t expected = 3013554615;
+    auto out = computer.readOutput(); 
+
+    REQUIRE(expected == out);
+  }
+  {
+    Computer computer(program);
+    computer.writeInput ({2});
+    computer.calculate();
+
+    int64_t expected = 50158;
+    auto out = computer.readOutput(); 
+
+    REQUIRE(expected == out);
+  }
 }
