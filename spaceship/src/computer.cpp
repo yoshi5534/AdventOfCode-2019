@@ -93,7 +93,7 @@ enum class ParameterMode { Position, Absolute, Relative };
 
 ParameterMode getMode(int64_t parameter, int64_t mask) {
   auto bit = static_cast<int64_t>(mask / std::pow(10., parameter - 1)) %
-             static_cast<int64_t>(std::pow(10., parameter));
+             static_cast<int64_t>(10);
   if (bit == 0)
     return ParameterMode::Position;
   else if (bit == 1)

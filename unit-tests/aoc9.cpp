@@ -33,6 +33,18 @@ TEST_CASE("really large") {
   REQUIRE(expected == out);
 }
 
+
+TEST_CASE("failing isolated") {
+ Program program{109,  20, 21102, 8, 9, -5, 4, 15, 99};
+  Computer computer(program);
+  computer.calculate();
+
+  int64_t expected = 72;
+  auto out = computer.readOutput();
+
+  REQUIRE(expected == out);
+}
+
 TEST_CASE("AOC9") {
   Program program{
       1102,  34463338, 34463338, 63,    1007,  63,    34463338, 63,    1005,
@@ -147,8 +159,8 @@ TEST_CASE("AOC9") {
   computer.writeInput ({1});
   computer.calculate();
 
-  int64_t expected = 1125899906842624;
-  auto out = computer.readOutput();
-
+  int64_t expected = 3013554615;
+  auto out = computer.readOutput(); 
+  
   REQUIRE(expected == out);
 }
