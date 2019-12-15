@@ -2,6 +2,7 @@
 
 #include <asteroids.h>
 #include <map>
+#include <sstream>
 using namespace AdventOfCode;
 
 TEST_CASE("Remove line of asteroids") {
@@ -28,7 +29,41 @@ TEST_CASE("First example") {
   int height = 5;
   Asteroids asteroids{map, width, height};
 
-  Coordinates expected{3, 4};
+  int expected{8};
+  auto mostVisible = asteroids.mostVisible();
+  REQUIRE(mostVisible == expected);
+}
+
+TEST_CASE("Read map") {
+  std::string textMap = "......#.#. "
+                        "#..#.#.... "
+                        "..#######. "
+                        ".#.#.###.. "
+                        ".#..#..... "
+                        "..#....#.# "
+                        "#..#....#. "
+                        ".##.#..### "
+                        "##...#..#. "
+                        ".#....#### ";
+
+  std::istringstream mapstream{textMap};
+  std::string line;
+
+  AsteroidMap map;
+  int height = 0;
+  int width = 0;
+  while (std::getline(mapstream, line, ' ')) {
+    width = 0;
+    for (char c : line) {
+      if (c == '#')
+        map.insert({width, height});
+      width++;
+    }
+    height++;
+  }
+
+  Asteroids asteroids{map, width, height};
+  int expected{33};
   auto mostVisible = asteroids.mostVisible();
   REQUIRE(mostVisible == expected);
 }

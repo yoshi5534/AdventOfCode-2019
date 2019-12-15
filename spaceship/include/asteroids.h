@@ -23,7 +23,7 @@ public:
   AsteroidMap getLineCoords(Coordinates start, Coordinates offset);
   void removeLine(Coordinates start, Coordinates offset);
 
-  Coordinates mostVisible () const;
+  int mostVisible () const;
 
 private:
   AsteroidMap asteroids_;

@@ -99,7 +99,7 @@ struct CompareVisibles {
 };
 } // namespace
 
-Coordinates Asteroids::mostVisible() const {
+int Asteroids::mostVisible() const {
   std::map<Coordinates, int> visibles;
 
   std::for_each(std::begin(asteroids_), std::end(asteroids_),
@@ -136,5 +136,5 @@ Coordinates Asteroids::mostVisible() const {
 
   auto max = std::max_element(std::begin(visibles), std::end(visibles),
                               CompareVisibles());
-  return max->first;
+  return max->second;
 }
