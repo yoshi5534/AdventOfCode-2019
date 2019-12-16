@@ -31,7 +31,7 @@ TEST_CASE("First example") {
 
   int expected{8};
   auto mostVisible = asteroids.mostVisible();
-  REQUIRE(mostVisible.second == expected);
+  REQUIRE(mostVisible.first == expected);
 }
 namespace {
 Asteroids getAsteroids(std::string const &textMap) {
@@ -70,7 +70,7 @@ TEST_CASE("Read map") {
 
   int expected{33};
   auto map = getAsteroids(textMap);
-  REQUIRE(map.mostVisible().second == expected);
+  REQUIRE(map.mostVisible().first == expected);
 }
 
 TEST_CASE("Bigger example") {
@@ -98,7 +98,7 @@ TEST_CASE("Bigger example") {
   auto map = getAsteroids(textMap);
   {
     int expected{210};
-    REQUIRE(map.mostVisible().second == expected);
+    REQUIRE(map.mostVisible().first == expected);
   }
   {
     auto expected = Coordinates{8, 2};

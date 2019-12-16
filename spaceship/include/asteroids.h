@@ -23,7 +23,7 @@ public:
   AsteroidMap getLineCoords(Coordinates start, Coordinates offset);
   void removeLine(Coordinates start, Coordinates offset);
 
-  std::pair <Coordinates, int> mostVisible () const;
+  std::pair <int, Coordinates> mostVisible () const;
   Coordinates vaporized (Coordinates station, int shot) const;
 
 private:
