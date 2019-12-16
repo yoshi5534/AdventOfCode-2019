@@ -31,20 +31,10 @@ TEST_CASE("First example") {
 
   int expected{8};
   auto mostVisible = asteroids.mostVisible();
-  REQUIRE(mostVisible == expected);
+  REQUIRE(mostVisible.second == expected);
 }
-
-TEST_CASE("Read map") {
-  std::string textMap = "......#.#. "
-                        "#..#.#.... "
-                        "..#######. "
-                        ".#.#.###.. "
-                        ".#..#..... "
-                        "..#....#.# "
-                        "#..#....#. "
-                        ".##.#..### "
-                        "##...#..#. "
-                        ".#....#### ";
+namespace {
+Asteroids getAsteroids(std::string const &textMap) {
 
   std::istringstream mapstream{textMap};
   std::string line;
@@ -62,8 +52,57 @@ TEST_CASE("Read map") {
     height++;
   }
 
-  Asteroids asteroids{map, width, height};
+  return Asteroids{map, width, height};
+}
+} // namespace
+
+TEST_CASE("Read map") {
+  std::string textMap = "......#.#. "
+                        "#..#.#.... "
+                        "..#######. "
+                        ".#.#.###.. "
+                        ".#..#..... "
+                        "..#....#.# "
+                        "#..#....#. "
+                        ".##.#..### "
+                        "##...#..#. "
+                        ".#....#### ";
+
   int expected{33};
-  auto mostVisible = asteroids.mostVisible();
-  REQUIRE(mostVisible == expected);
+  auto map = getAsteroids(textMap);
+  REQUIRE(map.mostVisible().second == expected);
+}
+
+TEST_CASE("Bigger example") {
+  std::string textMap = ".#..##.###...####### "
+                        "##.############..##. "
+                        ".#.######.########.# "
+                        ".###.#######.####.#. "
+                        "#####.##.#.##.###.## "
+                        "..#####..#.######### "
+                        "#################### "
+                        "#.####....###.#.#.## "
+                        "##.################# "
+                        "#####.##.###..####.. "
+                        "..######..##.####### "
+                        "####.##.####...##..# "
+                        ".#####..#.######.### "
+                        "##...#.##########... "
+                        "#.##########.####### "
+                        ".####.#.###.###.#.## "
+                        "....##.##.###..##### "
+                        ".#.#.###########.### "
+                        "#.#.#.#####.####.### "
+                        "###.##.####.##.#..## ";
+
+  auto map = getAsteroids(textMap);
+  {
+    int expected{210};
+    REQUIRE(map.mostVisible().second == expected);
+  }
+  {
+    auto expected = Coordinates{8, 2};
+    auto destroyed = map.vaporized({11, 13}, 200);
+    REQUIRE(destroyed == expected);
+  }
 }

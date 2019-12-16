@@ -22,8 +22,14 @@ int main(int argc, char **argv) {
   }
 
   Asteroids asteroids{map, width, height};
-  std::cout << "Maximum visible asteroids: " << asteroids.mostVisible()
-            << std::endl;
-
+  auto station = asteroids.mostVisible();
+  std::cout << "Maximum visible asteroids: " << station.second << std::endl;
+  std::cout << "Coordinate: " << std::get<0>(station.first) << ","
+            << std::get<1>(station.first) << std::endl;
+  
+  auto vaporized = asteroids.vaporized(station.first, 200);
+  std::cout << "The 200th asteroid to be vaporized is at " << std::get<0>(vaporized) << ","
+            << std::get<1>(vaporized) << std::endl;
+  
   return 0;
 }

@@ -1,6 +1,7 @@
 #include <asteroids.h>
 
 #include <algorithm>
+#include <cmath>
 #include <iostream>
 #include <map>
 using namespace AdventOfCode;
@@ -99,7 +100,7 @@ struct CompareVisibles {
 };
 } // namespace
 
-int Asteroids::mostVisible() const {
+std::pair <Coordinates, int> Asteroids::mostVisible() const {
   std::map<Coordinates, int> visibles;
 
   std::for_each(std::begin(asteroids_), std::end(asteroids_),
@@ -136,5 +137,63 @@ int Asteroids::mostVisible() const {
 
   auto max = std::max_element(std::begin(visibles), std::end(visibles),
                               CompareVisibles());
-  return max->second;
+  return *max;
+}
+
+namespace {
+constexpr double pi() { return std::atan(1) * 4; }
+auto relativePosition(Coordinates station, Coordinates astroid) {
+  Coordinates vector{getX(astroid) - getX(station),
+                     getY(astroid) - getY(station)};
+
+  return vector;
+}
+
+auto angle(Coordinates station, Coordinates astroid) {
+  auto vector = relativePosition(station, astroid);
+  auto tangens = std::atan2(getX(vector), -getY(vector));
+
+  if (tangens < 0.)
+    return 2. * pi() + tangens;
+
+  return tangens;
+}
+
+auto radius(Coordinates station, Coordinates astroid) {
+  auto vector = relativePosition(station, astroid);
+
+  return std::sqrt(getX(vector) * getX(vector) + getY(vector) * getY(vector));
+}
+} // namespace
+
+using Radius = double;
+using Phi = double;
+Coordinates Asteroids::vaporized(Coordinates station, int shot) const {
+  std::map<Phi, std::set<std::pair<Radius, Coordinates>>> polarCoordinates;
+
+  std::for_each(std::begin(asteroids_), std::end(asteroids_),
+                [&](auto candidate) {
+                  if (candidate == station)
+                    return;
+                  auto phi = angle(station, candidate);
+                  auto r = radius(station, candidate);
+                  polarCoordinates[phi].insert({r, candidate});
+                });
+
+  int removed = 0;
+  auto current = std::begin(polarCoordinates);
+  while (removed < shot - 1) {
+    removed++;
+    auto line = current->second;
+    auto destroyed = line.erase(std::begin(line));
+    if (destroyed == std::end(line))
+      current = polarCoordinates.erase(current);
+    else
+      current++;
+
+    if (current == std::end(polarCoordinates))
+      current = std::begin(polarCoordinates);
+  }
+
+  return std::begin(current->second)->second;
 }
