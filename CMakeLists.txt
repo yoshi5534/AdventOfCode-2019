@@ -1,6 +1,6 @@
-cmake_minimum_required (VERSION 3.0)
+cmake_minimum_required(VERSION 3.0)
 
-project (AdventOfCode)
+project(AdventOfCode)
 add_definitions("-std=c++17")
 
 include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
@@ -10,11 +10,7 @@ find_package(Catch2 REQUIRED)
 include(CTest)
 include(Catch)
 
-add_subdirectory (spaceship)
+add_subdirectory(spaceship)
+add_subdirectory(puzzles)
 
-add_subdirectory (1)
-add_subdirectory (2)
-add_subdirectory (6)
-add_subdirectory (10)
-
-add_subdirectory (unit-tests)
+add_subdirectory(unit-tests)

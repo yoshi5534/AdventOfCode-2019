@@ -1,5 +1,6 @@
 [requires]
 catch2/2.5.0@bincrafters/stable
+cxxopts/2.0.0@conan-cpp/latest
 range-v3/0.10.0@ericniebler/stable
 
 [generators]
