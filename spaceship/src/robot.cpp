@@ -14,6 +14,8 @@ struct Left {};
 struct Right {};
 
 using Direction = std::variant<Up, Down, Left, Right>;
+using Position = std::pair<int, int>;
+using Grid = std::map<Position, Color>;
 
 enum class Turning { Right, Left };
 struct DirectionChanger {
@@ -61,61 +63,63 @@ struct Move {
   void operator()(Right) { position_.first++; }
   void operator()(Left) { position_.first--; }
 };
-} // namespace
 
-EmergencyHullPaintingRobot::EmergencyHullPaintingRobot(Program const &program)
-    : computer_{program}, surface_{}, size_{0} {}
-
-void EmergencyHullPaintingRobot::paint(Color const &startColor) {
-  int64_t lastOutput = 0;
+Grid fill(Computer &computer, Color const &startColor) {
+  Grid surface;
   Color color = startColor;
   Turning turning = Turning::Right;
   Intcode lastCode = Intcode::Input;
   Position position{0, 0};
   Direction direction{Up{}};
 
-  surface_[position] = color;
+  surface[position] = color;
   while (!(lastCode == Intcode::Halt)) {
-    if (surface_.find(position) != std::end(surface_))
-      color = surface_[position];
+    if (surface.find(position) != std::end(surface))
+      color = surface[position];
     else
       color = Color::Black;
 
     if (color == Color::White)
-      computer_.writeInput({1});
+      computer.writeInput({1});
     else
-      computer_.writeInput({0});
+      computer.writeInput({0});
 
     do {
-      lastCode = computer_.runInstruction();
+      lastCode = computer.runInstruction();
     } while (lastCode != Intcode::Output && lastCode != Intcode::Halt);
     if (lastCode == Intcode::Halt)
       break;
 
-    color = computer_.readOutput() == 0 ? Color::Black : Color::White;
-    surface_[position] = color;
+    color = computer.readOutput() == 0 ? Color::Black : Color::White;
+    surface[position] = color;
 
     do {
-      lastCode = computer_.runInstruction();
+      lastCode = computer.runInstruction();
     } while (lastCode != Intcode::Output && lastCode != Intcode::Halt);
     if (lastCode == Intcode::Halt)
       break;
 
-    turning = computer_.readOutput() == 0 ? Turning::Left : Turning::Right;
+    turning = computer.readOutput() == 0 ? Turning::Left : Turning::Right;
 
     std::visit(DirectionChanger{direction, turning}, direction);
     std::visit(Move{position}, direction);
   }
 
-  size_ = surface_.size();
+  return surface;
 }
+} // namespace
 
-SpaceImage EmergencyHullPaintingRobot::image() const {
+EmergencyHullPaintingRobot::EmergencyHullPaintingRobot(Program const &program)
+    : computer_{program} {}
+
+SpaceImage EmergencyHullPaintingRobot::paint(Color const &startColor) {
+  auto surface = fill(computer_, startColor);
+
   int minX = 0;
   int minY = 0;
   int maxX = 0;
   int maxY = 0;
-  std::for_each(std::begin(surface_), std::end(surface_), [&](auto panel) {
+  std::for_each(std::begin(surface), std::end(surface), [&](auto panel) {
     auto pos = panel.first;
     auto x = pos.first;
     auto y = pos.second;
@@ -135,10 +139,10 @@ SpaceImage EmergencyHullPaintingRobot::image() const {
 
   Format data(width * height);
 
-  std::for_each(std::begin(surface_), std::end(surface_), [&](auto panel) {
+  std::for_each(std::begin(surface), std::end(surface), [&](auto panel) {
     auto pos = panel.first;
-    auto x = pos.first - minX;
-    auto y = pos.second - minY;
+    auto x = std::abs(pos.first);
+    auto y = std::abs(pos.second);
     int color = panel.second == Color::Black ? 0 : 1;
 
     data[y * width + x] = color;
