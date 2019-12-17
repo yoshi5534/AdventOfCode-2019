@@ -115,24 +115,16 @@ EmergencyHullPaintingRobot::EmergencyHullPaintingRobot(Program const &program)
 SpaceImage EmergencyHullPaintingRobot::paint(Color const &startColor) {
   auto surface = fill(computer_, startColor);
 
-  int minX = 0;
-  int minY = 0;
-  int maxX = 0;
-  int maxY = 0;
+  std::vector<int> xValues;
+  std::vector<int> yValues;
   std::for_each(std::begin(surface), std::end(surface), [&](auto panel) {
     auto pos = panel.first;
-    auto x = pos.first;
-    auto y = pos.second;
-
-    if (x < minX)
-      minX = x;
-    if (x > maxX)
-      maxX = x;
-    if (y < minY)
-      minY = y;
-    if (y > maxY)
-      maxY = y;
+    xValues.push_back(pos.first);
+    yValues.push_back(pos.second);
   });
+
+  auto &&[minX, maxX] = std::minmax_element(begin(xValues), end(xValues));
+  auto &&[minY, maxY] = std::minmax_element(begin(yValues), end(yValues));
 
   int width = maxX - minX + 1;
   int height = maxY - minY + 1;

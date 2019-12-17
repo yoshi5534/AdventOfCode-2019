@@ -10,9 +10,11 @@ using ImageLayer = std::vector<int>;
 class SpaceImage {
 public:
   SpaceImage(int width, int height, Format data);
+  int width() const { return width_; }
+  int height() const { return height_; }
 
-  ImageLayer finalImage () const;
-  
+  ImageLayer finalImage() const;
+
   bool operator==(SpaceImage const &other) const;
 
   static SpaceImage fromDigitalSendingNetwork(int width, int height,

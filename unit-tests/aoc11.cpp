@@ -12,5 +12,5 @@ TEST_CASE("AOC 11") {
   auto img = robot.paint (Color::White);
 
   auto final = img.finalImage();
-  printImage (43, 6, final);
+  printImage (img.width (), img.height (), final);
 }

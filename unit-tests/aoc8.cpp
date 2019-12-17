@@ -253,5 +253,5 @@ TEST_CASE("AOC8") {
   REQUIRE(expected == image.checksum());
 
   auto final = image.finalImage();
-  printImage (25, 6, final);
+  printImage (image.width (), image.height (), final);
 }
