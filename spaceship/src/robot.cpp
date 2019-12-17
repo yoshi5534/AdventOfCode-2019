@@ -126,8 +126,8 @@ SpaceImage EmergencyHullPaintingRobot::paint(Color const &startColor) {
   auto &&[minX, maxX] = std::minmax_element(begin(xValues), end(xValues));
   auto &&[minY, maxY] = std::minmax_element(begin(yValues), end(yValues));
 
-  int width = maxX - minX + 1;
-  int height = maxY - minY + 1;
+  int width = *maxX - *minX + 1;
+  int height = *maxY - *minY + 1;
 
   Format data(width * height);
 
