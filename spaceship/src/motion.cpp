@@ -10,15 +10,15 @@ using namespace AdventOfCode;
 
 namespace {
 
-auto pos(Moon moon) { return std::get<0>(moon); }
-auto vel(Moon moon) { return std::get<1>(moon); }
-auto pot(Moon moon) {
+auto pos(Moon const &moon) { return std::get<0>(moon); }
+auto vel(Moon const &moon) { return std::get<1>(moon); }
+auto pot(Moon const &moon) {
   return std::abs(pos(moon).x) + std::abs(pos(moon).y) + std::abs(pos(moon).z);
 }
-auto kin(Moon moon) {
+auto kin(Moon const &moon) {
   return std::abs(vel(moon).x) + std::abs(vel(moon).y) + std::abs(vel(moon).z);
 }
-auto tot(Moon moon) { return pot(moon) * kin(moon); }
+auto tot(Moon const &moon) { return pot(moon) * kin(moon); }
 
 int difference(int left, int right) {
   if (left < right)
@@ -29,7 +29,7 @@ int difference(int left, int right) {
     return 0;
 }
 
-Moon applyGravity(Moon const &moon, Planet planet) {
+Moon applyGravity(Moon const &moon, Planet const &planet) {
   Velocity applied = vel(moon);
   Position const moon_pos = pos(moon);
   std::for_each(std::begin(planet), std::end(planet), [&](auto const &other) {
@@ -61,9 +61,9 @@ void Motion::addMoon(std::string const &moon) {
 void Motion::timestep() {
   Planet afterTimeStep;
   std::for_each(std::begin(moons_), std::end(moons_), [&](auto const &moon) {
-    auto gravitized = applyGravity(moon, moons_);
-    auto velocity = vel(gravitized);
-    auto moved = pos(gravitized) + velocity;
+    auto const gravitized = applyGravity(moon, moons_);
+    auto const velocity = vel(gravitized);
+    auto const moved = pos(gravitized) + velocity;
     afterTimeStep.push_back({moved, velocity});
   });
 
