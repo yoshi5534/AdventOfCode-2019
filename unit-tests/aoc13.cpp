@@ -12,7 +12,12 @@ using namespace AdventOfCode;
 TEST_CASE("Simple game") {
   Program game{104, 1, 104, 2, 104, 2, 104, 6, 104, 5, 104, 4, 99};
   ArcadeCabinet cabinet{game};
-  int blocks = cabinet.drawTiles();
+  auto screen = cabinet.drawTiles();
+
+  auto blocks =
+      std::count_if(std::begin(screen), std::end(screen), [](auto const &tile) {
+        return std::holds_alternative<Block>(tile.second);
+      });
 
   REQUIRE(1 == blocks);
 }
@@ -26,7 +31,7 @@ Program getProgram() {
   }
 
   std::stringstream program_stream{program_text};
-  Program program;
+  Program program {2};
   int opcode;
   while (program_stream >> opcode) {
     program.push_back(opcode);
@@ -36,11 +41,31 @@ Program getProgram() {
   return program;
 }
 
-TEST_CASE("AOC_13") {
-  // Program game = getProgram();
-  // ArcadeCabinet cabinet{game};
-  // int blocks = cabinet.drawTiles();
+void printScreen(int width, int height, ImageLayer image) {
+  for (int y = 0; y < height; ++y) {
+    for (int x = 0; x < width; ++x) {
+      auto tile = image[width * y + x];
+      if (tile == 0)
+        std::cout << ' ';
+      if (tile == 1)
+        std::cout << 'W';
+      if (tile == 2)
+        std::cout << '#';
+      if (tile == 3)
+        std::cout << '-';
+      if (tile == 4)
+        std::cout << '@';
+      else
+        std::cout << ' ';
+    }
+    std::cout << '\n';
+  }
+}
 
-  // int expected = 320;
-  // REQUIRE(expected == blocks);
+TEST_CASE("AOC_13") {
+  Program game = getProgram();
+  ArcadeCabinet cabinet{game};
+  auto screen = cabinet.getScreen();
+
+  printScreen(screen.width(), screen.height(), screen.singleLayer(0));
 }

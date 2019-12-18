@@ -14,6 +14,7 @@ public:
   int height() const { return height_; }
 
   ImageLayer finalImage() const;
+  ImageLayer singleLayer(int layer) const { return layers_[layer]; }
 
   bool operator==(SpaceImage const &other) const;
 
