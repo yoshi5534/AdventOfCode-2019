@@ -4,6 +4,7 @@ add_library (spaceship
   include/amplifier.h src/amplifier.cpp
   include/asteroids.h src/asteroids.cpp
   include/computer.h src/computer.cpp
+  include/motion.h src/motion.cpp
   include/orbit.h src/orbit.cpp
   include/password.h src/password.cpp
   include/robot.h src/robot.cpp
