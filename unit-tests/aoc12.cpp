@@ -12,15 +12,12 @@ TEST_CASE("Four moons") {
   simulation.addMoon("<x=3, y=5, z=-1>");
 
   for (int i = 0; i < 10; ++i) {
-    //std::cout << "\nAfter " << i << " steps:\n";
-    // simulation.print();
     simulation.timestep();
   }
 
   int expected = 179;
   REQUIRE(expected == simulation.totalEnergy());
 }
-
 
 TEST_CASE("Four other moons") {
   Motion simulation;
@@ -50,6 +47,6 @@ TEST_CASE("AOC_12") {
     simulation.timestep();
   }
 
-  int expected = 1940;
+  int expected = 14780;
   REQUIRE(expected == simulation.totalEnergy());
 }
