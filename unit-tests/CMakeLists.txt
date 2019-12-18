@@ -11,7 +11,8 @@ add_executable(
   aoc9.cpp
   aoc10.cpp
   aoc11.cpp
-  aoc12.cpp)
+  aoc12.cpp
+  aoc13.cpp)
 target_link_libraries(AOCtests spaceship ${CONAN_LIBS})
 
 catch_discover_tests(AOCtests)
