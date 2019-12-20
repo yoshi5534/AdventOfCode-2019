@@ -5,12 +5,18 @@
 
 namespace AdventOfCode {
 struct Vector {
-  int x;
-  int y;
-  int z;
+  int64_t x;
+  int64_t y;
+  int64_t z;
 
   Vector operator+(Vector const &other) const {
     return {x + other.x, y + other.y, z + other.z};
+  }
+  Vector operator*(Vector const &other) const {
+    return {x * other.x, y * other.y, z * other.z};
+  }
+  bool operator==(Vector const &other) const {
+    return x == other.x && y == other.y && z == other.z;
   }
 };
 
@@ -25,6 +31,7 @@ public:
   void timestep();
   int totalEnergy() const;
   void print() const;
+  int64_t repeatingTime ();
 
 private:
   Planet moons_;

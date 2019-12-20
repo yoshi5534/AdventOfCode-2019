@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <iomanip>
 #include <iostream>
+#include <numeric>
 #include <regex>
 #include <string>
 
@@ -40,6 +41,23 @@ Moon applyGravity(Moon const &moon, Planet const &planet) {
   });
 
   return {moon_pos, applied};
+}
+
+int64_t gcd(int64_t a, int64_t b) {
+  for (;;) {
+    if (a == 0)
+      return b;
+    b %= a;
+    if (b == 0)
+      return a;
+    a %= b;
+  }
+}
+
+int64_t lcm(int64_t a, int64_t b) {
+  int64_t temp = gcd(a, b);
+
+  return temp ? (a / temp * b) : 0;
 }
 
 } // namespace
@@ -86,4 +104,42 @@ void Motion::print() const {
               << ", y=" << std::setw(3) << vel(moon).y << ", z=" << std::setw(3)
               << vel(moon).z << ">\n";
   });
+}
+
+int64_t Motion::repeatingTime() {
+  auto starting = moons_;
+  Vector counts{0, 0, 0};
+
+  int64_t step = 0;
+  while (counts.x == 0 || counts.y == 0 || counts.z == 0) {
+    timestep();
+    step++;
+
+    bool xSame = true;
+    bool ySame = true;
+    bool zSame = true;
+    for (int i = 0; i < 4; ++i) {
+      if (pos(starting[i]).x != pos(moons_[i]).x ||
+          vel(starting[i]).x != vel(moons_[i]).x)
+        xSame = false;
+      if (pos(starting[i]).y != pos(moons_[i]).y ||
+          vel(starting[i]).y != vel(moons_[i]).y)
+        ySame = false;
+      if (pos(starting[i]).z != pos(moons_[i]).z ||
+          vel(starting[i]).z != vel(moons_[i]).z)
+        zSame = false;
+    }
+
+    if (xSame && counts.x == 0)
+      counts.x = step;
+    if (ySame && counts.y == 0)
+      counts.y = step;
+    if (zSame && counts.z == 0)
+      counts.z = step;
+  }
+
+  std::vector<int64_t> steps{counts.x, counts.y, counts.z};
+  std::sort(std::begin(steps), std::end(steps));
+  auto result = std::accumulate(std::begin(steps), std::end(steps), static_cast <int64_t> (1), lcm);
+  return result;
 }
