@@ -24,48 +24,27 @@ TEST_CASE("Simple game") {
 
 Program getProgram() {
   std::string program_text;
-  std::ifstream input("../../13/input.txt");
+  std::ifstream input("/workspaces/adventofcode2019/13/input.txt");
   if (input.is_open()) {
     getline(input, program_text);
     input.close();
   }
 
   std::stringstream program_stream{program_text};
-  Program program {2};
+  Program program;
   int opcode;
   while (program_stream >> opcode) {
     program.push_back(opcode);
     program_stream.seekg(1, std::ios_base::cur);
   }
 
+  program[0] = 2;
   return program;
 }
 
-void printScreen(int width, int height, ImageLayer image) {
-  for (int y = 0; y < height; ++y) {
-    for (int x = 0; x < width; ++x) {
-      auto tile = image[width * y + x];
-      if (tile == 0)
-        std::cout << ' ';
-      if (tile == 1)
-        std::cout << 'W';
-      if (tile == 2)
-        std::cout << '#';
-      if (tile == 3)
-        std::cout << '-';
-      if (tile == 4)
-        std::cout << '@';
-      else
-        std::cout << ' ';
-    }
-    std::cout << '\n';
-  }
-}
 
 TEST_CASE("AOC_13") {
   Program game = getProgram();
   ArcadeCabinet cabinet{game};
-  auto screen = cabinet.getScreen();
-
-  printScreen(screen.width(), screen.height(), screen.singleLayer(0));
+  cabinet.play ();
 }

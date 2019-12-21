@@ -1,10 +1,10 @@
 #pragma once
 
 #include <computer.h>
-#include <spaceimage.h>
 
 #include <algorithm>
 #include <exception>
+#include <iostream>
 #include <map>
 #include <optional>
 #include <tuple>
@@ -26,7 +26,9 @@ using Screen = std::map<ScreenPosition, TileId>;
 
 class ArcadeCabinet {
 public:
-  ArcadeCabinet(Program const &program) : computer_{program} {}
+  ArcadeCabinet(Program const &program)
+      : computer_{program}, screen_{}, score_{0}, paddlePosition_{0},
+        ballPosition_{0}, direction_{1} {}
 
   int getNextOutput() {
     Intcode code;
@@ -34,7 +36,7 @@ public:
       code = computer_.runInstruction();
     } while (code != Intcode::Output && code != Intcode::Halt);
     if (code == Intcode::Halt)
-      return -1;
+      return -99;
 
     return computer_.readOutput();
   }
@@ -54,8 +56,7 @@ public:
     throw std::runtime_error("no known tile id");
   }
 
-  int getId (TileId tile)
-  {
+  int getId(TileId tile) {
     if (std::holds_alternative<Empty>(tile))
       return 0;
     if (std::holds_alternative<Wall>(tile))
@@ -94,12 +95,68 @@ public:
     return screen;
   }
 
-  SpaceImage getScreen() {
-    auto screen = drawTiles ();
+  void moveJoystick() {
+    printScreen();
+    if (paddlePosition_ == ballPosition_)
+      computer_.writeInput({direction_});
+    if (paddlePosition_ < ballPosition_ + direction_)
+      computer_.writeInput({1});
+    else if (paddlePosition_ > ballPosition_ + direction_)
+      computer_.writeInput({-1});
+    else
+      computer_.writeInput({direction_});
+  }
 
+  void updateScore() {
+    auto y = getNextOutput();
+    if (y != 0)
+      throw std::runtime_error("should be zero for segment");
+
+    score_ = getNextOutput();
+  }
+
+  void drawTile(int x) {
+    auto y = getNextOutput();
+    auto tileId = getTileId(getNextOutput());
+    screen_[{x, y}] = tileId;
+    if (std::holds_alternative<Paddle>(tileId))
+      paddlePosition_ = x;
+    if (std::holds_alternative<Ball>(tileId))
+    {
+      if (x < ballPosition_)
+        direction_ = -1;
+      else if (x > ballPosition_)
+        direction_ = 1;
+      ballPosition_ = x;
+    }
+  }
+
+  void play() {
+    computer_.writeInput({0});
+    while (true) {
+      Intcode code;
+      do {
+        code = computer_.runInstruction();
+      } while (code != Intcode::Output && code != Intcode::Input &&
+               code != Intcode::Halt);
+      if (code == Intcode::Halt)
+        break;
+      if (code == Intcode::Input)
+        moveJoystick();
+      if (code == Intcode::Output) {
+        auto output = computer_.readOutput();
+        if (output == -1)
+          updateScore();
+        else
+          drawTile(output);
+      }
+    }
+  }
+
+  auto getScreenDimension() {
     std::vector<int> xValues;
     std::vector<int> yValues;
-    std::for_each(std::begin(screen), std::end(screen), [&](auto tile) {
+    std::for_each(std::begin(screen_), std::end(screen_), [&](auto tile) {
       auto pos = tile.first;
       xValues.push_back(pos.first);
       yValues.push_back(pos.second);
@@ -111,22 +168,39 @@ public:
     int width = *maxX - *minX + 1;
     int height = *maxY - *minY + 1;
 
-    Format data(width * height);
+    return std::make_pair(width, height);
+  }
 
-    std::for_each(std::begin(screen), std::end(screen), [&](auto tile) {
-      auto pos = tile.first;
-      auto x = std::abs(pos.first);
-      auto y = std::abs(pos.second);
-      int id = getId (tile.second);
-
-      data[y * width + x] = id;
-    });
-
-    return SpaceImage{width, height, data};
+  void printScreen() {
+    auto [width, height] = getScreenDimension();
+    for (int y = 0; y < height; ++y) {
+      for (int x = 0; x < width; ++x) {
+        auto tile = screen_.find({x, y});
+        if (tile != std::end(screen_)) {
+          if (std::holds_alternative<Empty>(tile->second))
+            std::cout << ' ';
+          if (std::holds_alternative<Wall>(tile->second))
+            std::cout << 'W';
+          if (std::holds_alternative<Block>(tile->second))
+            std::cout << '#';
+          if (std::holds_alternative<Paddle>(tile->second))
+            std::cout << '-';
+          if (std::holds_alternative<Ball>(tile->second))
+            std::cout << '@';
+        } else
+          std::cout << ' ';
+      }
+      std::cout << '\n';
+    }
   }
 
 private:
   Computer computer_;
+  Screen screen_;
+  int score_;
+  int paddlePosition_;
+  int ballPosition_;
+  int direction_;
 };
 
 } // namespace AdventOfCode
