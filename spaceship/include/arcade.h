@@ -180,7 +180,9 @@ public:
       auto aboveBall = screen_.find({newBallPosition.x, newBallPosition.y + direction.y});
     if (std::holds_alternative<Block>(hittedTile->second))
     {
-      direction.y = direction.y * -1;
+      if (std::holds_alternative<Empty>(neighbourBall->second))
+        direction.y = direction.y * -1;
+        
       if (std::holds_alternative<Empty>(aboveBall->second))
         direction.x = direction_.x * -1;
       else if (std::holds_alternative<Block>(neighbourBall->second))
