@@ -12,7 +12,26 @@
 
 namespace AdventOfCode {
 
-using ScreenPosition = std::pair<int, int>;
+struct ScreenPosition {
+  int x;
+  int y;
+
+  ScreenPosition operator+(ScreenPosition const &other) const {
+    return {x + other.x, y + other.y};
+  }
+  bool operator==(ScreenPosition const &other) const {
+    return x == other.x && y == other.y;
+  }
+
+  constexpr bool operator<(ScreenPosition const &other) const {
+    if (y < other.y)
+      return true;
+    if (y == other.y)
+      return x < other.x;
+
+    return false;
+  }
+};
 
 struct Empty {};
 struct Wall {};
@@ -27,8 +46,8 @@ using Screen = std::map<ScreenPosition, TileId>;
 class ArcadeCabinet {
 public:
   ArcadeCabinet(Program const &program)
-      : computer_{program}, screen_{}, score_{0}, paddlePosition_{0},
-        ballPosition_{0}, direction_{1} {}
+      : computer_{program}, screen_{}, score_{0}, paddlePosition_{0, 0},
+        ballPosition_{0, 0}, direction_{1, -1} {}
 
   int getNextOutput() {
     Intcode code;
@@ -96,15 +115,14 @@ public:
   }
 
   void moveJoystick() {
-    printScreen();
     if (paddlePosition_ == ballPosition_)
-      computer_.writeInput({direction_});
-    if (paddlePosition_ < ballPosition_ + direction_)
+      computer_.writeInput({direction_.x});
+    if (paddlePosition_.x < ballPosition_.x + direction_.x)
       computer_.writeInput({1});
-    else if (paddlePosition_ > ballPosition_ + direction_)
+    else if (paddlePosition_.x > ballPosition_.x + direction_.x)
       computer_.writeInput({-1});
     else
-      computer_.writeInput({direction_});
+      computer_.writeInput({direction_.x});
   }
 
   void updateScore() {
@@ -115,19 +133,78 @@ public:
     score_ = getNextOutput();
   }
 
+  auto getScreenDimension() const {
+    std::vector<int> xValues;
+    std::vector<int> yValues;
+    std::for_each(std::begin(screen_), std::end(screen_), [&](auto tile) {
+      auto pos = tile.first;
+      xValues.push_back(pos.x);
+      yValues.push_back(pos.y);
+    });
+
+    auto &&[minX, maxX] = std::minmax_element(begin(xValues), end(xValues));
+    auto &&[minY, maxY] = std::minmax_element(begin(yValues), end(yValues));
+
+    int width = *maxX - *minX + 1;
+    int height = *maxY - *minY + 1;
+
+    return std::make_pair(width, height);
+  }
+
+  auto predictDirection(ScreenPosition newBallPosition) const {
+    printScreen();
+    [[maybe_unused]] auto [width, height] = getScreenDimension();
+    ScreenPosition direction{direction_};
+
+    if(newBallPosition. x > ballPosition_.x)
+      direction.x = 1;
+    else if(newBallPosition. x < ballPosition_.x)
+      direction.x = -1;
+
+    if(newBallPosition. y > ballPosition_.y)
+      direction.y = 1;
+
+    if (newBallPosition.x == 1)
+      direction.x = 1;
+    if (newBallPosition.x == width - 2)
+      direction.x = -1;
+
+    // if (newBallPosition.y == 3)
+    //   direction.y = 1;
+     if (newBallPosition.y == height - 3)
+       direction.y = -1;
+
+    auto hittedTile = screen_.find(newBallPosition + direction);
+    auto neighbourBall = screen_.find({newBallPosition.x + direction.x, newBallPosition.y});
+      
+      auto aboveBall = screen_.find({newBallPosition.x, newBallPosition.y + direction.y});
+    if (std::holds_alternative<Block>(hittedTile->second))
+    {
+      direction.y = direction.y * -1;
+      if (std::holds_alternative<Empty>(aboveBall->second))
+        direction.x = direction_.x * -1;
+      else if (std::holds_alternative<Block>(neighbourBall->second))
+        direction.x = direction_.x * -1;
+     }
+    else if (std::holds_alternative<Block>(neighbourBall->second))
+    {
+      auto aboveBall = screen_.find({newBallPosition.x, newBallPosition.y + direction.y});
+      if (std::holds_alternative<Block>(aboveBall->second))
+        direction.x = direction_.x * -1;
+    }
+
+    return direction;
+  }
+
   void drawTile(int x) {
     auto y = getNextOutput();
     auto tileId = getTileId(getNextOutput());
     screen_[{x, y}] = tileId;
     if (std::holds_alternative<Paddle>(tileId))
-      paddlePosition_ = x;
-    if (std::holds_alternative<Ball>(tileId))
-    {
-      if (x < ballPosition_)
-        direction_ = -1;
-      else if (x > ballPosition_)
-        direction_ = 1;
-      ballPosition_ = x;
+      paddlePosition_ = {x,y};
+    if (std::holds_alternative<Ball>(tileId)) {
+      direction_ = predictDirection({x,y});
+      ballPosition_ = {x,y};
     }
   }
 
@@ -153,25 +230,7 @@ public:
     }
   }
 
-  auto getScreenDimension() {
-    std::vector<int> xValues;
-    std::vector<int> yValues;
-    std::for_each(std::begin(screen_), std::end(screen_), [&](auto tile) {
-      auto pos = tile.first;
-      xValues.push_back(pos.first);
-      yValues.push_back(pos.second);
-    });
-
-    auto &&[minX, maxX] = std::minmax_element(begin(xValues), end(xValues));
-    auto &&[minY, maxY] = std::minmax_element(begin(yValues), end(yValues));
-
-    int width = *maxX - *minX + 1;
-    int height = *maxY - *minY + 1;
-
-    return std::make_pair(width, height);
-  }
-
-  void printScreen() {
+  void printScreen() const {
     auto [width, height] = getScreenDimension();
     for (int y = 0; y < height; ++y) {
       for (int x = 0; x < width; ++x) {
@@ -198,9 +257,9 @@ private:
   Computer computer_;
   Screen screen_;
   int score_;
-  int paddlePosition_;
-  int ballPosition_;
-  int direction_;
+  ScreenPosition paddlePosition_;
+  ScreenPosition ballPosition_;
+  ScreenPosition direction_;
 };
 
 } // namespace AdventOfCode
