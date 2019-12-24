@@ -169,20 +169,22 @@ public:
     if (newBallPosition.x == width - 2)
       direction.x = -1;
 
-    // if (newBallPosition.y == 3)
-    //   direction.y = 1;
-     if (newBallPosition.y == height - 3)
-       direction.y = -1;
+    if (newBallPosition.y == 1)
+      direction.y = 1;
+    if (newBallPosition.y == height - 3)
+      direction.y = -1;
 
     auto hittedTile = screen_.find(newBallPosition + direction);
     auto neighbourBall = screen_.find({newBallPosition.x + direction.x, newBallPosition.y});
       
-      auto aboveBall = screen_.find({newBallPosition.x, newBallPosition.y + direction.y});
+    auto aboveBall = screen_.find({newBallPosition.x, newBallPosition.y + direction.y});
     if (std::holds_alternative<Block>(hittedTile->second))
     {
       if (std::holds_alternative<Empty>(neighbourBall->second))
         direction.y = direction.y * -1;
-        
+      else if (std::holds_alternative<Block>(aboveBall->second))
+        direction.y = direction.y * -1;
+
       if (std::holds_alternative<Empty>(aboveBall->second))
         direction.x = direction_.x * -1;
       else if (std::holds_alternative<Block>(neighbourBall->second))
