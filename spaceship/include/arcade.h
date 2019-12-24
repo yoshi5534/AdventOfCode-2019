@@ -176,7 +176,6 @@ public:
 
     auto hittedTile = screen_.find(newBallPosition + direction);
     auto neighbourBall = screen_.find({newBallPosition.x + direction.x, newBallPosition.y});
-      
     auto aboveBall = screen_.find({newBallPosition.x, newBallPosition.y + direction.y});
     if (std::holds_alternative<Block>(hittedTile->second))
     {
@@ -191,9 +190,27 @@ public:
         direction.x = direction_.x * -1;
      }
     else if (std::holds_alternative<Block>(neighbourBall->second))
-    {
+    {      
       auto aboveBall = screen_.find({newBallPosition.x, newBallPosition.y + direction.y});
+      auto nextHitBall = screen_.find({newBallPosition.x - direction.x, newBallPosition.y + direction.y});
+      // #
+      //#@  
       if (std::holds_alternative<Block>(aboveBall->second))
+        direction.x = direction_.x * -1;
+      //  #
+      //#@  
+      else if (std::holds_alternative<Block>(nextHitBall->second))
+      { // direction is kept except
+        // #
+        // #@
+        //   #
+        auto oppositeHit = screen_.find({newBallPosition.x + direction.x, newBallPosition.y - direction.y});
+        if (std::holds_alternative<Block>(oppositeHit->second))
+          direction.x = direction_.x * -1;
+      }
+      //#
+      //#@
+      else
         direction.x = direction_.x * -1;
     }
 
