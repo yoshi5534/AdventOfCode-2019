@@ -7,6 +7,7 @@
 
 #include <computer.h>
 #include <fuel.h>
+#include <password.h>
 #include <wires.h>
 
 using namespace AdventOfCode;
@@ -91,6 +92,26 @@ void solve3 (){
   std::cout << "Minimal signal delay steps: " << steps << std::endl;
 }
 
+void solve4 () {
+  std::string const inputFilePath{"/workspaces/adventofcode2019/input/4.txt"};
+  std::ifstream input{inputFilePath};
+  if (!input.is_open())
+    return;
+
+  std::string lower_limit {};
+  std::getline(input, lower_limit, '-');
+
+  std::string upper_limit {};
+  std::getline(input, upper_limit, '-');
+
+  int validPasswords = 0;
+  for (int password = std::stoi(lower_limit); password <= std::stoi(upper_limit); ++password)
+    if (isValidPassword(password))
+      validPasswords++;
+
+  std::cout << "Number of valid passwords: " << validPasswords << std::endl;
+}
+
 void solve(int puzzleId, std::string const &inputFile) {
   if (puzzleId == 1)
     solve1();
@@ -100,4 +121,7 @@ void solve(int puzzleId, std::string const &inputFile) {
 
   if (puzzleId == 3)
     solve3();
+
+  if (puzzleId == 4)
+    solve4();
 }

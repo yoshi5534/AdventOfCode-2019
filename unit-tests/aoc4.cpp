@@ -15,13 +15,3 @@ TEST_CASE("Passwords may be special") {
   REQUIRE(true == isValidPassword(122333));
   REQUIRE(false == isValidPassword(222333));
 }
-
-TEST_CASE("Find valid passwords") {
-  int validPasswords = 0;
-
-  for (int password = 231832; password <= 767346; ++password)
-    if (isValidPassword(password))
-      validPasswords++;
-
-  REQUIRE(876 == validPasswords);
-}
