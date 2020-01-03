@@ -7,6 +7,7 @@
 
 #include <computer.h>
 #include <fuel.h>
+#include <wires.h>
 
 using namespace AdventOfCode;
 
@@ -67,10 +68,36 @@ void solve2(){
   }
 }
 
+void solve3 (){
+  std::string const inputFilePath{"/workspaces/adventofcode2019/input/3.txt"};
+  std::ifstream input{inputFilePath};
+  if (!input.is_open())
+    return;
+
+  std::string path_1 {};
+  std::getline(input, path_1);
+
+  std::string path_2 {};
+  std::getline(input, path_2);
+
+  WirePath wire_1 = fromString (path_1);
+  WirePath wire_2 = fromString (path_2);
+  Intersections locations = intersects(wire_1, wire_2);
+
+  int shortestDistance = distances(locations)[0];
+  std::cout << "Shortest distance to crossing: " << shortestDistance << std::endl;
+
+  int steps = minimalSignalDelay(wire_1, wire_2, locations);
+  std::cout << "Minimal signal delay steps: " << steps << std::endl;
+}
+
 void solve(int puzzleId, std::string const &inputFile) {
   if (puzzleId == 1)
     solve1();
 
   if (puzzleId == 2)
     solve2();
+
+  if (puzzleId == 3)
+    solve3();
 }
