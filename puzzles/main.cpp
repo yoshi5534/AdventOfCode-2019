@@ -5,6 +5,8 @@
 
 #include <cxxopts.hpp>
 
+#include "puzzles.h"
+
 int main (int argc, char** argv)
 {
   cxxopts::Options options("puzzles", "Solve all puzzles of AoC 2019");
@@ -17,8 +19,14 @@ int main (int argc, char** argv)
 
   try {
     auto result = options.parse (argc, argv);
-    if (result.count("help"))
+    if (result.count("help") || !result.count("puzzle"))
+    {
       std::cout << options.help () << std::endl;
+      return -1;
+    }
+
+    auto inputFile = result.count("input") ? result["input"].as<std::string> () : std::string();
+    solve (result["puzzle"].as<int> (), inputFile);
   }
   catch (cxxopts::OptionException const& oe)
   {
