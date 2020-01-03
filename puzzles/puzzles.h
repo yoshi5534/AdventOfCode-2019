@@ -112,6 +112,37 @@ void solve4 () {
   std::cout << "Number of valid passwords: " << validPasswords << std::endl;
 }
 
+void solve5(){
+  std::string const inputFilePath{"/workspaces/adventofcode2019/input/5.txt"};
+  std::ifstream input{inputFilePath};
+  if (!input.is_open())
+    return;
+
+  Program program {};
+  std::string line{};
+  while (std::getline(input, line, ','))
+    program.push_back (std::stoi (line));
+
+  {
+    Computer computer(program);
+    computer.writeInput({1});
+    computer.calculate();
+
+    auto output = computer.readOutput();
+    while (output == 0)
+      output = computer.readOutput ();
+    std::cout << "Result of puzzle 5a: " << output << std::endl;
+  }
+  {
+    Computer computer(program);
+    computer.writeInput({5});
+    computer.calculate();
+
+    auto output = computer.readOutput();
+    std::cout << "Result of puzzle 5b: " << output << std::endl;
+  }
+}
+
 void solve(int puzzleId, std::string const &inputFile) {
   if (puzzleId == 1)
     solve1();
@@ -124,4 +155,7 @@ void solve(int puzzleId, std::string const &inputFile) {
 
   if (puzzleId == 4)
     solve4();
+
+  if (puzzleId == 5)
+    solve5();
 }
