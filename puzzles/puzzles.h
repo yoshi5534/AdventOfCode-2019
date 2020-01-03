@@ -7,6 +7,7 @@
 
 #include <computer.h>
 #include <fuel.h>
+#include <orbit.h>
 #include <password.h>
 #include <wires.h>
 
@@ -143,6 +144,23 @@ void solve5(){
   }
 }
 
+void solve6(){ 
+  std::string const inputFilePath{"/workspaces/adventofcode2019/input/6.txt"};
+  std::ifstream input{inputFilePath};
+  if (!input.is_open())
+    return;
+
+  Map map;
+
+  std::string entry;
+  while (std::getline(input, entry)) 
+    map.addOrbit(entry);
+
+  std::cout << "Checksum: " << map.checksum() << std::endl;
+  std::cout << "Minimum orbital transfer: "
+            << map.minimumOrbitalTransfer("YOU", "SAN") << std::endl;
+}
+
 void solve(int puzzleId, std::string const &inputFile) {
   if (puzzleId == 1)
     solve1();
@@ -158,4 +176,7 @@ void solve(int puzzleId, std::string const &inputFile) {
 
   if (puzzleId == 5)
     solve5();
+
+  if (puzzleId == 6)
+    solve6();
 }
