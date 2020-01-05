@@ -133,7 +133,7 @@ auto getScreenDimension(Screen& screen) {
   return std::make_pair(width, height);
 }
 
-void printScreen(Screen& screen) {
+void printScreen(Screen& screen, int score) {
   auto [width, height] = getScreenDimension(screen);
   for (int y = 0; y < height; ++y) {
     for (int x = 0; x < width; ++x) {
@@ -154,10 +154,10 @@ void printScreen(Screen& screen) {
     }
     std::cout << '\n';
   }
+  std::cout << "\n   SCORE   " << score << std::endl;
 }
 
 void predictDirection(Screen& screen, GameState& state, ScreenPosition newBallPosition) {
-  printScreen(screen);
   auto [width, height] = getScreenDimension(screen);
   ScreenPosition direction{state.direction};
 
@@ -241,7 +241,6 @@ ArcadeCabinet::ArcadeCabinet(Program const &program)
     : computer_{program}, score_{0} {}
 
 void ArcadeCabinet::play() {
-
   Screen screen {};
   GameState state{};
   computer_.writeInput({0});
@@ -253,8 +252,10 @@ void ArcadeCabinet::play() {
              code != Intcode::Halt);
     if (code == Intcode::Halt)
       break;
-    if (code == Intcode::Input)
+    if (code == Intcode::Input) {
       moveJoystick(computer_, state);
+      printScreen(screen, score_);
+    }
     if (code == Intcode::Output) {
       auto output = computer_.readOutput();
       if (output == -1)
@@ -266,7 +267,6 @@ void ArcadeCabinet::play() {
 }
 
 int ArcadeCabinet::getScore() const { return score_; }
-
 
 void ArcadeCabinet::updateScore() {
   auto y = getNextOutput(computer_);

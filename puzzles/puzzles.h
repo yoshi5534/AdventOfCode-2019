@@ -276,6 +276,7 @@ void solve13(){
   while (std::getline(input, line, ','))
     program.push_back (std::stol (line));
 
+  program[0] = 2;
   ArcadeCabinet cabinet{program};
   cabinet.play ();
 }
