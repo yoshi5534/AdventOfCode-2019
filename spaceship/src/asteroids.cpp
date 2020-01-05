@@ -4,6 +4,7 @@
 #include <cmath>
 #include <iostream>
 #include <map>
+#include <string>
 using namespace AdventOfCode;
 
 namespace {
@@ -13,6 +14,25 @@ int getY(Coordinates c) { return std::get<1>(c); }
 
 Asteroids::Asteroids(AsteroidMap asteroids, int width, int height)
     : asteroids_{asteroids}, width_{width}, height_{height} {}
+
+Asteroids::Asteroids(std::istream& textMap){
+  std::string line;
+
+  int height = 0;
+  int width = 0;
+  while (std::getline(textMap, line, ' ')) {
+    width = 0;
+    for (char c : line) {
+      if (c == '#')
+        asteroids_.insert({width, height});
+      width++;
+    }
+    height++;
+  }
+
+  width_ =width;
+  height_ = height;
+}
 
 void Asteroids::print() const {
   for (int y = 0; y < height_; ++y) {

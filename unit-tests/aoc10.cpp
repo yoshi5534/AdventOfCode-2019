@@ -1,7 +1,6 @@
 #include <catch2/catch.hpp>
 
 #include <asteroids.h>
-#include <map>
 #include <sstream>
 using namespace AdventOfCode;
 
@@ -17,31 +16,10 @@ TEST_CASE("First example") {
   auto mostVisible = asteroids.mostVisible();
   REQUIRE(mostVisible.first == expected);
 }
-namespace {
-Asteroids getAsteroids(std::string const &textMap) {
-
-  std::istringstream mapstream{textMap};
-  std::string line;
-
-  AsteroidMap map;
-  int height = 0;
-  int width = 0;
-  while (std::getline(mapstream, line, ' ')) {
-    width = 0;
-    for (char c : line) {
-      if (c == '#')
-        map.insert({width, height});
-      width++;
-    }
-    height++;
-  }
-
-  return Asteroids{map, width, height};
-}
-} // namespace
 
 TEST_CASE("Read map") {
-  std::string textMap = "......#.#. "
+  std::stringstream textMap;
+  textMap <<            "......#.#. "
                         "#..#.#.... "
                         "..#######. "
                         ".#.#.###.. "
@@ -53,12 +31,13 @@ TEST_CASE("Read map") {
                         ".#....#### ";
 
   int expected{33};
-  auto map = getAsteroids(textMap);
+  Asteroids map {textMap};
   REQUIRE(map.mostVisible().first == expected);
 }
 
 TEST_CASE("Bigger example") {
-  std::string textMap = ".#..##.###...####### "
+  std::stringstream textMap;
+  textMap <<            ".#..##.###...####### "
                         "##.############..##. "
                         ".#.######.########.# "
                         ".###.#######.####.#. "
@@ -79,7 +58,7 @@ TEST_CASE("Bigger example") {
                         "#.#.#.#####.####.### "
                         "###.##.####.##.#..## ";
 
-  auto map = getAsteroids(textMap);
+  Asteroids map {textMap};
   {
     int expected{210};
     REQUIRE(map.mostVisible().first == expected);
