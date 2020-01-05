@@ -13,11 +13,18 @@
 
 using namespace AdventOfCode;
 
-void solve1() {
-  std::string const inputFilePath{"/workspaces/adventofcode2019/input/1.txt"};
-  std::ifstream input{inputFilePath};
+void getInput (std::ifstream& input, int puzzleId){
+  std::stringstream inputFilePath;
+  inputFilePath << "/workspaces/adventofcode2019/input/" << puzzleId << ".txt";
+  input.open (inputFilePath.str ());
+
   if (!input.is_open())
-    return;
+    throw new std::runtime_error ("Input file not found");
+}
+
+void solve1() {
+  std::ifstream input;
+  getInput (input, 1);
 
   std::int64_t fuel = 0;
   std::string line{};
@@ -28,10 +35,8 @@ void solve1() {
 }
 
 void solve2(){
-  std::string const inputFilePath{"/workspaces/adventofcode2019/input/2.txt"};
-  std::ifstream input{inputFilePath};
-  if (!input.is_open())
-    return;
+  std::ifstream input;
+  getInput (input, 2);
 
   Program program {};
   std::string line{};
@@ -71,10 +76,8 @@ void solve2(){
 }
 
 void solve3 (){
-  std::string const inputFilePath{"/workspaces/adventofcode2019/input/3.txt"};
-  std::ifstream input{inputFilePath};
-  if (!input.is_open())
-    return;
+  std::ifstream input;
+  getInput (input, 3);
 
   std::string path_1 {};
   std::getline(input, path_1);
@@ -94,10 +97,8 @@ void solve3 (){
 }
 
 void solve4 () {
-  std::string const inputFilePath{"/workspaces/adventofcode2019/input/4.txt"};
-  std::ifstream input{inputFilePath};
-  if (!input.is_open())
-    return;
+  std::ifstream input;
+  getInput (input, 4);
 
   std::string lower_limit {};
   std::getline(input, lower_limit, '-');
@@ -114,10 +115,8 @@ void solve4 () {
 }
 
 void solve5(){
-  std::string const inputFilePath{"/workspaces/adventofcode2019/input/5.txt"};
-  std::ifstream input{inputFilePath};
-  if (!input.is_open())
-    return;
+  std::ifstream input;
+  getInput (input, 5);
 
   Program program {};
   std::string line{};
@@ -145,10 +144,8 @@ void solve5(){
 }
 
 void solve6(){ 
-  std::string const inputFilePath{"/workspaces/adventofcode2019/input/6.txt"};
-  std::ifstream input{inputFilePath};
-  if (!input.is_open())
-    return;
+  std::ifstream input;
+  getInput (input, 6);
 
   Map map;
 
