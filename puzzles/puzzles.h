@@ -5,6 +5,7 @@
 #include <sstream>
 #include <string>
 
+#include <arcade.h>
 #include <amplifier.h>
 #include <asteroids.h>
 #include <computer.h>
@@ -266,6 +267,18 @@ void solve12(){
   std::cout << "Total energy in system after 1000 steps: " << simulation.totalEnergy() << std::endl;
 }
 
+void solve13(){
+  std::ifstream input;
+  getInput (input, 13);
+
+  Program program {};
+  std::string line{};
+  while (std::getline(input, line, ','))
+    program.push_back (std::stol (line));
+
+  ArcadeCabinet cabinet{program};
+  cabinet.play ();
+}
 
 void solve(int puzzleId, std::string const &inputFile) {
   if (puzzleId == 1)
@@ -303,4 +316,7 @@ void solve(int puzzleId, std::string const &inputFile) {
 
   if (puzzleId == 12)
     solve12();
+
+  if (puzzleId == 13)
+    solve13();
 }
