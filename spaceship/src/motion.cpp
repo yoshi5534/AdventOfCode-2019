@@ -42,24 +42,6 @@ Moon applyGravity(Moon const &moon, Planet const &planet) {
 
   return {moon_pos, applied};
 }
-
-int64_t gcd(int64_t a, int64_t b) {
-  for (;;) {
-    if (a == 0)
-      return b;
-    b %= a;
-    if (b == 0)
-      return a;
-    a %= b;
-  }
-}
-
-int64_t lcm(int64_t a, int64_t b) {
-  int64_t temp = gcd(a, b);
-
-  return temp ? (a / temp * b) : 0;
-}
-
 } // namespace
 
 void Motion::addMoon(std::string const &moon) {
@@ -92,7 +74,6 @@ int Motion::totalEnergy() const {
   int totalEnergy = 0;
   std::for_each(std::begin(moons_), std::end(moons_),
                 [&](auto const &moon) { totalEnergy += tot(moon); });
-  std::cout << "Sum of total energy: " << totalEnergy << "\n";
   return totalEnergy;
 }
 
@@ -140,6 +121,6 @@ int64_t Motion::repeatingTime() {
 
   std::vector<int64_t> steps{counts.x, counts.y, counts.z};
   std::sort(std::begin(steps), std::end(steps));
-  auto result = std::accumulate(std::begin(steps), std::end(steps), static_cast <int64_t> (1), lcm);
+  auto result = std::accumulate(std::begin(steps), std::end(steps), static_cast <int64_t> (1), std::lcm<int64_t,int64_t>);
   return result;
 }

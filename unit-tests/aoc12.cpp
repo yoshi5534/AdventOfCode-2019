@@ -43,23 +43,3 @@ TEST_CASE("Four other moons") {
   int expected = 1940;
   REQUIRE(expected == simulation.totalEnergy());
 }
-
-TEST_CASE("AOC_12") {
-  Motion simulation;
-
-  simulation.addMoon("<x=3, y=2, z=-6>");
-  simulation.addMoon("<x=-13, y=18, z=10>");
-  simulation.addMoon("<x=-8, y=-1, z=13>");
-  simulation.addMoon("<x=5, y=10, z=4>");
-  {
-    auto repeatSimulation = simulation;
-    REQUIRE(279751820342592L == repeatSimulation.repeatingTime());
-  }
-
-  for (int i = 0; i < 1000; ++i) {
-    simulation.timestep();
-  }
-
-  int expected = 14780;
-  REQUIRE(expected == simulation.totalEnergy());
-}

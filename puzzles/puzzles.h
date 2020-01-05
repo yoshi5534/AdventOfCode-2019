@@ -9,6 +9,7 @@
 #include <asteroids.h>
 #include <computer.h>
 #include <fuel.h>
+#include <motion.h>
 #include <orbit.h>
 #include <password.h>
 #include <robot.h>
@@ -244,6 +245,28 @@ void solve11(){
   img.print ();
 }
 
+void solve12(){
+  std::ifstream input;
+  getInput (input, 12);
+
+  Motion simulation;
+  std::string line{};
+  while (std::getline(input, line))
+    simulation.addMoon (line);
+
+  {
+    auto repeatSimulation = simulation;
+    std::cout << "Number of iterations after time repeats: " << repeatSimulation.repeatingTime() << std::endl;
+  }
+
+  for (int i = 0; i < 1000; ++i) {
+    simulation.timestep();
+  }
+
+  std::cout << "Total energy in system after 1000 steps: " << simulation.totalEnergy() << std::endl;
+}
+
+
 void solve(int puzzleId, std::string const &inputFile) {
   if (puzzleId == 1)
     solve1();
@@ -277,4 +300,7 @@ void solve(int puzzleId, std::string const &inputFile) {
 
   if (puzzleId == 11)
     solve11();
+
+  if (puzzleId == 12)
+    solve12();
 }
