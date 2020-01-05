@@ -5,6 +5,7 @@
 #include <sstream>
 #include <string>
 
+#include <amplifier.h>
 #include <computer.h>
 #include <fuel.h>
 #include <orbit.h>
@@ -158,6 +159,21 @@ void solve6(){
             << map.minimumOrbitalTransfer("YOU", "SAN") << std::endl;
 }
 
+void solve7(){
+  std::ifstream input;
+  getInput (input, 7);
+
+  Program program {};
+  std::string line{};
+  while (std::getline(input, line, ','))
+    program.push_back (std::stoi (line));
+
+  std::cout << " Maximum thruster signal: " << AmplifierChain::maxThrusterSignal(program) << std::endl;
+
+  FeedbackLoop loop (program);
+  std::cout << " Maximum output signal: " << loop.maxOutputSignal () << std::endl;
+}
+
 void solve(int puzzleId, std::string const &inputFile) {
   if (puzzleId == 1)
     solve1();
@@ -176,4 +192,7 @@ void solve(int puzzleId, std::string const &inputFile) {
 
   if (puzzleId == 6)
     solve6();
+
+  if (puzzleId == 7)
+    solve7();
 }
