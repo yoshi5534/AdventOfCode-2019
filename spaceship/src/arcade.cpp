@@ -67,21 +67,6 @@ TileId getTileId(int id) {
   throw std::runtime_error("no known tile id");
 }
 
-int getId(TileId tile) {
-  if (std::holds_alternative<Empty>(tile))
-    return 0;
-  if (std::holds_alternative<Wall>(tile))
-    return 1;
-  if (std::holds_alternative<Block>(tile))
-    return 2;
-  if (std::holds_alternative<Paddle>(tile))
-    return 3;
-  if (std::holds_alternative<Ball>(tile))
-    return 4;
-
-  throw std::runtime_error("no known tile id");
-}
-
 int getNextOutput(Computer& computer) {
   Intcode code;
   do {
@@ -91,17 +76,6 @@ int getNextOutput(Computer& computer) {
     return -99;
 
   return computer.readOutput();
-}
-
-std::optional<Tile> getNextTile(Computer& computer) {
-  auto x = getNextOutput(computer);
-  if (x < 0)
-    return std::nullopt;
-
-  auto y = getNextOutput(computer);
-  auto tileId = getTileId(getNextOutput(computer));
-
-  return Tile{{x, y}, tileId};
 }
 
 void moveJoystick(Computer& computer, GameState& state) {
