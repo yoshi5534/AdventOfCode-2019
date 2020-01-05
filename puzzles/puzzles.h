@@ -187,6 +187,31 @@ void solve8(){
   image.print ();
 }
 
+void solve9(){
+  std::ifstream input;
+  getInput (input, 9);
+
+  Program program {};
+  std::string line{};
+  while (std::getline(input, line, ','))
+    program.push_back (std::stoi (line));
+
+  {
+    Computer computer(program);
+    computer.writeInput ({1});
+    computer.calculate();
+
+    std::cout << "BOOST keycode: " << computer.readOutput () << std::endl;
+  }
+  {
+    Computer computer(program);
+    computer.writeInput ({2});
+    computer.calculate();
+
+    std::cout << "Coordinates of distress signal: " << computer.readOutput () << std::endl;
+  }
+}
+
 void solve(int puzzleId, std::string const &inputFile) {
   if (puzzleId == 1)
     solve1();
@@ -211,4 +236,7 @@ void solve(int puzzleId, std::string const &inputFile) {
 
   if (puzzleId == 8)
     solve8();
+
+  if (puzzleId == 9)
+    solve9();
 }
