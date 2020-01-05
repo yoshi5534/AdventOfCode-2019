@@ -10,6 +10,7 @@
 #include <fuel.h>
 #include <orbit.h>
 #include <password.h>
+#include <spaceimage.h>
 #include <wires.h>
 
 using namespace AdventOfCode;
@@ -168,10 +169,22 @@ void solve7(){
   while (std::getline(input, line, ','))
     program.push_back (std::stoi (line));
 
-  std::cout << " Maximum thruster signal: " << AmplifierChain::maxThrusterSignal(program) << std::endl;
+  std::cout << "Maximum thruster signal: " << AmplifierChain::maxThrusterSignal(program) << std::endl;
 
   FeedbackLoop loop (program);
-  std::cout << " Maximum output signal: " << loop.maxOutputSignal () << std::endl;
+  std::cout << "Maximum output signal: " << loop.maxOutputSignal () << std::endl;
+}
+
+void solve8(){
+  std::ifstream input;
+  getInput (input, 8);
+
+  std::stringstream content;
+  content << input.rdbuf();
+  auto image = SpaceImage::fromDigitalSendingNetwork(25, 6, content.str());
+  std::cout << "Image checksum: " << image.checksum () << std::endl;
+
+  image.print ();
 }
 
 void solve(int puzzleId, std::string const &inputFile) {
@@ -195,4 +208,7 @@ void solve(int puzzleId, std::string const &inputFile) {
 
   if (puzzleId == 7)
     solve7();
+
+  if (puzzleId == 8)
+    solve8();
 }
