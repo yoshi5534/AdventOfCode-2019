@@ -24,14 +24,14 @@ enum class Intcode {
 
 class Computer {
 public:
-  Computer (Program const& program);
+  Computer(Program const &program);
 
-  Memory& accessMemory ();
-  int64_t relativeBase () const;
-  void adjustBase (int64_t offset);
-  
+  Memory &accessMemory();
+  int64_t relativeBase() const;
+  void adjustBase(int64_t offset);
+
   void calculate();
-  Intcode runInstruction ();
+  Intcode runInstruction();
 
   void writeInput(Input const &input);
   int64_t readInput();

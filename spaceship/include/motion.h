@@ -31,7 +31,7 @@ public:
   void timestep();
   int totalEnergy() const;
   void print() const;
-  int64_t repeatingTime ();
+  int64_t repeatingTime();
 
 private:
   Planet moons_;

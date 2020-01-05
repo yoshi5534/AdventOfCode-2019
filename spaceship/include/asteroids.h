@@ -11,7 +11,7 @@ using AsteroidMap = std::set<Coordinates>;
 class Asteroids {
 public:
   Asteroids(AsteroidMap asteroids, int width, int height);
-  Asteroids(std::istream& textMap);
+  Asteroids(std::istream &textMap);
 
   void print() const;
   std::pair<int, Coordinates> mostVisible() const;
