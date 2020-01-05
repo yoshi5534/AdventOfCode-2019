@@ -121,6 +121,8 @@ int64_t Motion::repeatingTime() {
 
   std::vector<int64_t> steps{counts.x, counts.y, counts.z};
   std::sort(std::begin(steps), std::end(steps));
-  auto result = std::accumulate(std::begin(steps), std::end(steps), static_cast <int64_t> (1), std::lcm<int64_t,int64_t>);
+  auto result =
+      std::accumulate(std::begin(steps), std::end(steps),
+                      static_cast<int64_t>(1), std::lcm<int64_t, int64_t>);
   return result;
 }

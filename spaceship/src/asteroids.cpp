@@ -15,7 +15,7 @@ int getY(Coordinates c) { return std::get<1>(c); }
 Asteroids::Asteroids(AsteroidMap asteroids, int width, int height)
     : asteroids_{asteroids}, width_{width}, height_{height} {}
 
-Asteroids::Asteroids(std::istream& textMap){
+Asteroids::Asteroids(std::istream &textMap) {
   std::string line;
 
   int height = 0;
@@ -30,7 +30,7 @@ Asteroids::Asteroids(std::istream& textMap){
     height++;
   }
 
-  width_ =width;
+  width_ = width;
   height_ = height;
 }
 

@@ -44,9 +44,9 @@ using TileId = std::variant<Empty, Wall, Block, Paddle, Ball>;
 using Tile = std::pair<ScreenPosition, TileId>;
 using Screen = std::map<ScreenPosition, TileId>;
 
-struct GameState{
-  GameState () : paddlePosition {0,0}, ballPosition {0,0}, direction {0,-1} {}
-  
+struct GameState {
+  GameState() : paddlePosition{0, 0}, ballPosition{0, 0}, direction{0, -1} {}
+
   ScreenPosition paddlePosition;
   ScreenPosition ballPosition;
   ScreenPosition direction;
@@ -67,7 +67,7 @@ TileId getTileId(int id) {
   throw std::runtime_error("no known tile id");
 }
 
-int getNextOutput(Computer& computer) {
+int getNextOutput(Computer &computer) {
   Intcode code;
   do {
     code = computer.runInstruction();
@@ -78,7 +78,7 @@ int getNextOutput(Computer& computer) {
   return computer.readOutput();
 }
 
-void moveJoystick(Computer& computer, GameState& state) {
+void moveJoystick(Computer &computer, GameState &state) {
   if (state.paddlePosition == state.ballPosition)
     computer.writeInput({state.direction.x});
   if (state.paddlePosition.x < state.ballPosition.x + state.direction.x)
@@ -89,7 +89,7 @@ void moveJoystick(Computer& computer, GameState& state) {
     computer.writeInput({state.direction.x});
 }
 
-auto getScreenDimension(Screen& screen) {
+auto getScreenDimension(Screen &screen) {
   std::vector<int> xValues;
   std::vector<int> yValues;
   std::for_each(std::begin(screen), std::end(screen), [&](auto tile) {
@@ -107,7 +107,7 @@ auto getScreenDimension(Screen& screen) {
   return std::make_pair(width, height);
 }
 
-void printScreen(Screen& screen, int score) {
+void printScreen(Screen &screen, int score) {
   auto [width, height] = getScreenDimension(screen);
   for (int y = 0; y < height; ++y) {
     for (int x = 0; x < width; ++x) {
@@ -131,7 +131,8 @@ void printScreen(Screen& screen, int score) {
   std::cout << "\n   SCORE   " << score << std::endl;
 }
 
-void predictDirection(Screen& screen, GameState& state, ScreenPosition newBallPosition) {
+void predictDirection(Screen &screen, GameState &state,
+                      ScreenPosition newBallPosition) {
   auto [width, height] = getScreenDimension(screen);
   ScreenPosition direction{state.direction};
 
@@ -198,7 +199,7 @@ void predictDirection(Screen& screen, GameState& state, ScreenPosition newBallPo
   state.direction = direction;
 }
 
-void drawTile(Computer& computer, Screen& screen, GameState& state, int x) {
+void drawTile(Computer &computer, Screen &screen, GameState &state, int x) {
   auto y = getNextOutput(computer);
   auto tileId = getTileId(getNextOutput(computer));
   screen[{x, y}] = tileId;
@@ -215,7 +216,7 @@ ArcadeCabinet::ArcadeCabinet(Program const &program)
     : computer_{program}, score_{0} {}
 
 void ArcadeCabinet::play() {
-  Screen screen {};
+  Screen screen{};
   GameState state{};
   computer_.writeInput({0});
   while (true) {
