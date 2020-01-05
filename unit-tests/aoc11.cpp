@@ -10,7 +10,5 @@ TEST_CASE("AOC 11") {
 
   EmergencyHullPaintingRobot robot {program};
   auto img = robot.paint (Color::White);
-
-  auto final = img.finalImage();
-  printImage (img.width (), img.height (), final);
+  img.print ();
 }

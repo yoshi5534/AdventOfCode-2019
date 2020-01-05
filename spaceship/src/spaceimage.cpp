@@ -1,5 +1,7 @@
 #include <spaceimage.h>
 
+#include <iostream>
+
 #include <range/v3/algorithm.hpp> 
 #include <range/v3/view.hpp>
 
@@ -67,4 +69,17 @@ SpaceImage SpaceImage::fromDigitalSendingNetwork (int width, int height,std::str
   }
 
   return SpaceImage(width, height, imageData);
+}
+
+void SpaceImage::print () const{
+  auto const image = finalImage ();
+  for (int y = 0; y < height_; ++y) {
+    for (int x = 0; x < width_; ++x) {
+      if (image[width_ * y + x] == 1)
+        std::cout << '1';
+      else
+        std::cout << ' ';
+    }
+    std::cout << '\n';
+  }
 }

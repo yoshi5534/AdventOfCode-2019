@@ -22,6 +22,7 @@ public:
                                               std::string const &stream);
 
   int checksum();
+  void print () const;
 
 private:
   std::vector<ImageLayer> layers_;
