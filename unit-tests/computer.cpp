@@ -1,9 +1,71 @@
 #include <catch2/catch.hpp>
 
 #include <computer.h>
+
+#include <algorithm>
 using namespace AdventOfCode;
 
-bool memoryComparsion (Memory const& left, Memory const& right);
+bool memoryComparsion (Memory const& left, Memory const& right)
+{
+  Memory memoryBegin (right.size ());
+  std::copy (std::begin (left), std::begin (left) + right.size (), std::begin (memoryBegin));
+
+  return memoryBegin == right;
+}
+
+SCENARIO("computer can handle programs") {
+  GIVEN("A program with a valid Intcode command") {
+    WHEN("the program should add 1 and 1") {
+      Program program{1, 0, 0, 3, 99};
+      Computer computer(program);
+      computer.calculate();
+
+      THEN("the output should be 2") {
+        Memory expected = {1, 0, 0, 2, 99};
+        auto result = computer.accessMemory();
+        REQUIRE(memoryComparsion(result, expected));
+      }
+    }
+
+    WHEN("the program should multiply 2 and 2") {
+      Program program{2, 0, 0, 3, 99};
+      Computer computer(program);
+      computer.calculate();
+
+      THEN("the output should be 4") {
+        Memory expected = {2, 0, 0, 4, 99};
+        auto result = computer.accessMemory();
+        REQUIRE(memoryComparsion(result, expected));
+      }
+    }
+  }
+
+  GIVEN("A program with multiple command") {
+    WHEN("the halt command is at the end") {
+      Program program{2, 3, 0, 3, 2, 8, 8, 9, 99, 0};
+      Computer computer(program);
+      computer.calculate();
+
+      THEN("all calculations should be done") {
+        Memory expected = {2, 3, 0, 6, 2, 8, 8, 9, 99, 9801};
+        auto result = computer.accessMemory();
+        REQUIRE(memoryComparsion(result, expected));
+      }
+    }
+
+    WHEN("the halt command is in the middle") {
+      Program program{2, 3, 0, 3, 99, 2, 8, 8, 9, 99, 0};
+      Computer computer(program);
+      computer.calculate();
+
+      THEN("only the first calculation should be done") {
+        Memory expected = {2, 3, 0, 6, 99, 2, 8, 8, 9, 99, 0};
+        auto result = computer.accessMemory();
+        REQUIRE(memoryComparsion(result, expected));
+      }
+    }
+  }
+}
 
 SCENARIO("computer can handle input and output") {
   GIVEN("A program with new Intcode commands 3 and 4") {
@@ -199,4 +261,47 @@ TEST_CASE("longer example") {
     auto output = computer.readOutput();
     REQUIRE(output == 1001);
   }
+}
+
+TEST_CASE("Copy of itself") {
+  Program program{109,  1,   204, -1,  1001, 100, 1, 100,
+                  1008, 100, 16,  101, 1006, 101, 0, 99};
+  Computer computer(program);
+  computer.calculate();
+
+  for (auto code : program)
+    REQUIRE(computer.readOutput() == code);
+}
+
+TEST_CASE("16 digit number") {
+  Program program{1102, 34915192, 34915192, 7, 4, 7, 99, 0};
+  Computer computer(program);
+  computer.calculate();
+
+  int64_t expected = int64_t(34915192) * int64_t(34915192);
+  auto out = computer.readOutput();
+
+  REQUIRE(expected == out);
+}
+
+TEST_CASE("really large") {
+  Program program{104, 1125899906842624, 99};
+  Computer computer(program);
+  computer.calculate();
+
+  int64_t expected = 1125899906842624;
+  auto out = computer.readOutput();
+
+  REQUIRE(expected == out);
+}
+
+TEST_CASE("failing isolated") {
+ Program program{109,  20, 21102, 8, 9, -5, 4, 15, 99};
+  Computer computer(program);
+  computer.calculate();
+
+  int64_t expected = 72;
+  auto out = computer.readOutput();
+
+  REQUIRE(expected == out);
 }
