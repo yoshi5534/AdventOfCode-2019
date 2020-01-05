@@ -6,6 +6,7 @@
 #include <string>
 
 #include <amplifier.h>
+#include <asteroids.h>
 #include <computer.h>
 #include <fuel.h>
 #include <orbit.h>
@@ -212,6 +213,22 @@ void solve9(){
   }
 }
 
+void solve10(){
+  std::ifstream input;
+  getInput (input, 10);
+
+  Asteroids asteroids{input};
+
+  auto station = asteroids.mostVisible();
+  std::cout << "Maximum visible asteroids: " << station.first << std::endl;
+  std::cout << "Coordinate: " << std::get<0>(station.second) << ","
+            << std::get<1>(station.second) << std::endl;
+  
+  auto vaporized = asteroids.vaporized(station.second, 200);
+  std::cout << "The 200th asteroid to be vaporized is at " << std::get<0>(vaporized) << ","
+            << std::get<1>(vaporized) << std::endl;
+}
+
 void solve(int puzzleId, std::string const &inputFile) {
   if (puzzleId == 1)
     solve1();
@@ -239,4 +256,7 @@ void solve(int puzzleId, std::string const &inputFile) {
 
   if (puzzleId == 9)
     solve9();
+
+  if (puzzleId == 10)
+    solve10();
 }

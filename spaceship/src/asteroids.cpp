@@ -20,7 +20,7 @@ Asteroids::Asteroids(std::istream& textMap){
 
   int height = 0;
   int width = 0;
-  while (std::getline(textMap, line, ' ')) {
+  while (std::getline(textMap, line)) {
     width = 0;
     for (char c : line) {
       if (c == '#')
