@@ -1,9 +1,6 @@
 #include <catch2/catch.hpp>
 
 #include <spaceimage.h>
-
-#include <iostream>
-
 using namespace AdventOfCode;
 
 TEST_CASE("two layers") {
