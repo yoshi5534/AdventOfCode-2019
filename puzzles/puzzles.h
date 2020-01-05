@@ -11,6 +11,7 @@
 #include <fuel.h>
 #include <orbit.h>
 #include <password.h>
+#include <robot.h>
 #include <spaceimage.h>
 #include <wires.h>
 
@@ -32,7 +33,7 @@ void solve1() {
   std::int64_t fuel = 0;
   std::string line{};
   while (std::getline(input, line))
-    fuel += fuel_for_module (std::stoi (line));
+    fuel += fuel_for_module (std::stol (line));
 
   std::cout << "Required fuel: " << fuel << std::endl;
 }
@@ -44,7 +45,7 @@ void solve2(){
   Program program {};
   std::string line{};
   while (std::getline(input, line, ','))
-    program.push_back (std::stoi (line));
+    program.push_back (std::stol (line));
 
   {
     int noun = 12;
@@ -110,7 +111,7 @@ void solve4 () {
   std::getline(input, upper_limit, '-');
 
   int validPasswords = 0;
-  for (int password = std::stoi(lower_limit); password <= std::stoi(upper_limit); ++password)
+  for (int password = std::stol(lower_limit); password <= std::stol(upper_limit); ++password)
     if (isValidPassword(password))
       validPasswords++;
 
@@ -124,7 +125,7 @@ void solve5(){
   Program program {};
   std::string line{};
   while (std::getline(input, line, ','))
-    program.push_back (std::stoi (line));
+    program.push_back (std::stol (line));
 
   {
     Computer computer(program);
@@ -168,7 +169,7 @@ void solve7(){
   Program program {};
   std::string line{};
   while (std::getline(input, line, ','))
-    program.push_back (std::stoi (line));
+    program.push_back (std::stol (line));
 
   std::cout << "Maximum thruster signal: " << AmplifierChain::maxThrusterSignal(program) << std::endl;
 
@@ -195,7 +196,7 @@ void solve9(){
   Program program {};
   std::string line{};
   while (std::getline(input, line, ','))
-    program.push_back (std::stoi (line));
+    program.push_back (std::stol (line));
 
   {
     Computer computer(program);
@@ -229,6 +230,20 @@ void solve10(){
             << std::get<1>(vaporized) << std::endl;
 }
 
+void solve11(){
+  std::ifstream input;
+  getInput (input, 11);
+
+  Program program {};
+  std::string line{};
+  while (std::getline(input, line, ','))
+    program.push_back (std::stol (line));
+
+  EmergencyHullPaintingRobot robot {program};
+  auto img = robot.paint (Color::White);
+  img.print ();
+}
+
 void solve(int puzzleId, std::string const &inputFile) {
   if (puzzleId == 1)
     solve1();
@@ -259,4 +274,7 @@ void solve(int puzzleId, std::string const &inputFile) {
 
   if (puzzleId == 10)
     solve10();
+
+  if (puzzleId == 11)
+    solve11();
 }
