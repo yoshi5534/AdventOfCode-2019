@@ -50,9 +50,13 @@ auto reactionForChemical(PossibleReactions const &reactions,
 }
 
 void chemicalsForFuel(std::map<std::string, int> &baseChemicals,
+                      std::map<std::string, int> &additionalReactions,
                       PossibleReactions const &reactions,
                       std::string const &name, int amount) {
   auto chemical = reactionForChemical(reactions, name);
+  if (std::get<1>(chemical->inputs[0]) != "ORE") {
+    additionalReactions[std::get<1>(chemical->output)] += amount;
+  }
 
   std::for_each(std::begin(chemical->inputs), std::end(chemical->inputs),
                 [&](auto const &input) {
@@ -60,27 +64,34 @@ void chemicalsForFuel(std::map<std::string, int> &baseChemicals,
                             << std::get<0>(input) << " of "
                             << std::get<1>(input) << "\n";
                   if (std::get<1>(input) == "ORE") {
-                    baseChemicals[name] += amount;
-                  } else
-                    chemicalsForFuel(baseChemicals, reactions,
+                    //baseChemicals[name] += amount;
+                  } else {
+                    chemicalsForFuel(baseChemicals, additionalReactions, reactions,
                                      std::get<1>(input),
                                      (std::get<0>(input) * amount +
                                       std::get<0>(chemical->output) - 1) /
                                          std::get<0>(chemical->output));
+                  }
                 });
 }
 } // namespace
 
 int NanoFactory::necessaryORE() const {
   std::map<std::string, int> baseChemicals;
+  std::map<std::string, int> additionalReactions;
   auto fuel = reactionForChemical(reactions_, "FUEL");
 
   std::for_each(
       std::begin(fuel->inputs), std::end(fuel->inputs), [&](auto chemical) {
         std::cout << "FUEL needs " << std::get<0>(chemical) << " of "
                   << std::get<1>(chemical) << "\n";
-        chemicalsForFuel(baseChemicals, reactions_, std::get<1>(chemical),
-                         std::get<0>(chemical));
+        auto reaction = reactionForChemical(reactions_, std::get<1>(chemical));
+        if (std::get<1>(reaction->inputs[0]) == "ORE") {
+          baseChemicals[std::get<1>(chemical)] += std::get<0>(chemical);
+        } else {
+          chemicalsForFuel(baseChemicals, additionalReactions, reactions_,
+                           std::get<1>(chemical), std::get<0>(chemical));
+        }
       });
 
   int ore = 0;
