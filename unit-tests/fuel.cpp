@@ -33,20 +33,20 @@ TEST_CASE("Easy FUEL 2") {
   REQUIRE(expected == factory.necessaryORE());
 }
 
-// TEST_CASE("More complex FUEL 1") {
-//   NanoFactory factory;
+TEST_CASE("More complex FUEL 1") {
+  NanoFactory factory;
 
-//   factory.addReaction("157 ORE => 5 NZVS");
-//   factory.addReaction("165 ORE => 6 DCFZ");
-//   factory.addReaction(
-//       "44 XJWVT, 5 KHKGT, 1 QDVJ, 29 NZVS, 9 GPVTF, 48 HKGWZ => 1 FUEL");
-//   factory.addReaction("12 HKGWZ, 1 GPVTF, 8 PSHF => 9 QDVJ");
-//   factory.addReaction("179 ORE => 7 PSHF");
-//   factory.addReaction("177 ORE => 5 HKGWZ");
-//   factory.addReaction("7 DCFZ, 7 PSHF => 2 XJWVT");
-//   factory.addReaction("165 ORE => 2 GPVTF");
-//   factory.addReaction("3 DCFZ, 7 NZVS, 5 HKGWZ, 10 PSHF => 8 KHKGT");
+  factory.addReaction("157 ORE => 5 NZVS");
+  factory.addReaction("165 ORE => 6 DCFZ");
+  factory.addReaction(
+      "44 XJWVT, 5 KHKGT, 1 QDVJ, 29 NZVS, 9 GPVTF, 48 HKGWZ => 1 FUEL");
+  factory.addReaction("12 HKGWZ, 1 GPVTF, 8 PSHF => 9 QDVJ");
+  factory.addReaction("179 ORE => 7 PSHF");
+  factory.addReaction("177 ORE => 5 HKGWZ");
+  factory.addReaction("7 DCFZ, 7 PSHF => 2 XJWVT");
+  factory.addReaction("165 ORE => 2 GPVTF");
+  factory.addReaction("3 DCFZ, 7 NZVS, 5 HKGWZ, 10 PSHF => 8 KHKGT");
 
-//   int expected = 13312;
-//   REQUIRE(expected == factory.necessaryORE());
-// }
+  int expected = 13312;
+  REQUIRE(expected == factory.necessaryORE());
+}
