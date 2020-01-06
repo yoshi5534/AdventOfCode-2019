@@ -4,6 +4,7 @@ add_executable(
   amplifier.cpp
   asteroids.cpp
   computer.cpp
+  fuel.cpp
   motion.cpp
   orbit.cpp
   password.cpp

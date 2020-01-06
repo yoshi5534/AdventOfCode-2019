@@ -1,16 +1,27 @@
 #pragma once
 #include <math.h>
+#include <string>
+#include <tuple>
+#include <vector>
 
 namespace AdventOfCode {
-int fuel_calculation(int mass) {
-  return static_cast<int>(std::floor(static_cast<double>(mass) / 3.0) - 2.0);
-}
+int fuel_calculation(int mass);
+int fuel_for_module(int mass);
 
-int fuel_for_module(int mass) {
-  int fuel = 0;
-  while ((mass = fuel_calculation(mass)) > 0)
-    fuel += mass;
+struct Reaction {
+  std::vector <std::tuple <int,std::string> > inputs;
 
-  return fuel;
-}
-}; // namespace AdventOfCode
+  std::tuple <int, std::string> output;
+};
+
+using PossibleReactions = std::vector<Reaction>;
+
+class NanoFactory {
+public:
+  void addReaction(std::string const &reaction);
+  int necessaryORE() const;
+
+private:
+  PossibleReactions reactions_;
+};
+} // namespace AdventOfCode
