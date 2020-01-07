@@ -31,138 +31,81 @@ void NanoFactory::addReaction(std::string const &reaction) {
     name.erase(std::remove(std::begin(name), std::end(name), ','),
                std::end(name));
 
-    chemical.inputs.push_back(std::make_pair(quantity, name));
+    chemical.inputs.push_back(std::make_pair(name, quantity));
   }
 
-  chemical.output = std::make_pair(std::stoi(splitted[splitted.size() - 2]),
-                                   splitted[splitted.size() - 1]);
+  chemical.output = std::make_pair(splitted[splitted.size() - 1],
+                                   std::stoi(splitted[splitted.size() - 2]));
 
   reactions_.push_back(chemical);
 }
 
 namespace {
+std::string name(Chemical const &chemical) { return std::get<0>(chemical); }
+int amount(Chemical const &chemical) { return std::get<1>(chemical); }
+
+using Storage = std::map<std::string, int>;
 
 auto reactionForChemical(PossibleReactions const &reactions,
-                         std::string const &name) {
-  return std::find_if(
-      std::begin(reactions), std::end(reactions),
-      [&name](auto reaction) { return std::get<1>(reaction.output) == name; });
+                         Chemical const &chemical) {
+  return std::find_if(std::begin(reactions), std::end(reactions),
+                      [&chemical](auto reaction) {
+                        return name(reaction.output) == name(chemical);
+                      });
 }
 
-void extraReactions(std::map<std::string, int> &additionalReactions,
-                    std::map<std::string, int> &unusedReactions,
-                    PossibleReactions const &reactions, std::string const &name,
-                    int amount) {
-  auto chemical = reactionForChemical(reactions, name);
-  if (std::get<1>(chemical->inputs[0]) != "ORE") {
-    // if (unusedReactions[std::get<1>(chemical->output)] > 0) {
-    //   amount -= unusedReactions[std::get<1>(chemical->output)];
-    //   unusedReactions[std::get<1>(chemical->output)] = 0;
-    // }
-    if (amount <= unusedReactions[std::get<1>(chemical->output)])
-      std::cout << "OOOOPSI" << std::endl;
+int produce(Chemical const &chemical, PossibleReactions const &reactions,
+            Storage &unusedMaterial) {
 
-    amount -= unusedReactions[std::get<1>(chemical->output)];
-    int producedReactions = 
-        ((amount + std::get<0>(chemical->output) - 1) /
-         std::get<0>(chemical->output)) *
-        std::get<0>(chemical->output);
+  auto reaction = reactionForChemical(reactions, chemical);
+  int needed = amount(chemical);
 
-    unusedReactions[std::get<1>(chemical->output)] = producedReactions - amount;
-    additionalReactions[std::get<1>(chemical->output)] += producedReactions;
+  if (needed <= unusedMaterial[name(chemical)]) {
+    unusedMaterial[name(chemical)] -= needed;
+    return 0;
   }
 
-  std::for_each(std::begin(chemical->inputs), std::end(chemical->inputs),
-                [&](auto const &input) {
-                  if (std::get<1>(input) != "ORE") {
+  needed -= unusedMaterial[name(chemical)];
+  unusedMaterial[name(chemical)] = 0;
 
-                    std::cout << amount << " of " << name << " needs "
-                              << std::get<0>(input) * amount << " of "
-                              << std::get<1>(input) << "\n";
-                    extraReactions(additionalReactions, unusedReactions,
-                                   reactions, std::get<1>(input),
-                                   // std::get<0>(input));
-                                   (std::get<0>(input) * amount +
-                                    std::get<0>(chemical->output) - 1) /
-                                       std::get<0>(chemical->output));
+  int numberOfReactions =
+      (needed + amount(reaction->output) - 1) / amount(reaction->output);
+
+  int ore = 0;
+  std::for_each(std::begin(reaction->inputs), std::end(reaction->inputs),
+                [&](auto const& input) {
+                  std::cout << needed << " of " << name(chemical) << " needs "
+                            << amount(input) * numberOfReactions << " of " << name(input) << "\n";
+                  if (name(input) == "ORE") {
+                    ore += numberOfReactions * amount(input);
+                  } else {
+                    auto const neededInput = std::make_pair (name(input), amount(input) * numberOfReactions);
+                    ore += produce(neededInput, reactions, unusedMaterial);
                   }
                 });
+
+  unusedMaterial[name(chemical)] =
+      numberOfReactions * amount(reaction->output) - needed;
+
+  return ore;
 }
 
-void extraBaseChemicals(std::map<std::string, int> &baseChemicals,
-                        PossibleReactions const &reactions,
-                        std::string const &name, int amount) {
-
-  auto chemical = reactionForChemical(reactions, name);
-  std::for_each(std::begin(chemical->inputs), std::end(chemical->inputs),
-                [&](auto const &input) {
-                  auto inputReaction =
-                      reactionForChemical(reactions, std::get<1>(input));
-                  if (std::get<1>(inputReaction->inputs[0]) == "ORE") {
-
-                    std::cout << amount << " of " << name << " needs "
-                              << ((amount + std::get<0>(chemical->output) - 1) /
-                                  std::get<0>(chemical->output)) *
-                                     std::get<0>(input)
-                              << " of " << std::get<1>(input) << "\n";
-
-                    baseChemicals[std::get<1>(input)] +=
-                        ((std::get<0>(input) * amount + std::get<0>(chemical->output) - 1) /
-                         std::get<0>(chemical->output))
-                        ;
-                  }
-                });
-}
 } // namespace
 
 int NanoFactory::necessaryORE() const {
-  std::map<std::string, int> baseChemicals;
-  std::map<std::string, int> additionalReactions;
-  std::map<std::string, int> unusedReactions;
-  auto fuel = reactionForChemical(reactions_, "FUEL");
+  Storage unusedMaterial;
 
-  std::for_each(
-      std::begin(fuel->inputs), std::end(fuel->inputs), [&](auto chemical) {
-        std::cout << "FUEL needs " << std::get<0>(chemical) << " of "
-                  << std::get<1>(chemical) << "\n";
-        auto reaction = reactionForChemical(reactions_, std::get<1>(chemical));
-        if (std::get<1>(reaction->inputs[0]) == "ORE") {
-          baseChemicals[std::get<1>(chemical)] += std::get<0>(chemical);
-        } else {
-          extraReactions(additionalReactions, unusedReactions, reactions_,
-                         std::get<1>(chemical), 
-                         //std::get<0>(chemical));
+  auto fuel = reactionForChemical(reactions_, std::make_pair("FUEL", 1));
 
-           (std::get<0>(reaction->output) * std::get<0>(chemical) +
-            std::get<0>(reaction->output) - 1) /
-               std::get<0>(reaction->output));
-        }
-      });
-
-  std::for_each(std::begin(additionalReactions), std::end(additionalReactions),
-                [&](auto chemical) {
-                  auto reaction =
-                      reactionForChemical(reactions_, std::get<0>(chemical));
-                      auto neededChemical = std::get<1>(chemical);// + unusedReactions [std::get<1>(reaction->output)];
-                  extraBaseChemicals(baseChemicals, reactions_,
-                                     std::get<1>(reaction->output),
-                             ((std::get<0>(reaction->output) * neededChemical + std::get<0>(reaction->output) - 1) / std::get<0>(reaction->output)));
-                });
   int ore = 0;
-  std::for_each(
-      std::begin(baseChemicals), std::end(baseChemicals), [&](auto chemical) {
-        auto const reaction =
-            reactionForChemical(reactions_, std::get<0>(chemical));
-        auto const createdPerReaction = std::get<0>(reaction->output);
-        auto const neededReactions =
-            (std::get<1>(chemical) + createdPerReaction - 1) /
-            createdPerReaction;
-        auto const necessaryORE =
-            neededReactions * std::get<0>(reaction->inputs[0]);
-        ore += necessaryORE;
-        std::cout << "Needed amount of chemical " << std::get<0>(chemical)
-                  << ": " << std::get<1>(chemical) << " => consuming "
-                  << necessaryORE << " ORE\n";
-      });
+
+  std::for_each(std::begin(fuel->inputs), std::end(fuel->inputs),
+                [&](auto chemical) {
+                  std::cout << "FUEL needs " << amount(chemical) << " of "
+                            << name(chemical) << "\n";
+
+                  ore += produce(chemical, reactions_, unusedMaterial);
+                });
+
   return ore;
 }

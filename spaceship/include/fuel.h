@@ -8,10 +8,11 @@ namespace AdventOfCode {
 int fuel_calculation(int mass);
 int fuel_for_module(int mass);
 
-struct Reaction {
-  std::vector <std::tuple <int,std::string> > inputs;
+using Chemical = std::tuple <std::string, int>;
 
-  std::tuple <int, std::string> output;
+struct Reaction {
+  std::vector <Chemical> inputs;
+  Chemical output;
 };
 
 using PossibleReactions = std::vector<Reaction>;
