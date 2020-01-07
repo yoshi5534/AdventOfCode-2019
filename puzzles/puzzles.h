@@ -281,6 +281,18 @@ void solve13(){
   cabinet.play ();
 }
 
+void solve14(){
+  std::ifstream input;
+  getInput (input, 14);
+
+  NanoFactory factory;
+  std::string line{};
+  while (std::getline(input, line))
+    factory.addReaction (line);
+
+  std::cout << "Amount of ORE needed to produce 1 FUEL: " << factory.necessaryORE() << std::endl;
+}
+
 void solve(int puzzleId, std::string const &inputFile) {
   if (puzzleId == 1)
     solve1();
@@ -320,4 +332,7 @@ void solve(int puzzleId, std::string const &inputFile) {
 
   if (puzzleId == 13)
     solve13();
+
+  if (puzzleId == 14)
+    solve14();
 }
