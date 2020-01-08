@@ -304,6 +304,7 @@ void solve14() {
   std::cout << "Amount of FUEL that can be produced: "
             << factory.maximumFuel(1000000000000) << std::endl;
 }
+
 void solve15() {
   std::ifstream input;
   getInput(input, 15);
@@ -314,8 +315,12 @@ void solve15() {
     program.push_back(std::stol(line));
 
   Droid droid{program};
-  droid.exploreMap({0, -1}, 1);
+  if (droid.exploreMap(3))
+    std::cout << "Droid found the oxygen" << std::endl;
+  else
+    std::cout << "Oh nooo" << std::endl;
 }
+
 void solve(int puzzleId, std::string const &inputFile) {
   if (puzzleId == 1)
     solve1();

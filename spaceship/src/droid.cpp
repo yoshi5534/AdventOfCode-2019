@@ -8,7 +8,7 @@
 
 using namespace AdventOfCode;
 
-Droid::Droid(Program const &program) : computer_{program}, droid_{0,0} {}
+Droid::Droid(Program const &program) : computer_{program}, droid_{0, 0} {}
 
 namespace {
 MapPosition updatePosition(MapPosition const &current, int direction) {
@@ -37,6 +37,19 @@ int turnRight(int direction) {
   return direction;
 }
 
+int turnLeft(int direction) {
+  if (direction == 1)
+    return 3;
+  if (direction == 2)
+    return 4;
+  if (direction == 3)
+    return 2;
+  if (direction == 4)
+    return 1;
+
+  return direction;
+}
+
 int reverse(int direction) {
   if (direction == 1)
     return 2;
@@ -50,7 +63,7 @@ int reverse(int direction) {
   return direction;
 }
 
-void printMap(DroidMap env) {
+void printMap(DroidMap env, MapPosition const &droid) {
   int const width = 50;
   int const height = 50;
   Format data(width * height);
@@ -80,15 +93,19 @@ void printMap(DroidMap env) {
 
   for (int y = 0; y < height; ++y) {
     for (int x = 0; x < width; ++x) {
-      int color = data[y * width + x];
-      if (color == 1)
-        std::cout << '#';
-      else if (color == 2)
-        std::cout << '.';
-      else if (color == 3)
-        std::cout << 'O';
-      else
-        std::cout << ' ';
+      if (x == ((width / 2) + droid.x) && y == ((height / 2) + droid.y)) {
+        std::cout << 'D';
+      } else {
+        int color = data[y * width + x];
+        if (color == 1)
+          std::cout << '#';
+        else if (color == 2)
+          std::cout << '.';
+        else if (color == 3)
+          std::cout << 'O';
+        else
+          std::cout << ' ';
+      }
     }
     std::cout << '\n';
   }
@@ -96,59 +113,64 @@ void printMap(DroidMap env) {
 
 } // namespace
 
-bool Droid::exploreMap(MapPosition currentPosition, int direction) {
-  int startDirection = direction;
-  printMap(area_);
+bool Droid::exploreMap(int direction) {
+  printMap(area_, droid_);
   // make move
+  if(!move(direction))
+    return false;
+
+  int startDirection = direction;
+
+  if (area_[droid_] == Field::Oxygen)
+    return true;
+
+  auto nextPosition = updatePosition(droid_, 1);
+  if ((area_[nextPosition] == Field::Unknown) &&
+      exploreMap(1))
+    return true;
+
+  nextPosition = updatePosition(droid_, 3);
+  if ((area_[nextPosition] == Field::Unknown) &&
+      exploreMap(3))
+    return true;
+
+  nextPosition = updatePosition(droid_, 2);
+  if ((area_[nextPosition] == Field::Unknown) &&
+      exploreMap(2))
+    return true;
+
+  nextPosition = updatePosition(droid_, 4);
+  if ((area_[nextPosition] == Field::Unknown) &&
+      exploreMap(4))
+    return true;
+
+  // backtrack
+  move(reverse(startDirection));
+  printMap(area_, droid_);
+  return false;
+}
+
+bool Droid::move(int direction) {
+  droid_ = updatePosition(droid_, direction);
+
   computer_.writeInput({direction});
   Intcode lastCode = Intcode::Input;
   do {
     lastCode = computer_.runInstruction();
   } while (lastCode != Intcode::Output && lastCode != Intcode::Halt);
   if (lastCode == Intcode::Halt)
-    return true;
+    return false;
 
   auto status = computer_.readOutput();
   if (status == 0) {
-    area_[currentPosition] = Field::Wall;
-    currentPosition = updatePosition(currentPosition, reverse (direction)); // we didn't move
+    area_[droid_] = Field::Wall;
+    droid_ = updatePosition(droid_, reverse(direction)); // we didn't move
+    return false;
   } else if (status == 1) {
-    area_[currentPosition] = Field::Empty;
+    area_[droid_] = Field::Empty;
   } else if (status == 2) {
-    area_[currentPosition] = Field::Oxygen;
-    return true;
+    area_[droid_] = Field::Oxygen;
   }
 
-  auto nextPosition = updatePosition(currentPosition, direction);
-  if ((area_[nextPosition] == Field::Unknown) &&
-      exploreMap(nextPosition, direction))
-    return true;
-
-  direction = turnRight(direction);
-  nextPosition = updatePosition(currentPosition, direction);
-  if ((area_[nextPosition] == Field::Unknown) &&
-      exploreMap(nextPosition, direction))
-    return true;
-
-  direction = turnRight(direction);
-  nextPosition = updatePosition(currentPosition, direction);
-  if ((area_[nextPosition] == Field::Unknown) &&
-      exploreMap(nextPosition, direction))
-    return true;
-
-  direction = turnRight(direction);
-  nextPosition = updatePosition(currentPosition, direction);
-  if ((area_[nextPosition] == Field::Unknown) &&
-      exploreMap(nextPosition, direction))
-    return true;
-
-  // backtrack
-  nextPosition = updatePosition(currentPosition, reverse(startDirection));
-  exploreMap(nextPosition, reverse(startDirection));
-  return false;
-}
-
-void Droid::move(int direction)
-{
-  
+  return true;
 }

@@ -27,8 +27,8 @@ class Droid {
 public:
   Droid(Program const &program);
 
-  bool exploreMap(MapPosition currentPosition, int direction);
-  void move (int direction);
+  bool exploreMap(int direction);
+  bool move (int direction);
 
 private:
   Computer computer_;
