@@ -314,8 +314,14 @@ void solve15() {
   while (std::getline(input, line, ','))
     program.push_back(std::stol(line));
 
-  Droid droid{program};
-  std::cout << "Shortest path length: " << droid.shortestPath() << std::endl;
+  {
+    Droid droid{program};
+    std::cout << "Shortest path length: " << droid.shortestPath() << std::endl;
+  }
+  {
+    Droid droid{program};
+    std::cout << "Time to fill everything with oxygen: " << droid.fillWithOxygen() << std::endl;
+  }
 }
 
 void solve(int puzzleId, std::string const &inputFile) {

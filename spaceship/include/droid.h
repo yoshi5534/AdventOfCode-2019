@@ -33,6 +33,7 @@ class Droid {
 public:
   Droid(Program const &program);
   int shortestPath();
+  int fillWithOxygen ();
 
 private:
   bool exploreMap(int direction);

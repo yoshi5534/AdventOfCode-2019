@@ -141,6 +141,15 @@ uint manhattan(MapPosition source, MapPosition target) {
   auto delta = std::move(getDelta(source, target));
   return static_cast<uint>(10 * (delta.x + delta.y));
 }
+
+bool hasEmptyFields(DroidMap const &area) {
+  return std::find_if(std::begin(area), std::end(area), [](auto const &field) {
+           return field.second == Field::Empty;
+         }) != std::end(area);
+}
+bool isEmpty(DroidMap const &area, MapPosition coord){
+  return area.at (coord) == Field::Empty;
+}
 } // namespace
 
 bool Droid::exploreMap(int direction) {
@@ -254,4 +263,29 @@ int Droid::shortestPath() {
 
   printMap(area_, droid_, oxygen_, path);
   return path.size() - 1;
+}
+
+int Droid::fillWithOxygen() {
+  std::vector<MapPosition> directions = {{0, 1}, {1, 0}, {0, -1}, {-1, 0}};
+
+  CoordinateList filled;
+  filled.push_back(oxygen_);
+
+  int time = 0;
+  while (hasEmptyFields (area_)) {
+    time++;
+    std::for_each(std::begin(filled), std::end(filled), [&](auto const coord) {
+      for (uint i = 0; i < directions.size(); ++i) {
+        MapPosition neighbor(coord + directions[i]);
+        if (!isEmpty(area_, neighbor))
+          continue;
+
+        filled.push_back(neighbor);
+        area_[neighbor] = Field::Oxygen;
+      }
+    });
+  }
+
+  printMap(area_, droid_, oxygen_, {});
+  return time;
 }
