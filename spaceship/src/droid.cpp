@@ -10,7 +10,7 @@
 using namespace AdventOfCode;
 
 Droid::Droid(Program const &program)
-    : computer_{program}, droid_{0, 0}, oxygen_{0, 0} {
+    : computer_{program}, area_{}, droid_{0, 0}, oxygen_{0, 0} {
   exploreMap(3);
 }
 
@@ -147,8 +147,9 @@ bool hasEmptyFields(DroidMap const &area) {
            return field.second == Field::Empty;
          }) != std::end(area);
 }
-bool isEmpty(DroidMap const &area, MapPosition coord){
-  return area.at (coord) == Field::Empty;
+
+bool isEmpty(DroidMap const &area, MapPosition coord) {
+  return area.at(coord) == Field::Empty;
 }
 } // namespace
 
@@ -163,16 +164,16 @@ bool Droid::exploreMap(int direction) {
   if (droid_ == MapPosition{0, 0})
     return true;
 
-  auto nextPosition = updatePosition(droid_, 3);
-  if ((area_[nextPosition] == Field::Unknown) && exploreMap(3))
+  auto nextPosition = updatePosition(droid_, 1);
+  if ((area_[nextPosition] == Field::Unknown) && exploreMap(1))
     return true;
 
   nextPosition = updatePosition(droid_, 2);
   if ((area_[nextPosition] == Field::Unknown) && exploreMap(2))
     return true;
 
-  nextPosition = updatePosition(droid_, 1);
-  if ((area_[nextPosition] == Field::Unknown) && exploreMap(1))
+  nextPosition = updatePosition(droid_, 3);
+  if ((area_[nextPosition] == Field::Unknown) && exploreMap(3))
     return true;
 
   nextPosition = updatePosition(droid_, 4);
@@ -272,7 +273,7 @@ int Droid::fillWithOxygen() {
   filled.push_back(oxygen_);
 
   int time = 0;
-  while (hasEmptyFields (area_)) {
+  while (hasEmptyFields(area_)) {
     time++;
     std::for_each(std::begin(filled), std::end(filled), [&](auto const coord) {
       for (uint i = 0; i < directions.size(); ++i) {
