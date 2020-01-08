@@ -26,13 +26,15 @@ using DroidMap = std::map<MapPosition, Field>;
 class Droid {
 public:
   Droid(Program const &program);
+  int shortestPath () const;
 
+private:
   bool exploreMap(int direction);
   bool move (int direction);
 
-private:
   Computer computer_;
   DroidMap area_;
   MapPosition droid_;
+  MapPosition oxygen_;
 };
 } // namespace AdventOfCode

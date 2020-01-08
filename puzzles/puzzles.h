@@ -315,10 +315,7 @@ void solve15() {
     program.push_back(std::stol(line));
 
   Droid droid{program};
-  if (droid.exploreMap(3))
-    std::cout << "Droid found the oxygen" << std::endl;
-  else
-    std::cout << "Oh nooo" << std::endl;
+  int pathLength = droid.shortestPath();
 }
 
 void solve(int puzzleId, std::string const &inputFile) {
