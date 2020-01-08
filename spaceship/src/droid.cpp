@@ -44,7 +44,7 @@ int reverse(int direction) {
 }
 
 void printMap(DroidMap const &env, MapPosition const &droid,
-              CoordinateList const &path) {
+              MapPosition const &oxygen, CoordinateList const &path) {
   int const width = 50;
   int const height = 50;
   Format data(width * height);
@@ -76,7 +76,11 @@ void printMap(DroidMap const &env, MapPosition const &droid,
     for (int x = 0; x < width; ++x) {
       if (x == ((width / 2) + droid.x) && y == ((height / 2) + droid.y)) {
         std::cout << 'D';
-      } else if (std::find(std::begin(path), std::end(path), MapPosition {x - (width / 2), y - (height / 2)}) !=
+      } else if (x == ((width / 2) + oxygen.x) &&
+                 y == ((height / 2) + oxygen.y)) {
+        std::cout << 'O';
+      } else if (std::find(std::begin(path), std::end(path),
+                           MapPosition{x - (width / 2), y - (height / 2)}) !=
                  std::end(path)) {
         std::cout << 'X';
       } else {
@@ -143,17 +147,15 @@ bool Droid::exploreMap(int direction) {
   if (!move(direction))
     return false;
 
-  int startDirection = direction;
-
   if (area_[droid_] == Field::Oxygen) {
     oxygen_ = droid_;
-    std::cout << "Oxygen is at (" << oxygen_.x << "," << oxygen_.y << ")."
-              << std::endl;
-    return true;
   }
 
-  auto nextPosition = updatePosition(droid_, 4);
-  if ((area_[nextPosition] == Field::Unknown) && exploreMap(4))
+  if (droid_ == MapPosition{0, 0})
+    return true;
+
+  auto nextPosition = updatePosition(droid_, 3);
+  if ((area_[nextPosition] == Field::Unknown) && exploreMap(3))
     return true;
 
   nextPosition = updatePosition(droid_, 2);
@@ -164,12 +166,12 @@ bool Droid::exploreMap(int direction) {
   if ((area_[nextPosition] == Field::Unknown) && exploreMap(1))
     return true;
 
-  nextPosition = updatePosition(droid_, 3);
-  if ((area_[nextPosition] == Field::Unknown) && exploreMap(3))
+  nextPosition = updatePosition(droid_, 4);
+  if ((area_[nextPosition] == Field::Unknown) && exploreMap(4))
     return true;
 
   // backtrack
-  move(reverse(startDirection));
+  move(reverse(direction));
   return false;
 }
 
@@ -250,6 +252,6 @@ int Droid::shortestPath() {
   releaseNodes(openSet);
   releaseNodes(closedSet);
 
-  printMap(area_, droid_, path);
+  printMap(area_, droid_, oxygen_, path);
   return path.size() - 1;
 }
