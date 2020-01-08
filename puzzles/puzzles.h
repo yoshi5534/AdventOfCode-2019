@@ -315,7 +315,7 @@ void solve15() {
     program.push_back(std::stol(line));
 
   Droid droid{program};
-  int pathLength = droid.shortestPath();
+  std::cout << "Shortest path length: " << droid.shortestPath() << std::endl;
 }
 
 void solve(int puzzleId, std::string const &inputFile) {

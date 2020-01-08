@@ -17,6 +17,12 @@ struct MapPosition {
 
     return false;
   }
+  constexpr bool operator==(MapPosition const &other) const {
+    return ((x == other.x) && (y == other.y));
+  }
+  constexpr MapPosition operator+(MapPosition const &other) const {
+    return {x + other.x, y + other.y};
+  }
 };
 
 enum class Field { Unknown, Empty, Wall, Oxygen };
@@ -26,11 +32,11 @@ using DroidMap = std::map<MapPosition, Field>;
 class Droid {
 public:
   Droid(Program const &program);
-  int shortestPath () const;
+  int shortestPath();
 
 private:
   bool exploreMap(int direction);
-  bool move (int direction);
+  bool move(int direction);
 
   Computer computer_;
   DroidMap area_;
