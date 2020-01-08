@@ -291,6 +291,8 @@ void solve14(){
     factory.addReaction (line);
 
   std::cout << "Amount of ORE needed to produce 1 FUEL: " << factory.necessaryORE() << std::endl;
+
+  std::cout << "Amount of FUEL that can be produced: " << factory.maximumFuel(1000000000000) << std::endl;
 }
 
 void solve(int puzzleId, std::string const &inputFile) {

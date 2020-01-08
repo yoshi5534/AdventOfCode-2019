@@ -47,7 +47,7 @@ TEST_CASE("More complex FUEL 1") {
   factory.addReaction("165 ORE => 2 GPVTF");
   factory.addReaction("3 DCFZ, 7 NZVS, 5 HKGWZ, 10 PSHF => 8 KHKGT");
 
-  int expected = 13312;
+  int64_t expected = 13312;
   REQUIRE(expected == factory.necessaryORE());
 }
 
@@ -95,4 +95,7 @@ TEST_CASE("More complex FUEL 3") {
 
   int expected = 2210736;
   REQUIRE(expected == factory.necessaryORE());
+
+  int64_t expectedFuel = 460664;
+  // REQUIRE(expectedFuel == factory.maximumFuel(1000000000000));
 }
