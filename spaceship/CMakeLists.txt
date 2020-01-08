@@ -4,6 +4,7 @@ add_library (spaceship
   include/arcade.h src/arcade.cpp
   include/asteroids.h src/asteroids.cpp
   include/computer.h src/computer.cpp
+  include/droid.h src/droid.cpp
   include/fuel.h src/fuel.cpp
   include/motion.h src/motion.cpp
   include/orbit.h src/orbit.cpp
