@@ -331,7 +331,7 @@ void solve16(){
 
   std::string text {};
   std::getline(input, text);
-  auto signal = FFT::fromString (text);
+  auto signal = FFT::fromString (text, 1);
   for (int i = 0; i < 100; ++i){
     signal = FFT::outputSignal(signal);
   }

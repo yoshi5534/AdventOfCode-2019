@@ -16,43 +16,40 @@ struct PatternGenerator {
 
   static Pattern get(int length, int element) {
     Pattern pattern;
-    pattern.resize(length + 1);
-    auto it = std::begin(pattern);
-    int index = 0;
+    pattern.resize(length);
+    
+    std::generate(std::begin(pattern), std::end(pattern), [element, n = 0] () mutable { return patternValue (n++, element); });
+    return std::move(pattern);
+    // return std::move<Pattern> ({std::begin(pattern) + 1, std::end(pattern)});
+  }
 
-    int number = element + 1;
-    while (it < std::end(pattern)) {
-      if (std::distance(it, std::end(pattern)) < number)
-        number = std::distance(it, std::end(pattern));
-      std::fill_n(it, number, BASE_PATTERN[index]);
-      index = (index + 1) % BASE_PATTERN.size();
-      std::advance(it, number);
-    }
-
-    return {std::begin(pattern) + 1, std::end(pattern)};
+  static int patternValue(int index, int element) {
+    index++;
+    index %= (element + 1) * 4;
+    index /= (element + 1);
+    return BASE_PATTERN[index];
   }
 };
 
 struct FFT {
-  static InputSignal fromString(std::string const &text) {
+  static InputSignal fromString(std::string const &text, int repetition) {
     InputSignal signal;
-    signal.resize (text.size ());
-    std::transform (std::begin (text), std::end (text), std::begin(signal), [](auto const &character) {
-      return character - '0';
-    });
+    signal.resize(text.size() * repetition);
+    for (int i = 0; i < repetition; ++i)
+      std::transform(std::begin(text), std::end(text),
+                     std::next(std::begin(signal), i * text.size()),
+                     [](auto const &character) { return character - '0'; });
 
     return signal;
   }
 
   static int output(InputSignal const &signal, int element) {
-    Pattern pattern = PatternGenerator::get(signal.size(), element);
-    OutputSignal multiplied;
-    multiplied.resize(signal.size());
+    auto const sum =
+        std::accumulate(std::begin(signal), std::end(signal), 0,
+                        [element, index = 0]  (auto const &init, auto const &current) mutable {
+                          return init + current * PatternGenerator::patternValue(index++, element);
+                        });
 
-    std::transform(std::begin(signal), std::end(signal), std::begin(pattern),
-                   std::begin(multiplied), std::multiplies<int>());
-
-    auto sum = std::accumulate(std::begin(multiplied), std::end(multiplied), 0);
     return std::abs(sum) % 10;
   }
 
@@ -61,11 +58,7 @@ struct FFT {
     result.resize(signal.size());
     int index = 0;
     std::transform(std::begin(signal), std::end(signal), std::begin(result),
-                   [&](auto const &) {
-                     int element = output(signal, index);
-                     index++;
-                     return element;
-                   });
+                   [&](auto const &) { return output(signal, index++); });
 
     return result;
   }
