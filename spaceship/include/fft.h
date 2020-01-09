@@ -35,7 +35,13 @@ struct PatternGenerator {
 
 struct FFT {
   static InputSignal fromString(std::string const &text) {
-    return {};
+    InputSignal signal;
+    signal.resize (text.size ());
+    std::transform (std::begin (text), std::end (text), std::begin(signal), [](auto const character) {
+      return character - '0';
+    });
+
+    return signal;
   }
 
   static int output(InputSignal const &signal, int element) {
