@@ -32,6 +32,7 @@ TEST_CASE("FFT pattern generator") {
     REQUIRE(pattern[2] == 0);
   }
 }
+
 TEST_CASE("Convert from string to InputSignal") {
   std::string const input{"12345678"};
   InputSignal signal = FFT::fromString(input, 1);
@@ -39,11 +40,9 @@ TEST_CASE("Convert from string to InputSignal") {
   InputSignal expected{1, 2, 3, 4, 5, 6, 7, 8};
   REQUIRE(expected == signal);
 }
+
 TEST_CASE("FFT simple input") {
   InputSignal input{1, 2, 3, 4, 5, 6, 7, 8};
-
-  REQUIRE(FFT::output(input, 0) == 4);
-  REQUIRE(FFT::output(input, 1) == 8);
 
   OutputSignal phase1 = FFT::outputSignal(input);
   OutputSignal expected_1{4, 8, 2, 2, 6, 1, 5, 8};
@@ -81,3 +80,10 @@ TEST_CASE("FFT longer input with many repetitions") {
 
   REQUIRE(expected == result);
 }
+
+  // 123456789 123456789 123456789 123456789 123456789 123456789 123456789
+  // 01100AA00 1100AA001 100AA0011 00AA00110 0AA001100 AA001100A A001100AA 001100AA0 01100AA00
+  // 00111000A AA0001110 00AAA0001 11000AAA0 00111000A AA0001110 00AAA0001
+  // 000111100 00AAAA000 011110000 AAAA00001 1110000AA AA0000111 10000AAAA
+  // 000011111 00000AAAA A00000111 1100000AA AAA000001 111100000 AAAAA0000
+  // 000001111 11000000A AAAAA0000 001111110 00000AAAA AA0000001 111110000
