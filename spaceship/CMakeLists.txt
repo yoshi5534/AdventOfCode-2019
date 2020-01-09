@@ -6,6 +6,7 @@ add_library (spaceship
   include/computer.h src/computer.cpp
   include/droid.h src/droid.cpp
   include/fuel.h src/fuel.cpp
+  include/fft.h src/fft.cpp
   include/motion.h src/motion.cpp
   include/orbit.h src/orbit.cpp
   include/password.h src/password.cpp
