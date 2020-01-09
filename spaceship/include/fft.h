@@ -17,10 +17,23 @@ struct PatternGenerator {
   static Pattern get(int length, int element) {
     Pattern pattern;
     pattern.resize(length);
-    
-    std::generate(std::begin(pattern), std::end(pattern), [element, n = 0] () mutable { return patternValue (n++, element); });
+
+    auto it = std::begin(pattern);
+    int index = 0;
+
+    int number = element; // start with one less
+    while (it < std::end(pattern)) {
+      std::fill_n(it, number, BASE_PATTERN[index]);
+      index = (index + 1) % BASE_PATTERN.size();
+      std::advance(it, number);
+
+      if (std::distance(it, std::end(pattern)) < number)
+        number = std::distance(it, std::end(pattern));
+      else
+        number = element + 1;
+    }
+
     return std::move(pattern);
-    // return std::move<Pattern> ({std::begin(pattern) + 1, std::end(pattern)});
   }
 
   static int patternValue(int index, int element) {
@@ -44,10 +57,13 @@ struct FFT {
   }
 
   static int output(InputSignal const &signal, int element) {
+    Pattern const pattern = PatternGenerator::get(signal.size(), element);
+
+    auto itPattern = std::begin(pattern);
     auto const sum =
         std::accumulate(std::begin(signal), std::end(signal), 0,
-                        [element, index = 0]  (auto const &init, auto const &current) mutable {
-                          return init + current * PatternGenerator::patternValue(index++, element);
+                        [&itPattern](auto const &init, auto const &current) {
+                          return init + current * *itPattern++;
                         });
 
     return std::abs(sum) % 10;
