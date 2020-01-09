@@ -10,6 +10,7 @@
 #include <asteroids.h>
 #include <computer.h>
 #include <droid.h>
+#include <fft.h>
 #include <fuel.h>
 #include <motion.h>
 #include <orbit.h>
@@ -184,7 +185,7 @@ void solve7() {
 }
 
 void solve8() {
-  std::ifstream input;
+  std::ifstream input; 
   getInput(input, 8);
 
   std::stringstream content;
@@ -324,6 +325,23 @@ void solve15() {
   }
 }
 
+void solve16(){
+  std::ifstream input;
+  getInput(input, 16);
+
+  std::string text {};
+  std::getline(input, text);
+  auto signal = FFT::fromString (text);
+  for (int i = 0; i < 100; ++i){
+    signal = FFT::outputSignal(signal);
+  }
+
+  auto result = OutputSignal {std::begin (signal), std::next(std::begin(signal), 8)};
+  std::cout << "The first eight digits are: ";
+  std::for_each (std::begin(result), std::end(result), [](auto const& digit){std::cout << digit;});
+  std::cout << std::endl;
+}
+
 void solve(int puzzleId, std::string const &inputFile) {
   if (puzzleId == 1)
     solve1();
@@ -369,4 +387,7 @@ void solve(int puzzleId, std::string const &inputFile) {
 
   if (puzzleId == 15)
     solve15();
+
+  if (puzzleId == 16)
+    solve16();
 }

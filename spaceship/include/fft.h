@@ -37,7 +37,7 @@ struct FFT {
   static InputSignal fromString(std::string const &text) {
     InputSignal signal;
     signal.resize (text.size ());
-    std::transform (std::begin (text), std::end (text), std::begin(signal), [](auto const character) {
+    std::transform (std::begin (text), std::end (text), std::begin(signal), [](auto const &character) {
       return character - '0';
     });
 
