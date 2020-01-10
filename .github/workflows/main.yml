@@ -16,4 +16,4 @@ jobs:
         uses: buildtool/build-action@v1
         with:
           dockerfile: .devcontainer/Dockerfile
-          docker-build-args: ''
+          docker-build-args: '-skiplogin'
