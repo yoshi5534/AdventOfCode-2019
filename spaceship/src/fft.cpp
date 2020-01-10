@@ -1,9 +1,7 @@
 #include <fft.h>
 
 #include <algorithm>
-#include <chrono>
 #include <functional>
-#include <iostream>
 #include <numeric>
 #include <string>
 #include <vector>
@@ -14,39 +12,17 @@ namespace {
 static int output(InputSignal const &signal, int element) {
   int sum = 0;
   auto const period = (element + 1) * 2;
+  int const count = signal.size();
 
-  auto const itSignal = std::begin(signal);
-  auto const items = signal.size();
-
-  if ((period + element) < items) {
-    int i = 0;
-    int factor = 1;
-    for (i = element; i < (items - period); i += period) {
-      sum += std::accumulate(std::next(itSignal, i),
-                             std::next(itSignal, i + element + 1), 0) *
-             factor;
-      factor *= -1;
-    }
-
-    if (i < items) {
-      if (i + element < items) {
-        sum += std::accumulate(std::next(itSignal, i),
-                               std::next(itSignal, i + element + 1), 0) *
-               factor;
-      } else {
-        sum += std::accumulate(std::next(itSignal, i), std::end(signal), 0) *
-               factor;
-      }
-    }
-  } else {
-    if ((element + element) < items) {
-      sum = std::accumulate(std::next(itSignal, element),
-                            std::next(itSignal, element + element + 1), 0);
-    } else {
-      sum = std::accumulate(std::next(itSignal, element), std::end(signal), 0);
-    }
+  for (int i = element, factor = 1; i < count; i += period) {
+    int end = i + element + 1;
+    sum += factor * std::accumulate(std::next(std::begin(signal), i),
+                                    (end > count)
+                                        ? std::end(signal)
+                                        : std::next(std::begin(signal), end),
+                                    0);
+    factor *= -1;
   }
-
   return std::abs(sum) % 10;
 }
 } // namespace
@@ -65,14 +41,9 @@ InputSignal FFT::fromString(std::string const &text, int repetition) {
 OutputSignal FFT::outputSignal(InputSignal const &signal) {
   OutputSignal result;
   result.resize(signal.size());
-  int index = 0;
-  auto o1 = std::chrono::high_resolution_clock::now();
-  std::transform(std::begin(signal), std::end(signal), std::begin(result),
-                 [&](auto const &) { return output(signal, index++); });
-  auto o2 = std::chrono::high_resolution_clock::now();
-  auto od =
-      std::chrono::duration_cast<std::chrono::microseconds>(o2 - o1).count();
-  std::cout << "Signal: " << od << "us \n";
+  std::transform(
+      std::begin(signal), std::end(signal), std::begin(result),
+      [&, index = 0](auto const &) mutable { return output(signal, index++); });
 
   return result;
 }
