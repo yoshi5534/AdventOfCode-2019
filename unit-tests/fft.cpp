@@ -6,33 +6,6 @@
 
 using namespace AdventOfCode;
 
-TEST_CASE("FFT pattern generator") {
-  {
-    auto pattern = PatternGenerator::get(8, 0);
-    REQUIRE(pattern[2] == -1);
-  }
-
-  {
-    auto pattern = PatternGenerator::get(8, 1);
-    REQUIRE(pattern[2] == 1);
-  }
-
-  {
-    auto pattern = PatternGenerator::get(8, 2);
-    REQUIRE(pattern[2] == 1);
-  }
-
-  {
-    auto pattern = PatternGenerator::get(8, 3);
-    REQUIRE(pattern[2] == 0);
-  }
-
-  {
-    auto pattern = PatternGenerator::get(83, 3);
-    REQUIRE(pattern[2] == 0);
-  }
-}
-
 TEST_CASE("Convert from string to InputSignal") {
   std::string const input{"12345678"};
   InputSignal signal = FFT::fromString(input, 1);
@@ -80,7 +53,7 @@ TEST_CASE("FFT longer input") {
 
 TEST_CASE("FFT longer input with many repetitions") {
   std::string const input{"03036732577212944063491565474664"};
-  auto signal = FFT::fromString(input, 10000);
+  auto signal = FFT::fromString(input, 1000);
   auto offset = std::stol(
       std::string{std::begin(input), std::next(std::begin(input), 7)});
 

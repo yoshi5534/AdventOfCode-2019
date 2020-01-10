@@ -18,7 +18,6 @@ static int output(InputSignal const &signal, int element) {
   auto const itSignal = std::begin(signal);
   auto const items = signal.size();
 
-  auto s1 = std::chrono::high_resolution_clock::now();
   if ((period + element) < items) {
     int i = 0;
     int factor = 1;
@@ -48,38 +47,9 @@ static int output(InputSignal const &signal, int element) {
     }
   }
 
-  auto s2 = std::chrono::high_resolution_clock::now();
-  auto sd =
-      std::chrono::duration_cast<std::chrono::microseconds>(s2 - s1).count();
- // std::cout << "Sum: " << sd << "ms \n";
-
   return std::abs(sum) % 10;
 }
 } // namespace
-
-Pattern const PatternGenerator::BASE_PATTERN = {0, 1, 0, -1};
-
-Pattern PatternGenerator::get(int length, int element) {
-  Pattern pattern;
-  pattern.resize(length);
-
-  auto it = std::begin(pattern);
-  int index = 0;
-
-  int number = element; // start with one less
-  while (it < std::end(pattern)) {
-    std::fill_n(it, number, BASE_PATTERN[index]);
-    index = (index + 1) % BASE_PATTERN.size();
-    std::advance(it, number);
-
-    if (std::distance(it, std::end(pattern)) < number)
-      number = std::distance(it, std::end(pattern));
-    else
-      number = element + 1;
-  }
-
-  return std::move(pattern);
-}
 
 InputSignal FFT::fromString(std::string const &text, int repetition) {
   InputSignal signal;
@@ -96,8 +66,13 @@ OutputSignal FFT::outputSignal(InputSignal const &signal) {
   OutputSignal result;
   result.resize(signal.size());
   int index = 0;
+  auto o1 = std::chrono::high_resolution_clock::now();
   std::transform(std::begin(signal), std::end(signal), std::begin(result),
                  [&](auto const &) { return output(signal, index++); });
+  auto o2 = std::chrono::high_resolution_clock::now();
+  auto od =
+      std::chrono::duration_cast<std::chrono::microseconds>(o2 - o1).count();
+  std::cout << "Signal: " << od << "us \n";
 
   return result;
 }
