@@ -4,12 +4,11 @@
 #include <vector>
 
 namespace AdventOfCode {
-using InputSignal = std::vector<int>;
-using OutputSignal = std::vector<int>;
+using Signal = std::vector<int>;
 
 struct FFT {
-  static InputSignal fromString(std::string const &text, int repetition);
-  static OutputSignal outputSignal(InputSignal const &signal);
+  static Signal fromString(std::string const &text, int repetition);
+  static Signal outputSignal(Signal const &signal);
 };
 
 } // namespace AdventOfCode

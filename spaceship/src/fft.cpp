@@ -9,7 +9,7 @@
 using namespace AdventOfCode;
 
 namespace {
-static int output(InputSignal const &signal, int element) {
+static int output(Signal const &signal, int element) {
   int sum = 0;
   auto const period = (element + 1) * 2;
   int const count = signal.size();
@@ -27,8 +27,8 @@ static int output(InputSignal const &signal, int element) {
 }
 } // namespace
 
-InputSignal FFT::fromString(std::string const &text, int repetition) {
-  InputSignal signal;
+Signal FFT::fromString(std::string const &text, int repetition) {
+  Signal signal;
   signal.resize(text.size() * repetition);
   for (int i = 0; i < repetition; ++i)
     std::transform(std::begin(text), std::end(text),
@@ -38,8 +38,8 @@ InputSignal FFT::fromString(std::string const &text, int repetition) {
   return signal;
 }
 
-OutputSignal FFT::outputSignal(InputSignal const &signal) {
-  OutputSignal result;
+Signal FFT::outputSignal(Signal const &signal) {
+  Signal result;
   result.resize(signal.size());
   std::transform(
       std::begin(signal), std::end(signal), std::begin(result),

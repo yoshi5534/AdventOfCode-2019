@@ -337,7 +337,7 @@ void solve16(){
       signal = FFT::outputSignal(signal);
     
 
-    auto result = OutputSignal {std::begin (signal), std::next(std::begin(signal), 8)};
+    auto result = Signal {std::begin (signal), std::next(std::begin(signal), 8)};
     std::cout << "The first eight digits are: ";
     std::for_each (std::begin(result), std::end(result), [](auto const& digit){std::cout << digit;});
     std::cout << std::endl;
@@ -352,7 +352,7 @@ void solve16(){
   //     signal = FFT::outputSignal(signal);
     
   //   auto result =
-  //     OutputSignal{std::next(std::begin(signal), offset), std::next(std::begin(signal), offset + 8)};
+  //     Signal{std::next(std::begin(signal), offset), std::next(std::begin(signal), offset + 8)};
     
   //   std::cout << "The first eight digits at position '" << offset << "' are: ";
   //   std::for_each (std::begin(result), std::end(result), [](auto const& digit){std::cout << digit;});
