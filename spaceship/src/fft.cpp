@@ -47,3 +47,21 @@ Signal FFT::outputSignal(Signal const &signal) {
 
   return result;
 }
+
+Signal FFT::outputMessage(Signal const &signal, int repetition, int offset) {
+  Signal input{std::next(std::begin(signal), offset), std::end(signal)};
+  for (int i = 0; i < repetition; ++i) {
+    Signal result;
+    result.resize(input.size());
+
+    std::transform(std::rbegin(input), std::rend(input), std::rbegin(result),
+                   [&, index = -1](auto const &value) mutable {
+                     return value + *std::next(std::rbegin(result), index++);
+                   });
+
+    std::transform(std::begin(result), std::end(result), std::begin(input),
+                   [](auto const &value) { return value % 10; });
+  }
+
+  return {std::begin(input), std::next(std::begin(input), 8)};
+}
