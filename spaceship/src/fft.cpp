@@ -15,17 +15,40 @@ static int output(InputSignal const &signal, int element) {
   auto p1 = std::chrono::high_resolution_clock::now();
   Pattern const pattern = PatternGenerator::get(signal.size(), element);
   auto p2 = std::chrono::high_resolution_clock::now();
-  auto pd = std::chrono::duration_cast<std::chrono::microseconds>( p2 - p1 ).count();
-  std::cout << "Generate pattern: " << pd << "ms \n";
+  auto pd =
+      std::chrono::duration_cast<std::chrono::microseconds>(p2 - p1).count();
+  // std::cout << "Generate pattern: " << pd << "ms \n";
 
-  auto itPattern = std::begin(pattern);
+  int sum = 0;
+  auto const period = (element + 1) * 2;
+
+  auto const itPattern = std::begin(pattern);
+  auto const itSignal = std::begin(signal);
+  auto const items = signal.size();
 
   auto s1 = std::chrono::high_resolution_clock::now();
-  auto const sum = std::inner_product(std::begin(signal), std::end(signal),
-                                      std::begin(pattern), 0);
+  // auto const sum = std::inner_product(std::begin(signal), std::end(signal),
+  //                                     std::begin(pattern), 0);
+  if ((period + element) < items) {
+    int i = 0;
+    for (i = element; i < (items - period); i += period) {
+      sum += std::inner_product(std::next(itSignal, i),
+                                std::next(itSignal, i + element + 1),
+                                std::next(itPattern, i), 0);
+    }
+
+    if (i < items) {
+      sum += std::inner_product(std::next(itSignal, i), std::end(signal),
+                                std::next(itPattern, i), 0);
+    }
+  } else {
+    sum = std::inner_product(std::next(itSignal, element), std::end(signal),
+                             std::next(itPattern, element), 0);
+  }
 
   auto s2 = std::chrono::high_resolution_clock::now();
-  auto sd = std::chrono::duration_cast<std::chrono::microseconds>( s2 - s1 ).count();
+  auto sd =
+      std::chrono::duration_cast<std::chrono::microseconds>(s2 - s1).count();
   std::cout << "Sum: " << sd << "ms \n";
 
   return std::abs(sum) % 10;

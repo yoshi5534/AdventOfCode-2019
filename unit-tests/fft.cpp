@@ -44,10 +44,25 @@ TEST_CASE("Convert from string to InputSignal") {
 TEST_CASE("FFT simple input") {
   InputSignal input{1, 2, 3, 4, 5, 6, 7, 8};
 
-  OutputSignal phase1 = FFT::outputSignal(input);
+  OutputSignal phase_1 = FFT::outputSignal(input);
   OutputSignal expected_1{4, 8, 2, 2, 6, 1, 5, 8};
 
-  REQUIRE(phase1 == expected_1);
+  REQUIRE(phase_1 == expected_1);
+
+  OutputSignal phase_2 = FFT::outputSignal(phase_1);
+  OutputSignal expected_2{3, 4, 0, 4, 0, 4, 3, 8};
+
+  REQUIRE(phase_2 == expected_2);
+
+  OutputSignal phase_3 = FFT::outputSignal(phase_2);
+  OutputSignal expected_3{0,3,4,1,5,5,1,8};
+
+  REQUIRE(phase_3 == expected_3);
+
+  OutputSignal phase_4 = FFT::outputSignal(phase_3);
+  OutputSignal expected_4{0,1,0,2,9,4,9,8};
+
+  REQUIRE(phase_4 == expected_4);
 }
 
 TEST_CASE("FFT longer input") {
@@ -65,7 +80,7 @@ TEST_CASE("FFT longer input") {
 
 TEST_CASE("FFT longer input with many repetitions") {
   std::string const input{"03036732577212944063491565474664"};
-  auto signal = FFT::fromString(input, 1000);
+  auto signal = FFT::fromString(input, 100);
   auto offset = std::stol(
       std::string{std::begin(input), std::next(std::begin(input), 7)});
 
