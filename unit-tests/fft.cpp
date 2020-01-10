@@ -65,7 +65,7 @@ TEST_CASE("FFT longer input") {
 
 TEST_CASE("FFT longer input with many repetitions") {
   std::string const input{"03036732577212944063491565474664"};
-  auto signal = FFT::fromString(input, 100);
+  auto signal = FFT::fromString(input, 1000);
   auto offset = std::stol(
       std::string{std::begin(input), std::next(std::begin(input), 7)});
 

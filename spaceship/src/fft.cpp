@@ -1,7 +1,9 @@
 #include <fft.h>
 
 #include <algorithm>
+#include <chrono>
 #include <functional>
+#include <iostream>
 #include <numeric>
 #include <string>
 #include <vector>
@@ -10,11 +12,21 @@ using namespace AdventOfCode;
 
 namespace {
 static int output(InputSignal const &signal, int element) {
+  auto p1 = std::chrono::high_resolution_clock::now();
   Pattern const pattern = PatternGenerator::get(signal.size(), element);
+  auto p2 = std::chrono::high_resolution_clock::now();
+  auto pd = std::chrono::duration_cast<std::chrono::microseconds>( p2 - p1 ).count();
+  std::cout << "Generate pattern: " << pd << "ms \n";
 
   auto itPattern = std::begin(pattern);
-  auto const sum =
-      std::inner_product(std::begin(signal), std::end(signal), std::begin (pattern), 0);
+
+  auto s1 = std::chrono::high_resolution_clock::now();
+  auto const sum = std::inner_product(std::begin(signal), std::end(signal),
+                                      std::begin(pattern), 0);
+
+  auto s2 = std::chrono::high_resolution_clock::now();
+  auto sd = std::chrono::duration_cast<std::chrono::microseconds>( s2 - s1 ).count();
+  std::cout << "Sum: " << sd << "ms \n";
 
   return std::abs(sum) % 10;
 }
