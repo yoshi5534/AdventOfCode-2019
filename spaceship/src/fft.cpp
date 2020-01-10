@@ -9,22 +9,12 @@
 using namespace AdventOfCode;
 
 namespace {
-static int patternValue(int index, int element) {
-  index++;
-  index %= (element + 1) * 4;
-  index /= (element + 1);
-  return PatternGenerator::BASE_PATTERN[index];
-}
-
 static int output(InputSignal const &signal, int element) {
   Pattern const pattern = PatternGenerator::get(signal.size(), element);
 
   auto itPattern = std::begin(pattern);
   auto const sum =
-      std::accumulate(std::begin(signal), std::end(signal), 0,
-                      [&itPattern](auto const &init, auto const &current) {
-                        return init + current * *itPattern++;
-                      });
+      std::inner_product(std::begin(signal), std::end(signal), std::begin (pattern), 0);
 
   return std::abs(sum) % 10;
 }
