@@ -16,4 +16,4 @@ jobs:
         uses: buildtool/build-action@v1
         with:
           dockerfile: .devcontainer/Dockerfile
-          docker-build-args: '-u vscode --cap-add=SYS_PTRACE --security-opt seccomp=unconfined'
+          docker-build-args: ''
