@@ -113,7 +113,10 @@ int64_t getValue(ParameterMode mode, int64_t parameter, Computer &computer) {
   case ParameterMode::Relative:
     return computer.accessMemory()[parameter + computer.relativeBase()];
   }
+
+  return 0;
 }
+
 void writeValue(ParameterMode mode, int64_t parameter, Computer &computer,
                 int64_t value) {
   switch (mode) {
