@@ -38,4 +38,4 @@ ADD . aoc2019
 # Build the devcontainer and run a release build.
 CMD ["/bin/bash", "-c", "docker build -t yoshi5534/aoc2019 aoc2019/.devcontainer && docker run -v ${workspace}:/workspaces/aoc2019 --cap-add=SYS_PTRACE --security-opt seccomp=unconfined yoshi5534/aoc2019 /bin/bash /workspaces/aoc2019/build.sh"]
 
-# Run with: docker run -v /var/run/docker.sock:/var/run/docker.sock -e workspace=`pwd` run_devcontainer
+# Run with: docker run -v /var/run/docker.sock:/var/run/docker.sock -e workspace=`pwd` <IMAGE>
