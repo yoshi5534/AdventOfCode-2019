@@ -369,10 +369,7 @@ void solve17() {
     program.push_back(std::stol(line));
 
   ASCII ascii(program);
-
-  ascii.print();
   auto intersections = ascii.findIntersections();
-  ascii.print();
 
   std::cout << "The sum of all crossings is: " << intersections << std::endl;
 }
