@@ -22,7 +22,7 @@
 	// "appPort": [],
 
 	// Uncomment the next line to run commands after the container is created.
-	"postCreateCommand": "cd build && conan install ..",
+	"postCreateCommand": "/bin/bash build.sh",
 
 	// Add the IDs of extensions you want installed when the container is created in the array below.
 	"extensions": [
