@@ -13,4 +13,4 @@ jobs:
     - name: Build the Docker image
       run: docker build . --file Dockerfile --tag yoshi5534/aoc2019 --tag yoshi5534/aoc2019:$(date +%s)
     - name: Compile the code
-      run: docker run -v /var/run/docker.sock:/var/run/docker.sock -e workspace=`pwd` yoshi5534/aoc2019
+      run: sudo docker run -v /var/run/docker.sock:/var/run/docker.sock -e workspace=`pwd` yoshi5534/aoc2019
