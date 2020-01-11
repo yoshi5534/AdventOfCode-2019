@@ -7,6 +7,7 @@
 
 #include <amplifier.h>
 #include <arcade.h>
+#include <ascii.h>
 #include <asteroids.h>
 #include <computer.h>
 #include <droid.h>
@@ -358,6 +359,24 @@ void solve16() {
   }
 }
 
+void solve17() {
+  std::ifstream input;
+  getInput(input, 17);
+
+  Program program{};
+  std::string line{};
+  while (std::getline(input, line, ','))
+    program.push_back(std::stol(line));
+
+  ASCII ascii(program);
+
+  ascii.print();
+  auto intersections = ascii.findIntersections();
+  ascii.print();
+
+  std::cout << "The sum of all crossings is: " << intersections << std::endl;
+}
+
 void solve(int puzzleId, std::string const &inputFile) {
   if (puzzleId == 1)
     solve1();
@@ -406,4 +425,7 @@ void solve(int puzzleId, std::string const &inputFile) {
 
   if (puzzleId == 16)
     solve16();
+
+  if (puzzleId == 17)
+    solve17();
 }

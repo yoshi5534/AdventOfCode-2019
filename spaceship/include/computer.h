@@ -38,6 +38,7 @@ public:
 
   void writeOutput(Output const &output);
   int64_t readOutput();
+  bool hasOutput () const { return output_.size () > 0;}
 
   void moveInstructionPointer(int64_t offset);
   void setInstructionPointer(int64_t address);

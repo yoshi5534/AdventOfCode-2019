@@ -2,6 +2,7 @@ find_package (range-v3)
 add_library (spaceship 
   include/amplifier.h src/amplifier.cpp
   include/arcade.h src/arcade.cpp
+  include/ascii.h src/ascii.cpp
   include/asteroids.h src/asteroids.cpp
   include/computer.h src/computer.cpp
   include/droid.h src/droid.cpp
