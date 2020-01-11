@@ -6,6 +6,7 @@ mkdir "$SOURCE_DIR/build"
 cd "$SOURCE_DIR/build"
 conan remote add conan-cpp https://api.bintray.com/conan/squawkcpp/conan-cpp 
 conan profile new aoc2019 --detect
+conan profile update settings.compiler.libcxx=libstdc++11 aoc2019
 conan install "$SOURCE_DIR"
 
 cmake "$SOURCE_DIR"
