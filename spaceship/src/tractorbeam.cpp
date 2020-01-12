@@ -1,7 +1,6 @@
 #include <tractorbeam.h>
 
 #include <algorithm>
-#include <tuple>
 
 using namespace AdventOfCode;
 
@@ -20,7 +19,7 @@ int TractorBeam::scan(Program const &program) {
 }
 
 namespace {
-std::vector<std::pair<int, int>> getLines(Program const &program) {
+auto getLines(Program const &program) {
   std::vector<std::pair<int, int>> lines;
   lines.resize(1000);
   int first = 0;

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <computer.h>
+#include <tuple>
 
 namespace AdventOfCode {
 
