@@ -75,9 +75,8 @@ Input fromString (std::string const& text) {
 
 ASCII::ASCII(Program const &program) : program_{program} {}
 
-int ASCII::findIntersections() {
+int ASCII::findIntersections() const {
   auto const image = getImage(program_);
-  print(image);
   auto const crossings = getCrossings(image);
   auto const sum =
       std::accumulate(std::begin(crossings), std::end(crossings), 0,
@@ -88,7 +87,7 @@ int ASCII::findIntersections() {
   return sum;
 }
 
-void ASCII::searchRobots() {
+int ASCII::searchRobots() const {
   Program movementProgram = program_;
   movementProgram[0] = 2;
   Computer computer{movementProgram};
@@ -110,20 +109,8 @@ void ASCII::searchRobots() {
   auto output = computer.readOutput ();
   while (computer.hasOutput ())
     output = computer.readOutput ();
-    
-  std::cout << "Output: " << output << std::endl;
-  // int x = 0, y = 0;
-  // while (computer.hasOutput()) {
-  //   char pixel = static_cast<char>(computer.readOutput());
-  //   image[{x, y}] = pixel;
-  //   x++;
-  //   if (pixel == '\n') {
-  //     x = 0;
-  //     y++;
-  //   }
-  // }
 
-  // print(image);
+  return output;
 }
 
 namespace {
@@ -191,7 +178,7 @@ PixelCoordinate findNextCrossing(CameraImage const &image,
 
 void printPath(Path const &path) {
   std::for_each(std::begin(path), std::end(path),
-                [&](auto const &point) { std::cout << point; });
+                [&](auto const &point) { (point < '0' || point > 'A') ? std::cout << point : std::cout << point - '0'; });
   std::cout << std::endl;
 }
 
@@ -275,7 +262,7 @@ bool explore(std::vector<Path> &allPathes, CameraImage const &image,
   return false;
 }
 
-void checkPath(CameraImage image, PixelCoordinate position, Path const &path) {
+bool checkPath(CameraImage image, PixelCoordinate position, Path const &path) {
 
   Direction dir{{0, -1}, 'L'};
   for (int i = 0; i < path.size() + 1; i += 4) {
@@ -297,13 +284,14 @@ void checkPath(CameraImage image, PixelCoordinate position, Path const &path) {
   if (std::find_if(std::begin(image), std::end(image), [](auto const &pixel) {
         return pixel.second == '#';
       }) == std::end(image)) {
-    printPath(path);
-    // print(image);
+        return true;
   }
+
+  return false;
 }
 } // namespace
 
-void ASCII::possibleMovements() {
+void ASCII::shortestPath() const {
   auto image = getImage(program_);
   auto crossings = getCrossings(image);
   std::vector<Path> allPathes{};
@@ -334,7 +322,15 @@ void ASCII::possibleMovements() {
     }
   }
 
-  std::for_each(
-      std::begin(allPathes), std::end(allPathes),
-      [&](auto const &path) { checkPath(image, startPos->first, path); });
+
+  std::vector<Path> validPathes{};
+  std::copy_if(
+      std::begin(allPathes), std::end(allPathes), std::back_inserter(validPathes),
+      [&](auto const &path) { return checkPath(image, startPos->first, path); });
+
+  std::sort(std::begin(validPathes), std::end (validPathes), [](auto const& left, auto const&right) {
+    return left.size() < right.size();
+  });
+
+  printPath(validPathes [0]);
 }

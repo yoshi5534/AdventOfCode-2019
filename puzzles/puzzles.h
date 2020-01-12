@@ -369,13 +369,13 @@ void solve17() {
     program.push_back(std::stol(line));
 
   ASCII ascii(program);
-  auto intersections = ascii.findIntersections();
 
-  std::cout << "The sum of all crossings is: " << intersections << std::endl;
+  std::cout << "The sum of all crossings is: " << ascii.findIntersections() << std::endl;
 
+  std::cout << "The shortest path for vacuuming: " << std::endl;
+  ascii.shortestPath ();
 
- // ascii.possibleMovements();
- ascii.searchRobots ();
+  std::cout << "The collected amount of dust: " << ascii.searchRobots() << std::endl;
 }
 
 void solve(int puzzleId, std::string const &inputFile) {

@@ -7,9 +7,9 @@ namespace AdventOfCode {
 class ASCII {
 public:
   ASCII(Program const &program);
-  int findIntersections();
-  void searchRobots();
-  void possibleMovements();
+  int findIntersections() const;
+  void shortestPath() const;
+  int searchRobots() const;
 
 private:
   Program program_;
