@@ -371,10 +371,8 @@ void solve17() {
   ASCII ascii(program);
 
   std::cout << "The sum of all crossings is: " << ascii.findIntersections() << std::endl;
-
   std::cout << "The shortest path for vacuuming: " << std::endl;
   ascii.shortestPath ();
-
   std::cout << "The collected amount of dust: " << ascii.searchRobots() << std::endl;
 }
 
