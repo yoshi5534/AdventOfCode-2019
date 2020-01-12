@@ -1,7 +1,6 @@
 #include <tractorbeam.h>
 
 #include <algorithm>
-#include <iostream>
 #include <tuple>
 
 using namespace AdventOfCode;
