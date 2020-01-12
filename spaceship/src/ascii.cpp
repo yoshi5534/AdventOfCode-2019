@@ -61,6 +61,16 @@ Pixels getCrossings(CameraImage const &image) {
 
   return crossings;
 }
+
+Input fromString (std::string const& text) {
+  Input input;
+  input.resize (text.size ());
+  std::transform(std::begin(text), std::end(text),
+                    std::begin(input),
+                   [](auto const &character) { return static_cast <Input::value_type> (character); });
+  input.push_back ('\n');
+  return input;
+}
 } // namespace
 
 ASCII::ASCII(Program const &program) : program_{program} {}
@@ -82,32 +92,38 @@ void ASCII::searchRobots() {
   Program movementProgram = program_;
   movementProgram[0] = 2;
   Computer computer{movementProgram};
-  Input main{'A', ',', 'B', ',', 'A', ',', 'B', ',', 'A', ',', 'C', '\n'};
-  Input a{'L', ',', '4', ',', 'L', ',', '6', '\n'};
-  Input b{'R', ',', '4', ',', 'L', ',', '6', ',', 'L', ',', '6', '\n'};
-  Input c{'L', ',', '6', ',', 'L', ',', '2', '\n'};
+  Input main{fromString("A,A,B,C,A,C,B,C,A,B")};
+  Input a{fromString("L,4,L,10,L,6")};
+  Input b{fromString("L,6,L,4,R,8,R,8")};
+  Input c{fromString("L,6,R,8,L,10,L,8,L,8")};
 
   computer.writeInput(main);
   computer.writeInput(a);
   computer.writeInput(b);
   computer.writeInput(c);
-  computer.writeInput({'y', '\n'});
+  computer.writeInput({'n', '\n'});
 
   CameraImage image;
 
   computer.calculate();
-  int x = 0, y = 0;
-  while (computer.hasOutput()) {
-    char pixel = static_cast<char>(computer.readOutput());
-    image[{x, y}] = pixel;
-    x++;
-    if (pixel == '\n') {
-      x = 0;
-      y++;
-    }
-  }
 
-  print(image);
+  auto output = computer.readOutput ();
+  while (computer.hasOutput ())
+    output = computer.readOutput ();
+    
+  std::cout << "Output: " << output << std::endl;
+  // int x = 0, y = 0;
+  // while (computer.hasOutput()) {
+  //   char pixel = static_cast<char>(computer.readOutput());
+  //   image[{x, y}] = pixel;
+  //   x++;
+  //   if (pixel == '\n') {
+  //     x = 0;
+  //     y++;
+  //   }
+  // }
+
+  // print(image);
 }
 
 namespace {
@@ -182,13 +198,12 @@ void printPath(Path const &path) {
 bool explore(std::vector<Path> &allPathes, CameraImage const &image,
              Pixels const &crossings,
              std::vector<std::pair<PixelCoordinate, PixelCoordinate>> visited,
-             PixelCoordinate const &start, Direction const &dir,
+             PixelCoordinate const &start, int count, Direction const &dir,
              Path const &path) {
   Path nextPath{path};
   auto nextVisited{visited};
   PixelCoordinate current = start + dir.offset;
   Direction currentDir = dir;
-  int count = 1;
 
   while (std::find(std::begin(crossings), std::end(crossings), current) ==
          std::end(crossings)) {
@@ -217,6 +232,7 @@ bool explore(std::vector<Path> &allPathes, CameraImage const &image,
       nextPath.push_back(',');
       nextPath.push_back(count + '0');
       allPathes.push_back(nextPath);
+      //printPath(nextPath);
       return true;
     }
   }
@@ -228,18 +244,33 @@ bool explore(std::vector<Path> &allPathes, CameraImage const &image,
 
   // printPath(nextPath);
   nextVisited.push_back({start, dir.offset});
+    nextVisited.push_back({start, left(left(dir.offset))});
 
   if (std::end(nextVisited) ==
       std::find(std::begin(nextVisited), std::end(nextVisited),
                 std::make_pair(current, left(currentDir.offset))))
-    explore(allPathes, image, crossings, nextVisited, current,
+    explore(allPathes, image, crossings, nextVisited, current, 1,
             {left(currentDir.offset), 'L'}, nextPath);
 
   if (std::end(nextVisited) ==
       std::find(std::begin(nextVisited), std::end(nextVisited),
                 std::make_pair(current, right(currentDir.offset))))
-    explore(allPathes, image, crossings, nextVisited, current,
+    explore(allPathes, image, crossings, nextVisited, current, 1,
             {right(currentDir.offset), 'R'}, nextPath);
+
+  if (std::end(nextVisited) ==
+      std::find(std::begin(nextVisited), std::end(nextVisited),
+                std::make_pair(current, currentDir.offset))) {
+
+    nextPath.pop_back();
+    nextPath.pop_back();
+    nextPath.pop_back();
+    nextPath.pop_back();
+
+    // don't walk back
+    explore(allPathes, image, crossings, nextVisited, current, count + 1,
+            currentDir, nextPath);
+  }
 
   return false;
 }
@@ -267,7 +298,7 @@ void checkPath(CameraImage image, PixelCoordinate position, Path const &path) {
         return pixel.second == '#';
       }) == std::end(image)) {
     printPath(path);
-    //print(image);
+    // print(image);
   }
 }
 } // namespace
@@ -286,12 +317,19 @@ void ASCII::possibleMovements() {
     auto firstCrossing = findNextCrossing(image, start, dir, crossings);
     {
       Path path{'L', ',', '4', ',', 'L', ',', '6'};
-      explore(allPathes, image, crossings, {}, firstCrossing, {{-1, 0}, 'R'},
+      explore(allPathes, image, crossings, {}, firstCrossing, 1, {{-1, 0},
+      'R'},
               path);
     }
     {
       Path path{'L', ',', '4', ',', 'L', ',', '6'};
-      explore(allPathes, image, crossings, {}, firstCrossing, {{1, 0}, 'L'},
+      explore(allPathes, image, crossings, {}, firstCrossing, 1, {{1, 0},
+      'L'},
+              path);
+    }
+    {
+      Path path{'L', ',', '4'};
+      explore(allPathes, image, crossings, {std::make_pair(firstCrossing, PixelCoordinate{0,-1})}, firstCrossing, 7, {{0, 1}, 'L'},
               path);
     }
   }

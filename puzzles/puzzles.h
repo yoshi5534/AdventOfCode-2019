@@ -374,7 +374,8 @@ void solve17() {
   std::cout << "The sum of all crossings is: " << intersections << std::endl;
 
 
-  ascii.possibleMovements();
+ // ascii.possibleMovements();
+ ascii.searchRobots ();
 }
 
 void solve(int puzzleId, std::string const &inputFile) {
