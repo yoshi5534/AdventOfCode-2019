@@ -372,6 +372,9 @@ void solve17() {
   auto intersections = ascii.findIntersections();
 
   std::cout << "The sum of all crossings is: " << intersections << std::endl;
+
+
+  ascii.possibleMovements();
 }
 
 void solve(int puzzleId, std::string const &inputFile) {
