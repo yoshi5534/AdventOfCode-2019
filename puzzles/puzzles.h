@@ -18,6 +18,7 @@
 #include <password.h>
 #include <robot.h>
 #include <spaceimage.h>
+#include <tractorbeam.h>
 #include <vault.h>
 #include <wires.h>
 
@@ -392,7 +393,25 @@ void solve18() {
             << vault.collectKeys() << " steps." << std::endl;
 }
 
-void solve(int puzzleId, std::string const &) {
+void solve19() {
+  std::ifstream input;
+  getInput(input, 19);
+
+  Program program{};
+  std::string line{};
+  while (std::getline(input, line, ','))
+    program.push_back(std::stol(line));
+
+  auto affected = TractorBeam::scan (program);
+  std::cout << "The number of affected points is: " << affected << std::endl;
+
+  auto closest = TractorBeam::minimumDistance(program);
+  std::cout << "The closest point to the emitter is (" 
+  << closest.first << "," << closest.second << ") -> " 
+  << closest.first * 10000 + closest.second << std::endl;
+}
+
+void solve(int puzzleId, std::string const &inputFile) {
   if (puzzleId == 1)
     solve1();
 
@@ -446,4 +465,6 @@ void solve(int puzzleId, std::string const &) {
 
   if (puzzleId == 18)
     solve18();
+  if (puzzleId == 19)
+    solve19();
 }

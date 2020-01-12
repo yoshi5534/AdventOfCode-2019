@@ -14,6 +14,7 @@ add_library (spaceship
   include/password.h src/password.cpp
   include/robot.h src/robot.cpp
   include/spaceimage.h src/spaceimage.cpp
+  include/tractorbeam.h src/tractorbeam.cpp
   include/vault.h src/vault.cpp
   include/wires.h src/wires.cpp
   )
