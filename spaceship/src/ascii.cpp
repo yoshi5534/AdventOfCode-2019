@@ -156,11 +156,11 @@ PixelCoordinate findNextCrossing(CameraImage const &image,
       count++;
       current = current + dir.offset;
     } else if (isScaffold(image, current + left(dir.offset))) {
-      std::cout << dir.turn << "," << count << ",";
+      // std::cout << dir.turn << "," << count << ",";
       count = 0;
       dir = {left(dir.offset), 'L'};
     } else if (isScaffold(image, current + right(dir.offset))) {
-      std::cout << dir.turn << "," << count << ",";
+      // std::cout << dir.turn << "," << count << ",";
       count = 0;
       dir = {right(dir.offset), 'R'};
     } else {
@@ -169,7 +169,7 @@ PixelCoordinate findNextCrossing(CameraImage const &image,
     }
   }
 
-  std::cout << dir.turn << "," << count;
+  // std::cout << dir.turn << "," << count;
   return current;
 }
 
@@ -179,7 +179,8 @@ void printPath(Path const &path) {
   std::cout << std::endl;
 }
 
-bool explore(CameraImage const &image, Pixels const &crossings,
+bool explore(std::vector<Path> &allPathes, CameraImage const &image,
+             Pixels const &crossings,
              std::vector<std::pair<PixelCoordinate, PixelCoordinate>> visited,
              PixelCoordinate const &start, Direction const &dir,
              Path const &path) {
@@ -194,10 +195,6 @@ bool explore(CameraImage const &image, Pixels const &crossings,
     if (isScaffold(image, current + currentDir.offset)) {
       count++;
       current = current + currentDir.offset;
-      if (count > 9) {
-        nextPath = path;
-        break;
-      }
     } else if (isScaffold(image, current + left(currentDir.offset))) {
       nextPath.push_back(',');
       nextPath.push_back(currentDir.turn);
@@ -214,10 +211,20 @@ bool explore(CameraImage const &image, Pixels const &crossings,
       currentDir = {right(currentDir.offset), 'R'};
     } else {
       // dead end?
-      printPath(nextPath);
+      count++;
+      nextPath.push_back(',');
+      nextPath.push_back(currentDir.turn);
+      nextPath.push_back(',');
+      nextPath.push_back(count + '0');
+      allPathes.push_back(nextPath);
       return true;
     }
   }
+
+  nextPath.push_back(',');
+  nextPath.push_back(currentDir.turn);
+  nextPath.push_back(',');
+  nextPath.push_back(count + '0');
 
   // printPath(nextPath);
   nextVisited.push_back({start, dir.offset});
@@ -225,22 +232,50 @@ bool explore(CameraImage const &image, Pixels const &crossings,
   if (std::end(nextVisited) ==
       std::find(std::begin(nextVisited), std::end(nextVisited),
                 std::make_pair(current, left(currentDir.offset))))
-    explore(image, crossings, nextVisited, current,
+    explore(allPathes, image, crossings, nextVisited, current,
             {left(currentDir.offset), 'L'}, nextPath);
 
   if (std::end(nextVisited) ==
       std::find(std::begin(nextVisited), std::end(nextVisited),
                 std::make_pair(current, right(currentDir.offset))))
-    explore(image, crossings, nextVisited, current, {right(currentDir.offset), 'R'},
-            nextPath);
+    explore(allPathes, image, crossings, nextVisited, current,
+            {right(currentDir.offset), 'R'}, nextPath);
 
   return false;
-} // namespace
+}
+
+void checkPath(CameraImage image, PixelCoordinate position, Path const &path) {
+
+  Direction dir{{0, -1}, 'L'};
+  for (int i = 0; i < path.size() + 1; i += 4) {
+    char turn = path[i];
+    int length = path[i + 2] - '0';
+    if (turn == 'L')
+      dir.offset = left(dir.offset);
+    else if (turn == 'R')
+      dir.offset = right(dir.offset);
+    else
+      throw;
+
+    for (int move = 0; move < length; move++) {
+      image[position] = 'T';
+      position = position + dir.offset;
+    }
+  }
+
+  if (std::find_if(std::begin(image), std::end(image), [](auto const &pixel) {
+        return pixel.second == '#';
+      }) == std::end(image)) {
+    printPath(path);
+    //print(image);
+  }
+}
 } // namespace
 
 void ASCII::possibleMovements() {
   auto image = getImage(program_);
   auto crossings = getCrossings(image);
+  std::vector<Path> allPathes{};
 
   auto startPos =
       std::find_if(std::begin(image), std::end(image),
@@ -249,6 +284,19 @@ void ASCII::possibleMovements() {
     auto start = startPos->first;
     Direction dir{{-1, 0}, 'L'};
     auto firstCrossing = findNextCrossing(image, start, dir, crossings);
-    explore(image, crossings, {}, firstCrossing, {{-1, 0}, 'L'}, {});
+    {
+      Path path{'L', ',', '4', ',', 'L', ',', '6'};
+      explore(allPathes, image, crossings, {}, firstCrossing, {{-1, 0}, 'R'},
+              path);
+    }
+    {
+      Path path{'L', ',', '4', ',', 'L', ',', '6'};
+      explore(allPathes, image, crossings, {}, firstCrossing, {{1, 0}, 'L'},
+              path);
+    }
   }
+
+  std::for_each(
+      std::begin(allPathes), std::end(allPathes),
+      [&](auto const &path) { checkPath(image, startPos->first, path); });
 }
