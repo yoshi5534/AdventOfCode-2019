@@ -19,6 +19,7 @@
 #include <password.h>
 #include <robot.h>
 #include <spaceimage.h>
+#include <springdroid.h>
 #include <tractorbeam.h>
 #include <vault.h>
 #include <wires.h>
@@ -419,8 +420,24 @@ void solve20() {
   Maze maze{input};
   std::cout << "The shortest path is " << maze.shortestPath() << " steps."
             << std::endl;
-  std::cout << "The shortest recursive path is " << maze.recursivePath() << " steps."
-            << std::endl;
+  std::cout << "The shortest recursive path is " << maze.recursivePath()
+            << " steps." << std::endl;
+}
+
+void solve21() {
+  std::ifstream input;
+  getInput(input, 21);
+  // SpringScript script{"NOT C J"};
+
+  SpringScript script{"NOT A J", "NOT B T", "AND T J", "NOT C T", "AND T J",
+                      "AND D J", "NOT J T", "OR B T",  "OR T J",  "NOT C T",
+                      "AND T J", "AND D J", "NOT A T", "OR T J"};
+  SpringDroid droid{program};
+  auto damage = droid.walk(script);
+  std::cout << "Reported hull damage: " << damage << std::endl;
+
+  damage = droid.run(script);
+  std::cout << "Reported hull damage: " << damage << std::endl;
 }
 
 void solve(int puzzleId, std::string const &inputFile) {
@@ -483,4 +500,7 @@ void solve(int puzzleId, std::string const &inputFile) {
 
   if (puzzleId == 20)
     solve20();
+
+  if (puzzleId == 21)
+    solve21();
 }
