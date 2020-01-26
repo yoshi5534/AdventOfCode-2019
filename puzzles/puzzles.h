@@ -427,17 +427,25 @@ void solve20() {
 void solve21() {
   std::ifstream input;
   getInput(input, 21);
-  // SpringScript script{"NOT C J"};
+  
+  {
+    SpringScript script{"NOT A J", "NOT B T", "AND T J", "NOT C T", "AND T J",
+                        "AND D J", "NOT J T", "OR B T",  "OR T J",  "NOT C T",
+                        "AND T J", "AND D J", "NOT A T", "OR T J"};
+    SpringDroid droid{program};
+    auto damage = droid.walk(script);
+    std::cout << "Reported hull damage: " << damage << std::endl;
+  }
+  {
+    // (((!H & E) | !F | (!G & H)) & !C & D) | (!B & D) | !A
+    SpringScript script{"NOT H T", "AND E T", "NOT F J", "OR J T",  "NOT G J", 
+                        "AND H J", "OR J T",  "NOT C J", "AND J T", "AND D T", 
+                        "NOT B J", "AND D J", "OR J T",  "NOT A J", "OR T J"};
+    SpringDroid droid{program};
 
-  SpringScript script{"NOT A J", "NOT B T", "AND T J", "NOT C T", "AND T J",
-                      "AND D J", "NOT J T", "OR B T",  "OR T J",  "NOT C T",
-                      "AND T J", "AND D J", "NOT A T", "OR T J"};
-  SpringDroid droid{program};
-  auto damage = droid.walk(script);
-  std::cout << "Reported hull damage: " << damage << std::endl;
-
-  damage = droid.run(script);
-  std::cout << "Reported hull damage: " << damage << std::endl;
+    auto damage = droid.run(script);
+    std::cout << "Reported hull damage: " << damage << std::endl;
+  }
 }
 
 void solve(int puzzleId, std::string const &inputFile) {

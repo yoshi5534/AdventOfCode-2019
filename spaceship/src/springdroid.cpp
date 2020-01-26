@@ -16,8 +16,18 @@ Input fromScript(SpringScript const &script) {
   }
   return input;
 }
-} // namespace
 
+int writeOutput(Computer &computer) {
+  while (computer.hasOutput()) {
+    auto output = computer.readOutput();
+    if (output < 128)
+      std::cout << static_cast<char>(output);
+    else
+      return output;
+  }
+  return 0;
+}
+} // namespace
 
 SpringDroid::SpringDroid(Program const &program) : program_{program} {}
 
@@ -28,14 +38,7 @@ int SpringDroid::walk(SpringScript const &script) {
   computer.writeInput({'W', 'A', 'L', 'K', '\n'});
   computer.calculate();
 
-  while (computer.hasOutput()) {
-    auto output = computer.readOutput();
-    if (output < 128)
-      std::cout << static_cast <char> (output);
-    else 
-      return output;
-  }
-  return 0;
+  return writeOutput(computer);
 }
 
 int SpringDroid::run(SpringScript const &script) {
@@ -45,12 +48,5 @@ int SpringDroid::run(SpringScript const &script) {
   computer.writeInput({'R', 'U', 'N', '\n'});
   computer.calculate();
 
-  while (computer.hasOutput()) {
-    auto output = computer.readOutput();
-    if (output < 128)
-      std::cout << static_cast <char> (output);
-    else 
-      return output;
-  }
-  return 0;
+  return writeOutput(computer);
 }
