@@ -12,6 +12,6 @@ add_executable(
   spaceimage.cpp
   wires.cpp)
 
-target_link_libraries(AOCtests spaceship ${CONAN_LIBS})
+target_link_libraries(AOCtests spaceship doctest::doctest)
 
-catch_discover_tests(AOCtests)
+doctest_discover_tests(AOCtests)

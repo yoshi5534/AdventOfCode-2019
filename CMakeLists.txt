@@ -6,9 +6,9 @@ add_definitions("-std=c++17")
 include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
 conan_basic_setup()
 
-find_package(Catch2 REQUIRED)
+find_package(doctest REQUIRED)
 include(CTest)
-include(Catch)
+include(doctest)
 
 add_subdirectory(spaceship)
 add_subdirectory(puzzles)

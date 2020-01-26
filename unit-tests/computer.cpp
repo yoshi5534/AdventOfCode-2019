@@ -1,4 +1,4 @@
-#include <catch2/catch.hpp>
+#include "doctest.h"
 
 #include <computer.h>
 
@@ -120,7 +120,7 @@ SCENARIO("Parameters can be negative") {
 }
 
 TEST_CASE("Support comparision") {
-  SECTION("equal to position mode") {
+  SUBCASE("equal to position mode") {
     Program program{3, 9, 8, 9, 10, 9, 4, 9, 99, -1, 8};
     {
       Computer computer(program);
@@ -138,7 +138,7 @@ TEST_CASE("Support comparision") {
     }
   }
 
-  SECTION("less than position mode") {
+  SUBCASE("less than position mode") {
     Program program{3, 9, 7, 9, 10, 9, 4, 9, 99, -1, 8};
     {
       Computer computer(program);
@@ -156,7 +156,7 @@ TEST_CASE("Support comparision") {
     }
   }
 
-  SECTION("equal to immediate mode") {
+  SUBCASE("equal to immediate mode") {
     Program program{3, 3, 1108, -1, 8, 3, 4, 3, 99};
     {
       Computer computer(program);
@@ -174,7 +174,7 @@ TEST_CASE("Support comparision") {
     }
   }
 
-  SECTION("less than immediate mode") {
+  SUBCASE("less than immediate mode") {
     Program program{3, 3, 1107, -1, 8, 3, 4, 3, 99};
     {
       Computer computer(program);
@@ -194,7 +194,7 @@ TEST_CASE("Support comparision") {
 }
 
 TEST_CASE("Support jumps") {
-  SECTION("jump test position mode") {
+  SUBCASE("jump test position mode") {
     Program program{3, 12, 6, 12, 15, 1, 13, 14, 13, 4, 13, 99, -1, 0, 1, 9};
     {
       Computer computer(program);
@@ -212,7 +212,7 @@ TEST_CASE("Support jumps") {
     }
   }
 
-  SECTION("jump test immediate mode") {
+  SUBCASE("jump test immediate mode") {
     Program program{3, 3, 1105, -1, 9, 1101, 0, 0, 12, 4, 12, 99, 1};
     {
       Computer computer(program);
@@ -238,7 +238,7 @@ TEST_CASE("longer example") {
                   46, 104, 999,  1105, 1,   46, 1101, 1000, 1,    20,
                   4,  20,  1105, 1,    46,  98, 99};
 
-  SECTION("input lower 8") {
+  SUBCASE("input lower 8") {
     Computer computer(program);
     computer.writeInput({0});
     computer.calculate();
@@ -246,7 +246,7 @@ TEST_CASE("longer example") {
     REQUIRE(output == 999);
   }
 
-  SECTION("input equal 8") {
+  SUBCASE("input equal 8") {
     Computer computer(program);
     computer.writeInput({8});
     computer.calculate();
@@ -254,7 +254,7 @@ TEST_CASE("longer example") {
     REQUIRE(output == 1000);
   }
 
-  SECTION("input greater 8") {
+  SUBCASE("input greater 8") {
     Computer computer(program);
     computer.writeInput({9});
     computer.calculate();
