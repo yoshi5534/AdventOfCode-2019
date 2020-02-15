@@ -35,11 +35,6 @@ CameraImage getImage(Program const &program) {
   return image;
 }
 
-void print(CameraImage const &image) {
-  std::for_each(std::begin(image), std::end(image),
-                [&](auto const &pixel) { std::cout << pixel.second; });
-}
-
 bool isScaffold(CameraImage const &image, PixelCoordinate const &coordinate) {
   auto const pixel = image.find(coordinate);
   if (pixel != std::end(image))
@@ -213,7 +208,7 @@ bool explore(std::vector<Path> &allPaths, CameraImage const &image,
 
 bool checkPath(CameraImage image, PixelCoordinate position, Path const &path) {
   Direction dir{{0, -1}, 'L'};
-  for (int i = 0; i < path.size() + 1; i += 4) {
+  for (int i = 0; i < static_cast<int>(path.size()) + 1; i += 4) {
     char turn = path[i];
     int length = path[i + 2] - '0';
     if (turn == 'L')

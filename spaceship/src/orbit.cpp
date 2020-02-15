@@ -8,7 +8,7 @@ using namespace AdventOfCode;
 void Map::addObject(std::string const &name) {
   auto it = orbits_.find(name);
   if (it == orbits_.end()) {
-    orbits_[name] = new Object{.name = name};
+    orbits_[name] = new Object{.name = name, .orbiters = {}};
   }
 }
 

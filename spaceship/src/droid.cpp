@@ -105,7 +105,7 @@ struct Node {
   Node *parent_;
 
   Node(MapPosition coord, Node *parent = nullptr)
-      : parent_{parent}, coordinates_{coord}, g_{0}, h_{0} {}
+      : g_{0}, h_{0}, coordinates_{coord}, parent_{parent} {}
   uint getScore() { return g_ + h_; }
 };
 using NodeSet = std::set<Node *>;

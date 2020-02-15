@@ -18,7 +18,7 @@ bool isIncreasing(int password) {
   std::array<char, 6> digits;
   std::to_chars(digits.data(), digits.data() + digits.size(), password);
 
-  for (int i = 0; i < digits.size() - 1; ++i) {
+  for (int i = 0; i < static_cast<int>(digits.size()) - 1; ++i) {
     if (digits[i] > digits[i + 1])
       return false;
   }

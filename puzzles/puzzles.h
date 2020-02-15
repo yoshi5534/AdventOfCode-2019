@@ -376,7 +376,7 @@ void solve17() {
   std::cout << "The collected amount of dust: " << ascii.searchRobots() << std::endl;
 }
 
-void solve(int puzzleId, std::string const &inputFile) {
+void solve(int puzzleId, std::string const &) {
   if (puzzleId == 1)
     solve1();
 

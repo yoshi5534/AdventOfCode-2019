@@ -38,7 +38,7 @@ bool SpaceImage::operator==(SpaceImage const &other) const {
 int SpaceImage::checksum() {
   int minZeroLayer = 0;
   int minZeros = INT_MAX;
-  for (int i = 0; i < layers_.size(); ++i) {
+  for (int i = 0; i < static_cast<int>(layers_.size()); ++i) {
     auto zeros = ranges::count(layers_[i], 0);
     if (zeros < minZeros) {
       minZeros = zeros;

@@ -67,7 +67,7 @@ void NanoFactory::addReaction(std::string const &reaction) {
       reaction | views::split(' ') | ranges::to<std::vector<std::string>>();
 
   Reaction chemical;
-  for (int i = 0; i < splitted.size() - 3; i += 2) {
+  for (int i = 0; i < static_cast<int>(splitted.size()) - 3; i += 2) {
     int64_t quantity = std::stol(splitted[i]);
     std::string input = splitted[i + 1];
     input.erase(std::remove(std::begin(input), std::end(input), ','),

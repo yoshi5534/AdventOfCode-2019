@@ -96,6 +96,6 @@ TEST_CASE("More complex FUEL 3") {
   int expected = 2210736;
   REQUIRE(expected == factory.necessaryORE());
 
-  int64_t expectedFuel = 460664;
+  // int64_t expectedFuel = 460664;
   // REQUIRE(expectedFuel == factory.maximumFuel(1000000000000));
 }
