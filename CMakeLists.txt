@@ -1,8 +1,11 @@
 cmake_minimum_required(VERSION 3.0)
 
 project(AdventOfCode)
-if ( CMAKE_COMPILER_IS_GNUCC )
-    set(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} -std=c++17 -Wall -Wextra")
+
+if(MSVC)
+  add_compile_options(/std:c++latest /W4 /WX)
+else()
+  add_compile_options(-std=c++17 -Wall -Wextra -pedantic)
 endif()
 
 include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)

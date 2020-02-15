@@ -8,6 +8,7 @@ using namespace AdventOfCode;
 
 namespace {
 struct Direction {
+  Direction(int l) : length{l} {}
   int length;
 };
 

@@ -138,7 +138,7 @@ MapPosition getDelta(MapPosition const &source, MapPosition const &target) {
 }
 
 uint manhattan(MapPosition source, MapPosition target) {
-  auto delta = std::move(getDelta(source, target));
+  auto delta = getDelta(source, target);
   return static_cast<uint>(10 * (delta.x + delta.y));
 }
 
