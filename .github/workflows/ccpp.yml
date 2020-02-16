@@ -9,5 +9,7 @@ jobs:
     
     steps:
     - uses: actions/checkout@v2
+    - name: install conan
+      run: pip3 install conan
     - name: build package
       run: ./build.sh
