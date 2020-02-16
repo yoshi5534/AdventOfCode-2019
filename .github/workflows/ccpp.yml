@@ -10,6 +10,6 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - name: build docker image
-      run: docker build -t yoshi5534/aoc2019 .
+      run: docker build -t yoshi5534/aoc2019_dev .devcontainer 
     - name: run build in docker container
-      run: docker run -v /var/run/docker.sock:/var/run/docker.sock -e workspace=`pwd` yoshi5534/aoc2019
+      run: docker run -v `pwd`:/workspaces/aoc2019 yoshi5534/aoc2019_dev /bin/bash /workspaces/aoc2019/build.sh
