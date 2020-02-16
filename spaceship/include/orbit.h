@@ -6,6 +6,7 @@
 namespace AdventOfCode {
 
 struct Object {
+  Object(std::string const& obj);
   std::string name;
   std::vector<Object *> orbiters;
 };
