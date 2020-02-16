@@ -1,3 +1,5 @@
+![C/C++ CI](https://github.com/yoshi5534/advent-of-code-2019/workflows/C/C++%20CI/badge.svg)
+
 # advent-of-code-2019
 C++ Solutions for [Advent of Code 2019](https://adventofcode.com/)
 
