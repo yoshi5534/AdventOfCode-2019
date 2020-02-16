@@ -9,7 +9,7 @@ jobs:
     
     steps:
     - uses: actions/checkout@v2
-    - name: install conan
-      run: pip3 install conan
-    - name: build package
-      run: ./build.sh
+    - name: build docker image
+      run: docker build -t yoshi5534/aoc2019 .
+    - name: run build in docker container
+      run: docker run -v /var/run/docker.sock:/var/run/docker.sock -e workspace=`pwd` yoshi5534/aoc2019
