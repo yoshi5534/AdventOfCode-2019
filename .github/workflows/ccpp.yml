@@ -15,4 +15,6 @@ jobs:
     - name: install conan
       run: pip3 install conan
     - name: build all targets
-      run: build.sh
+      run: |
+        cd $GITHUB_WORKSPACE
+        ./build.sh
