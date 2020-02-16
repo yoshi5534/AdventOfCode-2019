@@ -33,6 +33,8 @@ template <int T> struct InstructionCount {
 };
 
 struct Add : public InstructionCount<4> {
+  Add(int64_t sum1, int64_t sum2, int64_t res, int64_t m)
+      : summand_1{sum1}, summand_2{sum2}, result{res}, mask{m} {}
   int64_t summand_1;
   int64_t summand_2;
   int64_t result;
@@ -40,6 +42,8 @@ struct Add : public InstructionCount<4> {
 };
 
 struct Multiply : public InstructionCount<4> {
+  Multiply(int64_t fac1, int64_t fac2, int64_t res, int64_t m)
+      : factor_1{fac1}, factor_2{fac2}, result{res}, mask{m} {}
   int64_t factor_1;
   int64_t factor_2;
   int64_t result;
@@ -47,28 +51,36 @@ struct Multiply : public InstructionCount<4> {
 };
 
 struct Input : public InstructionCount<2> {
+  Input(int64_t pos, int64_t m) : inputPosition{pos}, mask{m} {}
   int64_t inputPosition;
   int64_t mask;
 };
 
 struct Output : public InstructionCount<2> {
+  Output(int64_t pos, int64_t m) : outputPosition{pos}, mask{m} {}
   int64_t outputPosition;
   int64_t mask;
 };
 
 struct JumpIfTrue : public InstructionCount<3> {
+  JumpIfTrue(int64_t jmp, int64_t pos, int64_t m)
+      : jumper{jmp}, position{pos}, mask{m} {}
   int64_t jumper;
   int64_t position;
   int64_t mask;
 };
 
 struct JumpIfFalse : public InstructionCount<3> {
+  JumpIfFalse(int64_t jmp, int64_t pos, int64_t m)
+      : jumper{jmp}, position{pos}, mask{m} {}
   int64_t jumper;
   int64_t position;
   int64_t mask;
 };
 
 struct LessThan : public InstructionCount<4> {
+  LessThan(int64_t l, int64_t r, int64_t res, int64_t m)
+      : left{l}, right{r}, result{res}, mask{m} {}
   int64_t left;
   int64_t right;
   int64_t result;
@@ -76,6 +88,8 @@ struct LessThan : public InstructionCount<4> {
 };
 
 struct EqualTo : public InstructionCount<4> {
+  EqualTo(int64_t l, int64_t r, int64_t res, int64_t m)
+      : left{l}, right{r}, result{res}, mask{m} {}
   int64_t left;
   int64_t right;
   int64_t result;
@@ -83,6 +97,7 @@ struct EqualTo : public InstructionCount<4> {
 };
 
 struct AdjustBase : public InstructionCount<2> {
+  AdjustBase(int64_t off, int64_t m) : offset{off}, mask{m} {}
   int64_t offset;
   int64_t mask;
 };
@@ -258,39 +273,27 @@ Instruction getCommand(Program const &input, int64_t position) {
   int64_t opcode = input[position] % 100;
   int64_t parameterMask = input[position] / 100;
   if (opcode == to_underlying(Intcode::Add)) {
-    return Add{.summand_1 = input[position + 1],
-               .summand_2 = input[position + 2],
-               .result = input[position + 3],
-               .mask = parameterMask};
+    return Add{input[position + 1], input[position + 2], input[position + 3],
+               parameterMask};
   } else if (opcode == to_underlying(Intcode::Multiply)) {
-    return Multiply{.factor_1 = input[position + 1],
-                    .factor_2 = input[position + 2],
-                    .result = input[position + 3],
-                    .mask = parameterMask};
+    return Multiply{input[position + 1], input[position + 2],
+                    input[position + 3], parameterMask};
   } else if (opcode == to_underlying(Intcode::Input)) {
-    return Input{.inputPosition = input[position + 1], .mask = parameterMask};
+    return Input{input[position + 1], parameterMask};
   } else if (opcode == to_underlying(Intcode::Output)) {
-    return Output{.outputPosition = input[position + 1], .mask = parameterMask};
+    return Output{input[position + 1], parameterMask};
   } else if (opcode == to_underlying(Intcode::JumpIfTrue)) {
-    return JumpIfTrue{.jumper = input[position + 1],
-                      .position = input[position + 2],
-                      .mask = parameterMask};
+    return JumpIfTrue{input[position + 1], input[position + 2], parameterMask};
   } else if (opcode == to_underlying(Intcode::JumpIfFalse)) {
-    return JumpIfFalse{.jumper = input[position + 1],
-                       .position = input[position + 2],
-                       .mask = parameterMask};
+    return JumpIfFalse{input[position + 1], input[position + 2], parameterMask};
   } else if (opcode == to_underlying(Intcode::LessThan)) {
-    return LessThan{.left = input[position + 1],
-                    .right = input[position + 2],
-                    .result = input[position + 3],
-                    .mask = parameterMask};
+    return LessThan{input[position + 1], input[position + 2],
+                    input[position + 3], parameterMask};
   } else if (opcode == to_underlying(Intcode::EqualTo)) {
-    return EqualTo{.left = input[position + 1],
-                   .right = input[position + 2],
-                   .result = input[position + 3],
-                   .mask = parameterMask};
+    return EqualTo{input[position + 1], input[position + 2],
+                   input[position + 3], parameterMask};
   } else if (opcode == to_underlying(Intcode::AdjustBase)) {
-    return AdjustBase{.offset = input[position + 1], .mask = parameterMask};
+    return AdjustBase{input[position + 1], parameterMask};
   } else if (opcode == to_underlying(Intcode::Halt)) {
     return Halt{};
   }

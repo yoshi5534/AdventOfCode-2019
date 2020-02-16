@@ -5,10 +5,12 @@
 
 using namespace AdventOfCode;
 
+Object::Object(std::string const &obj) : name{obj}, orbiters{} {}
+
 void Map::addObject(std::string const &name) {
   auto it = orbits_.find(name);
   if (it == orbits_.end()) {
-    orbits_[name] = new Object{.name = name, .orbiters = {}};
+    orbits_[name] = new Object{name};
   }
 }
 
