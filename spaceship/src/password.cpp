@@ -2,7 +2,6 @@
 
 #include <algorithm>
 #include <array>
-#include <charconv>
 
 using namespace AdventOfCode;
 
@@ -16,7 +15,8 @@ bool isSixDigit(int password) {
 
 bool isIncreasing(int password) {
   std::array<char, 6> digits;
-  std::to_chars(digits.data(), digits.data() + digits.size(), password);
+  auto str = std::to_string(password);
+  std::copy(std::begin(str), std::next(std::begin (str), digits.size()), std::begin(digits));
 
   for (int i = 0; i < static_cast<int>(digits.size()) - 1; ++i) {
     if (digits[i] > digits[i + 1])
@@ -28,7 +28,8 @@ bool isIncreasing(int password) {
 
 bool hasTwoAdjacent(int password) {
   std::array<char, 6> digits;
-  std::to_chars(digits.data(), digits.data() + digits.size(), password);
+  auto str = std::to_string(password);
+  std::copy(std::begin(str), std::next(std::begin (str), digits.size()), std::begin(digits));
 
   for (char c = '0'; c <= '9'; ++c) {
     int num = std::count(digits.data(), digits.data() + digits.size(), c);
