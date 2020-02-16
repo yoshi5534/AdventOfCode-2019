@@ -9,7 +9,10 @@ jobs:
     
     steps:
     - uses: actions/checkout@v2
-    - name: build docker image
-      run: docker build -t yoshi5534/aoc2019_dev .devcontainer 
-    - name: run build in docker container
-      run: docker run -v `pwd`:/workspaces/aoc2019 yoshi5534/aoc2019_dev /bin/bash /workspaces/aoc2019/build.sh
+    - uses: actions/setup-python@v1
+      with:
+        python-version: '3.7'
+    - name: install conan
+      run: pip3 install conan
+    - name: build all targets
+      run: build.sh
