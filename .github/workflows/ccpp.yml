@@ -24,3 +24,7 @@ jobs:
       run: conan install "$GITHUB_WORKSPACE" --install-folder "$GITHUB_WORKSPACE/build"
     - name: build AOC2019
       run: conan build "$GITHUB_WORKSPACE" --build-folder "$GITHUB_WORKSPACE/build"
+    - name: run tests
+      run: |
+        cd "$GITHUB_WORKSPACE/build"
+        ctest -T test 
