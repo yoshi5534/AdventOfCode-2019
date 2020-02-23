@@ -125,6 +125,7 @@ Node *findNodeOnList(NodeSet &nodes, MapPosition coordinates) {
   }
   return nullptr;
 }
+
 bool detectCollision(DroidMap &area, MapPosition const &coordinates) {
   if ((area[coordinates] == Field::Wall) ||
       area[coordinates] == Field::Unknown) {
