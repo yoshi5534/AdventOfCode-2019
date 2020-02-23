@@ -13,15 +13,15 @@ Vault::Vault(std::istream &map) : vault_{} {
     width = 0;
     for (char c : line) {
       if (c == '#')
-        vault_[{width, height}] = Field::Wall;
+        vault_[{width, height}] = Wall{};
       if (c == '.')
-        vault_[{width, height}] = Field::Open;
+        vault_[{width, height}] = Open{};
       if (c == '@')
-        vault_[{width, height}] = Field::Entrance;
+        vault_[{width, height}] = Entrance{};
       if (c >= 'a' && c <= 'z')
-        vault_[{width, height}] = Field::Key;
+        vault_[{width, height}] = Key{c};
       if (c >= 'A' && c <= 'Z')
-        vault_[{width, height}] = Field::Door;
+        vault_[{width, height}] = Door{c};
 
       width++;
     }

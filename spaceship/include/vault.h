@@ -4,12 +4,19 @@
 
 #include <iosfwd>
 #include <map>
+#include <variant>
 
 namespace AdventOfCode {
 
-enum class Field { Entrance, Open, Wall, Key, Door };
+struct Entrance{};
+struct Wall{};
+struct Open{};
+struct Key{char key;};
+struct Door{char door;};
 
-using VaultMap = std::map<MapPosition, Field>;
+using VaultField = std::variant<Entrance, Wall, Open, Key, Door>;
+
+using VaultMap = std::map<MapPosition, VaultField>;
 
 class Vault {
 public:
