@@ -10,6 +10,7 @@ add_executable(
   orbit.cpp
   password.cpp
   spaceimage.cpp
+  vault.cpp
   wires.cpp)
 
 target_link_libraries(AOCtests spaceship doctest::doctest)
