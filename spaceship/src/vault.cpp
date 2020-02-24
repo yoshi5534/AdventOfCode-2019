@@ -114,11 +114,14 @@ void printMap(VaultMap const &map) {
 int collectKey(VaultMap const &map, MapPosition const &start,
                MapPosition const &dir, int steps) {
 
+  if (!hasKeys(map))
+    return steps;
+
   std::vector<MapPosition> directions = {{0, 1}, {1, 0}, {0, -1}, {-1, 0}};
   Node *current = nullptr;
   NodeSet openSet, closedSet;
   openSet.insert(new Node(start + dir));
-  MapPosition keyPosition{-1, -1};
+  std::map<MapPosition, int> keyPositions;
   while (!openSet.empty()) {
     current = *openSet.begin();
     for (auto node : openSet) {
@@ -128,9 +131,20 @@ int collectKey(VaultMap const &map, MapPosition const &start,
     }
 
     if (isKey(map, current->coordinates_)) {
-      keyPosition = current->coordinates_;
-      printMap(map);
-      break;
+      if (keyPositions.find(current->coordinates_) == std::end(keyPositions)) {
+        int pathLength = 0;
+        Node *path = current;
+        while (path->parent_ != nullptr) {
+          pathLength++;
+          path = path->parent_;
+        }
+        keyPositions[current->coordinates_] = pathLength;
+        printMap(map);
+      }
+
+      closedSet.insert(current);
+      openSet.erase(std::find(openSet.begin(), openSet.end(), current));
+      continue;
     } else if (current->getScore() > MAX_PATH) {
       break;
     }
@@ -159,46 +173,41 @@ int collectKey(VaultMap const &map, MapPosition const &start,
     }
   }
 
-  if (keyPosition.x < 0)
-    return MAX_PATH;
-
-  char key = std::get<Key>(map.at(keyPosition)).key;
-
-  int pathLength = 0;
-  while (current->parent_ != nullptr) {
-    pathLength++;
-    current = current->parent_;
-  }
-
-  auto door =
-      std::find_if(std::begin(map), std::end(map), [key](auto const &field) {
-        return std::holds_alternative<Door>(field.second) &&
-               std::get<Door>(field.second).door == std::toupper(key);
-      });
-
   releaseNodes(openSet);
   releaseNodes(closedSet);
 
-  VaultMap newMap = map;
-  newMap[start] = Open{};
-  newMap[keyPosition] = Entrance{};
-  if (door != std::end(map))
-    newMap[door->first] = Open{};
-
-  if (!hasKeys(newMap))
-    return steps + pathLength;
+  if (keyPositions.size() == 0)
+    return MAX_PATH;
 
   int shortest = MAX_PATH;
-  for (uint i = 0; i < directions.size(); ++i) {
-    if (!isReachable(map, keyPosition + directions[i])) {
-      continue;
-    }
+  std::for_each(
+      std::begin(keyPositions), std::end(keyPositions),
+      [&](auto const &foundKeys) {
+        char key = std::get<Key>(map.at(foundKeys.first)).key;
 
-    auto length =
-        collectKey(newMap, keyPosition, directions[i], steps + pathLength + 1);
-    if (length < shortest)
-      shortest = length;
-  }
+        auto door = std::find_if(
+            std::begin(map), std::end(map), [key](auto const &field) {
+              return std::holds_alternative<Door>(field.second) &&
+                     std::get<Door>(field.second).door == std::toupper(key);
+            });
+
+        VaultMap newMap = map;
+        newMap[start] = Open{};
+        newMap[foundKeys.first] = Entrance{};
+        if (door != std::end(map))
+          newMap[door->first] = Open{};
+
+        for (uint i = 0; i < directions.size(); ++i) {
+          if (!isReachable(map, foundKeys.first + directions[i])) {
+            continue;
+          }
+
+          auto length = collectKey(newMap, foundKeys.first, directions[i],
+                                   steps + foundKeys.second + 1);
+          if (length < shortest)
+            shortest = length;
+        }
+      });
 
   return shortest;
 }
@@ -219,5 +228,5 @@ int Vault::collectKeys() {
     steps.push_back(collectKey(map, entrance, directions[i], 1));
   }
 
-  return *std::min_element (std::begin(steps), std::end(steps));
+  return *std::min_element(std::begin(steps), std::end(steps));
 }

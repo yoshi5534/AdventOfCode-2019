@@ -63,7 +63,7 @@ TEST_CASE("Collect all keys in example 4") {
   REQUIRE(expected == steps);
 }
 */
-TEST_CASE("Collect all keys in example 4") {
+TEST_CASE("Collect all keys in example 5") {
   std::stringstream map;
   map << "########################\n"
          "#@..............ac.GI.b#\n"
