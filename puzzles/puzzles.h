@@ -18,6 +18,7 @@
 #include <password.h>
 #include <robot.h>
 #include <spaceimage.h>
+#include <vault.h>
 #include <wires.h>
 
 using namespace AdventOfCode;
@@ -376,6 +377,15 @@ void solve17() {
   std::cout << "The collected amount of dust: " << ascii.searchRobots() << std::endl;
 }
 
+
+void solve18() {
+  std::ifstream input;
+  getInput(input, 18);
+
+  Vault vault{input};
+  std::cout << "The shortest path to all keys has " << vault.collectKeys() << " steps." << std::endl;
+}
+
 void solve(int puzzleId, std::string const &) {
   if (puzzleId == 1)
     solve1();
@@ -427,4 +437,7 @@ void solve(int puzzleId, std::string const &) {
 
   if (puzzleId == 17)
     solve17();
+
+  if (puzzleId == 18)
+    solve18();
 }

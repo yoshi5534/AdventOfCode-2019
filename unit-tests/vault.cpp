@@ -4,7 +4,7 @@
 #include <vault.h>
 
 using namespace AdventOfCode;
-/*
+
 TEST_CASE("Collect all keys in small example") {
   std::stringstream map;
   map << "#########\n"
@@ -62,7 +62,7 @@ TEST_CASE("Collect all keys in example 4") {
   int expected = 136;
   REQUIRE(expected == steps);
 }
-*/
+
 TEST_CASE("Collect all keys in example 5") {
   std::stringstream map;
   map << "########################\n"
