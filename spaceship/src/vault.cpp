@@ -45,6 +45,17 @@ MapPosition findEntrance(VaultMap const &map) {
       ->first;
 }
 
+auto allDoors(VaultMap const &map) {
+  std::map<char, MapPosition> doors;
+  std::for_each(std::begin(map), std::end(map), [&](auto const &field) {
+    if (std::holds_alternative<Door>(field.second)) {
+      doors[std::tolower(std::get<Door>(field.second).door)] = field.first;
+    }
+  });
+
+  return doors;
+}
+
 bool isReachable(VaultMap const &map, MapPosition const &field) {
   return (std::holds_alternative<Open>(map.at(field)) ||
           std::holds_alternative<Key>(map.at(field)));
@@ -125,80 +136,84 @@ void printMap(VaultMap const &map) {
 }
 
 bool nextKeys(std::map<MapPosition, int> &keys, VaultMap const &map,
-              std::vector<MapPosition> const &nextVisited,
+              std::vector<MapPosition> const &visited,
               MapPosition const &current, MapPosition const &direction,
               int count) {
-  // auto nextVisited{visited};
-  // nextVisited.push_back(current);
+  if (std::find(std::begin(visited), std::end(visited), current) !=
+      std::end(visited))
+    return false;
+  // std::cout << ".";
+  auto nextVisited{visited};
+  nextVisited.push_back(current);
 
   if (!isKey(map, current)) {
     count++;
-    if (std::end(nextVisited) == std::find(std::begin(nextVisited),
-                                           std::end(nextVisited),
-                                           current + right(direction)) &&
-        isReachable(map, current + right(direction)))
+    if (isReachable(map, current + right(direction)))
       nextKeys(keys, map, nextVisited, current + right(direction),
                right(direction), count);
 
-    if (std::end(nextVisited) == std::find(std::begin(nextVisited),
-                                           std::end(nextVisited),
-                                           current + left(direction)) &&
-        isReachable(map, current + left(direction)))
+    if (isReachable(map, current + left(direction)))
       nextKeys(keys, map, nextVisited, current + left(direction),
                left(direction), count);
 
-    // if (std::end(nextVisited) == std::find(std::begin(nextVisited),
-    //                                        std::end(nextVisited),
-    //                                        current + reverse(direction)) &&
-    //     isReachable(map, current + reverse(direction)))
-    //   nextKeys(keys, map, nextVisited, current + reverse(direction),
-    //            reverse(direction), count);
-
-    if (std::end(nextVisited) == std::find(std::begin(nextVisited),
-                                           std::end(nextVisited),
-                                           current + direction) &&
-        isReachable(map, current + direction))
+    if (isReachable(map, current + direction))
       nextKeys(keys, map, nextVisited, current + direction, direction, count);
-  } else {
-    //auto key = std::get<Key>(map.at(current)).key;
-    keys[current] = count;
 
-    // std::cout << key << std::endl;
+    if (isReachable(map, current + reverse(direction)))
+      nextKeys(keys, map, nextVisited, current + reverse(direction),
+               reverse(direction), count);
+  } else {
+    keys[current] = count;
     return true;
   }
 
   return false;
 }
 
-void allfrom(std::vector<int> &steps, VaultMap map, MapPosition start,
-             int count) {
-  if (steps.size() &&
-      count >= *std::min_element(std::begin(steps), std::end(steps)))
+void allfrom(std::map<int, int> &steps,
+             std::map<int, std::map<MapPosition, int>> &keyPaths, VaultMap map,
+             std::map<char, MapPosition> const &doors, MapPosition const &start,
+             Path path, int count) {
+
+  if (count > 3090)
+    return;
+  if (!std::holds_alternative<Key>(map.at(start)))
     return;
 
   auto key = std::get<Key>(map.at(start)).key;
-  auto door =
-      std::find_if(std::begin(map), std::end(map), [key](auto const &field) {
-        return std::holds_alternative<Door>(field.second) &&
-               std::get<Door>(field.second).door == std::toupper(key);
-      });
   map[start] = Open{};
-  if (door != std::end(map))
-    map[door->first] = Open{};
+  if (doors.count(key))
+    map[doors.at(key)] = Open{};
 
-  if (!hasKeys(map)) {
-    std::cout << count << std::endl;
-    steps.push_back(count);
+  int abstractPath = key * 10000;
+  for (auto const &c : path)
+    abstractPath += c;
+
+  std::map<MapPosition, int> keys;
+  if (keyPaths.count(abstractPath))
+    keys = keyPaths.at(abstractPath);
+  else {
+    nextKeys(keys, map, {}, start, {-1, 0}, 0);
+    keyPaths[abstractPath] = keys;
+  }
+
+  path.push_back(key);
+
+  if (keys.empty()) {
+    for (auto const &c : path)
+      std::cout << c;
+    std::cout << ": " << count << "\n";
+    if (!steps.count(-1) || count < steps[-1])
+      steps[-1] = count;
     return;
   }
 
-  std::map<MapPosition, int> keys;
-  nextKeys(keys, map, {}, start, {-1, 0}, 0);
-  nextKeys(keys, map, {}, start, {1, 0}, 0);
-
-  std::for_each(std::begin(keys), std::end(keys), [&](auto const &key) {
-    allfrom(steps, map, key.first, count + key.second);
-  });
+  if (!steps.count(abstractPath) || count < steps[abstractPath]) {
+    std::for_each(std::begin(keys), std::end(keys), [&](auto const &key) {
+      allfrom(steps, keyPaths, map, doors, key.first, path, count + key.second);
+    });
+    steps[abstractPath] = count;
+  }
 }
 
 } // namespace
@@ -208,13 +223,17 @@ int Vault::collectKeys() {
   VaultMap map = vault_;
   map[entrance] = Open{};
 
-  std::vector<int> steps;
+  std::map<int, int> steps;
   std::map<MapPosition, int> keys;
+  auto doors = allDoors(map);
+
   nextKeys(keys, map, {}, entrance, {-1, 0}, 0);
-  nextKeys(keys, map, {}, entrance, {1, 0}, 0);
+  std::map<int, std::map<MapPosition, int>> keyPaths;
   std::for_each(std::begin(keys), std::end(keys), [&](auto const &key) {
-    allfrom(steps, map, key.first, key.second);
+    allfrom(steps, keyPaths, map, doors, key.first, {}, key.second);
   });
 
-  return *std::min_element(std::begin(steps), std::end(steps));
+  return steps.begin()->second;
+  //*std::min_element(std::begin(steps.begin()->second),
+  // std::end(steps.begin()->second));
 }
