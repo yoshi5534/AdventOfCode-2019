@@ -35,7 +35,7 @@ Vault::Vault(std::istream &map) : vault_{} {
 
 namespace {
 int const MAX_PATH = 100000;
-using Path = std::vector<char>;
+using Path = std::string;
 
 MapPosition findEntrance(VaultMap const &map) {
   return std::find_if(std::begin(map), std::end(map),
@@ -54,6 +54,17 @@ auto allDoors(VaultMap const &map) {
   });
 
   return doors;
+}
+
+auto allKeys(VaultMap const &map) {
+  Path keys;
+  std::for_each(std::begin(map), std::end(map), [&](auto const &field) {
+    if (std::holds_alternative<Key>(field.second)) {
+      keys.push_back(std::get<Key>(field.second).key);
+    }
+  });
+
+  return keys;
 }
 
 bool isReachable(VaultMap const &map, MapPosition const &field) {
@@ -142,7 +153,7 @@ bool nextKeys(std::map<MapPosition, int> &keys, VaultMap const &map,
   if (std::find(std::begin(visited), std::end(visited), current) !=
       std::end(visited))
     return false;
-  // std::cout << ".";
+
   auto nextVisited{visited};
   nextVisited.push_back(current);
 
@@ -170,24 +181,21 @@ bool nextKeys(std::map<MapPosition, int> &keys, VaultMap const &map,
   return false;
 }
 
-void allfrom(std::map<int, int> &steps,
-             std::map<int, std::map<MapPosition, int>> &keyPaths, VaultMap map,
-             std::map<char, MapPosition> const &doors, MapPosition const &start,
-             Path path, int count) {
-
-  if (count > 3090)
-    return;
+int allfrom(std::map<Path, int> &steps,
+            std::map<Path, std::map<MapPosition, int>> &keyPaths, VaultMap map,
+            Path const &allKeys, std::map<char, MapPosition> const &doors,
+            MapPosition const &start, Path path, int count) {
   if (!std::holds_alternative<Key>(map.at(start)))
-    return;
+    return 100000;
 
   auto key = std::get<Key>(map.at(start)).key;
   map[start] = Open{};
   if (doors.count(key))
     map[doors.at(key)] = Open{};
 
-  int abstractPath = key * 10000;
-  for (auto const &c : path)
-    abstractPath += c;
+  auto abstractPath = path;
+  std::sort(std::begin(abstractPath), std::end(abstractPath));
+  abstractPath.push_back(key);
 
   std::map<MapPosition, int> keys;
   if (keyPaths.count(abstractPath))
@@ -200,20 +208,26 @@ void allfrom(std::map<int, int> &steps,
   path.push_back(key);
 
   if (keys.empty()) {
-    for (auto const &c : path)
-      std::cout << c;
-    std::cout << ": " << count << "\n";
-    if (!steps.count(-1) || count < steps[-1])
-      steps[-1] = count;
-    return;
+    // for (auto const &c : path)
+    //   std::cout << c;
+    // std::cout << ": " << count << "\n";
+    if (!steps.count(".") || count < steps["."])
+      steps["."] = count;
+    return count;
   }
 
-  if (!steps.count(abstractPath) || count < steps[abstractPath]) {
+  if (!steps.count(abstractPath)) {
+    int minimum = 1000000;
     std::for_each(std::begin(keys), std::end(keys), [&](auto const &key) {
-      allfrom(steps, keyPaths, map, doors, key.first, path, count + key.second);
+      auto length = allfrom(steps, keyPaths, map, allKeys, doors, key.first,
+                            path,  key.second);
+      if (length < minimum)
+        minimum = length;
     });
-    steps[abstractPath] = count;
+    steps[abstractPath] = minimum;
   }
+
+  return steps[abstractPath] + count;
 }
 
 } // namespace
@@ -223,17 +237,20 @@ int Vault::collectKeys() {
   VaultMap map = vault_;
   map[entrance] = Open{};
 
-  std::map<int, int> steps;
+  std::map<Path, int> steps;
   std::map<MapPosition, int> keys;
   auto doors = allDoors(map);
+  auto allkeys = allKeys(map);
 
-  nextKeys(keys, map, {}, entrance, {-1, 0}, 0);
-  std::map<int, std::map<MapPosition, int>> keyPaths;
+  nextKeys(keys, map, {}, entrance, {1, 0}, 0);
+  std::map<Path, std::map<MapPosition, int>> keyPaths;
+  int minimum = 1000000;
   std::for_each(std::begin(keys), std::end(keys), [&](auto const &key) {
-    allfrom(steps, keyPaths, map, doors, key.first, {}, key.second);
+    auto length = allfrom(steps, keyPaths, map, allkeys, doors, key.first, {},
+                          key.second);
+    if (length < minimum)
+      minimum = length;
   });
 
-  return steps.begin()->second;
-  //*std::min_element(std::begin(steps.begin()->second),
-  // std::end(steps.begin()->second));
+  return minimum;
 }
