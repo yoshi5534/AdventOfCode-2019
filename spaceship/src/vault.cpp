@@ -146,7 +146,99 @@ void printMap(VaultMap const &map) {
   }
 }
 
-bool nextKeys(std::map<MapPosition, int> &keys, VaultMap const &map,
+struct Node {
+  uint g_, h_;
+  MapPosition coordinates_;
+  Node *parent_;
+
+  Node(MapPosition coord, Node *parent = nullptr)
+      : g_{0}, h_{0}, coordinates_{coord}, parent_{parent} {}
+  uint getScore() { return g_ + h_; }
+};
+using NodeSet = std::set<Node *>;
+
+void releaseNodes(NodeSet &nodes) {
+  for (auto it = nodes.begin(); it != nodes.end();) {
+    delete *it;
+    it = nodes.erase(it);
+  }
+}
+
+Node *findNodeOnList(NodeSet const &nodes, MapPosition const &coordinates) {
+  for (auto node : nodes) {
+    if (node->coordinates_ == coordinates) {
+      return node;
+    }
+  }
+  return nullptr;
+}
+
+MapPosition getDelta(MapPosition const &source, MapPosition const &target) {
+  return {abs(source.x - target.x), abs(source.y - target.y)};
+}
+
+uint manhattan(MapPosition const &source, MapPosition const &target) {
+  auto delta = getDelta(source, target);
+  return static_cast<uint>(10 * (delta.x + delta.y));
+}
+
+int shortestPath(VaultMap const &map, MapPosition const &start,
+                 MapPosition const &end) {
+  std::vector<MapPosition> directions = {{0, 1}, {1, 0}, {0, -1}, {-1, 0}};
+
+  Node *current = nullptr;
+  NodeSet openSet, closedSet;
+  openSet.insert(new Node(start));
+  while (!openSet.empty()) {
+    current = *openSet.begin();
+    for (auto node : openSet) {
+      if (node->getScore() <= current->getScore()) {
+        current = node;
+      }
+    }
+
+    if (current->coordinates_ == end) {
+      break;
+    }
+
+    closedSet.insert(current);
+    openSet.erase(std::find(openSet.begin(), openSet.end(), current));
+
+    for (uint i = 0; i < directions.size(); ++i) {
+      MapPosition newCoordinates(current->coordinates_ + directions[i]);
+      if (!isReachable(map, newCoordinates) ||
+          findNodeOnList(closedSet, newCoordinates)) {
+        continue;
+      }
+
+      uint totalCost = current->g_ + 10;
+
+      Node *successor = findNodeOnList(openSet, newCoordinates);
+      if (successor == nullptr) {
+        successor = new Node(newCoordinates, current);
+        successor->g_ = totalCost;
+        successor->h_ = manhattan(successor->coordinates_, end);
+        openSet.insert(successor);
+      } else if (totalCost < successor->g_) {
+        successor->parent_ = current;
+        successor->g_ = totalCost;
+      }
+    }
+  }
+
+  int path = 0;
+  while (current != nullptr) {
+    path++;
+    current = current->parent_;
+  }
+
+  releaseNodes(openSet);
+  releaseNodes(closedSet);
+
+  return path - 1;
+}
+
+bool nextKeys(std::map<MapPosition, char> &keys, VaultMap const &map,
               std::vector<MapPosition> const &visited,
               MapPosition const &current, MapPosition const &direction,
               int count) {
@@ -174,7 +266,7 @@ bool nextKeys(std::map<MapPosition, int> &keys, VaultMap const &map,
       nextKeys(keys, map, nextVisited, current + reverse(direction),
                reverse(direction), count);
   } else {
-    keys[current] = count;
+    keys[current] = std::get<Key>(map.at(current)).key;
     return true;
   }
 
@@ -182,12 +274,10 @@ bool nextKeys(std::map<MapPosition, int> &keys, VaultMap const &map,
 }
 
 int allfrom(std::map<Path, int> &steps,
-            std::map<Path, std::map<MapPosition, int>> &keyPaths, VaultMap map,
-            Path const &allKeys, std::map<char, MapPosition> const &doors,
-            MapPosition const &start, Path path, int count) {
-  if (!std::holds_alternative<Key>(map.at(start)))
-    return 100000;
-
+            std::map<Path, std::map<MapPosition, char>> &keyPaths, VaultMap map,
+            std::map<Path, int> &allKeyDistances,
+            std::map<char, MapPosition> const &doors, MapPosition const &start,
+            Path path, int count) {
   auto key = std::get<Key>(map.at(start)).key;
   map[start] = Open{};
   if (doors.count(key))
@@ -197,7 +287,7 @@ int allfrom(std::map<Path, int> &steps,
   std::sort(std::begin(abstractPath), std::end(abstractPath));
   abstractPath.push_back(key);
 
-  std::map<MapPosition, int> keys;
+  std::map<MapPosition, char> keys;
   if (keyPaths.count(abstractPath))
     keys = keyPaths.at(abstractPath);
   else {
@@ -208,9 +298,9 @@ int allfrom(std::map<Path, int> &steps,
   path.push_back(key);
 
   if (keys.empty()) {
-    // for (auto const &c : path)
-    //   std::cout << c;
-    // std::cout << ": " << count << "\n";
+    for (auto const &c : path)
+      std::cout << c;
+    std::cout << ": " << count << "\n";
     if (!steps.count(".") || count < steps["."])
       steps["."] = count;
     return count;
@@ -218,9 +308,20 @@ int allfrom(std::map<Path, int> &steps,
 
   if (!steps.count(abstractPath)) {
     int minimum = 1000000;
-    std::for_each(std::begin(keys), std::end(keys), [&](auto const &key) {
-      auto length = allfrom(steps, keyPaths, map, allKeys, doors, key.first,
-                            path,  key.second);
+    std::for_each(std::begin(keys), std::end(keys), [&](auto const &nextKey) {
+      auto nextKeyPath = Path{key} + Path{nextKey.second};
+      int distance = 0;
+      if (allKeyDistances.count(nextKeyPath))
+        distance = allKeyDistances[nextKeyPath];
+      else {
+        distance = shortestPath(map, start, nextKey.first);
+        allKeyDistances[nextKeyPath] = distance;
+        std::reverse(std::begin(nextKeyPath), std::end(nextKeyPath));
+        allKeyDistances[nextKeyPath] = distance;
+      }
+
+      auto length = allfrom(steps, keyPaths, map, allKeyDistances, doors,
+                            nextKey.first, path, distance);
       if (length < minimum)
         minimum = length;
     });
@@ -238,16 +339,17 @@ int Vault::collectKeys() {
   map[entrance] = Open{};
 
   std::map<Path, int> steps;
-  std::map<MapPosition, int> keys;
+  std::map<MapPosition, char> keys;
   auto doors = allDoors(map);
-  auto allkeys = allKeys(map);
+  std::map<Path, int> allKeyDistances;
 
   nextKeys(keys, map, {}, entrance, {1, 0}, 0);
-  std::map<Path, std::map<MapPosition, int>> keyPaths;
+  std::map<Path, std::map<MapPosition, char>> keyPaths;
   int minimum = 1000000;
   std::for_each(std::begin(keys), std::end(keys), [&](auto const &key) {
-    auto length = allfrom(steps, keyPaths, map, allkeys, doors, key.first, {},
-                          key.second);
+    auto distance = shortestPath(map, entrance, key.first);
+    auto length = allfrom(steps, keyPaths, map, allKeyDistances, doors,
+                          key.first, {}, distance);
     if (length < minimum)
       minimum = length;
   });
