@@ -21,7 +21,7 @@ Vault::Vault(std::istream &map) : vault_{} {
       if (c == '.')
         vault_[{width, height}] = Open{};
       if (c == '@')
-        vault_[{width, height}] = Entrance{};
+        vault_[{width, height}] = Key{c};
       if (c >= 'a' && c <= 'z')
         vault_[{width, height}] = Key{c};
       if (c >= 'A' && c <= 'Z')
@@ -34,13 +34,14 @@ Vault::Vault(std::istream &map) : vault_{} {
 }
 
 namespace {
-int const MAX_PATH = 100000;
 using Path = std::string;
 
 MapPosition findEntrance(VaultMap const &map) {
   return std::find_if(std::begin(map), std::end(map),
                       [](auto const &field) {
-                        return std::holds_alternative<Entrance>(field.second);
+                        if (std::holds_alternative<Key>(field.second))
+                          return std::get<Key>(field.second).key == '@';
+                        return false;
                       })
       ->first;
 }
@@ -56,17 +57,6 @@ auto allDoors(VaultMap const &map) {
   return doors;
 }
 
-auto allKeys(VaultMap const &map) {
-  Path keys;
-  std::for_each(std::begin(map), std::end(map), [&](auto const &field) {
-    if (std::holds_alternative<Key>(field.second)) {
-      keys.push_back(std::get<Key>(field.second).key);
-    }
-  });
-
-  return keys;
-}
-
 bool isReachable(VaultMap const &map, MapPosition const &field) {
   return (std::holds_alternative<Open>(map.at(field)) ||
           std::holds_alternative<Key>(map.at(field)));
@@ -74,16 +64,6 @@ bool isReachable(VaultMap const &map, MapPosition const &field) {
 
 bool isKey(VaultMap const &map, MapPosition const &field) {
   return std::holds_alternative<Key>(map.at(field));
-}
-
-bool isEntrance(VaultMap const &map, MapPosition const &field) {
-  return std::holds_alternative<Entrance>(map.at(field));
-}
-
-bool hasKeys(VaultMap const &map) {
-  return std::find_if(std::begin(map), std::end(map), [](auto const &field) {
-           return std::holds_alternative<Key>(field.second);
-         }) != std::end(map);
 }
 
 MapPosition left(MapPosition const &dir) {
@@ -134,8 +114,6 @@ void printMap(VaultMap const &map) {
       if (map.find({x, y}) != std::end(map)) {
         if (isKey(map, {x, y}))
           std::cout << 'k';
-        else if (isEntrance(map, {x, y}))
-          std::cout << '@';
         else if (isReachable(map, {x, y}))
           std::cout << '.';
         else
@@ -307,7 +285,7 @@ int allfrom(std::map<Path, int> &steps,
   }
 
   if (!steps.count(abstractPath)) {
-    int minimum = 1000000;
+    std::map<char, int> pathLengths;
     std::for_each(std::begin(keys), std::end(keys), [&](auto const &nextKey) {
       auto nextKeyPath = Path{key} + Path{nextKey.second};
       int distance = 0;
@@ -320,12 +298,16 @@ int allfrom(std::map<Path, int> &steps,
         allKeyDistances[nextKeyPath] = distance;
       }
 
-      auto length = allfrom(steps, keyPaths, map, allKeyDistances, doors,
-                            nextKey.first, path, distance);
-      if (length < minimum)
-        minimum = length;
+      pathLengths[nextKey.second] =
+          allfrom(steps, keyPaths, map, allKeyDistances, doors, nextKey.first,
+                  path, distance);
     });
-    steps[abstractPath] = minimum;
+    steps[abstractPath] =
+        std::min_element(std::begin(pathLengths), std::end(pathLengths),
+                         [](auto const &p1, auto const &p2) {
+                           return p1.second < p2.second;
+                         })
+            ->second;
   }
 
   return steps[abstractPath] + count;
@@ -334,25 +316,14 @@ int allfrom(std::map<Path, int> &steps,
 } // namespace
 
 int Vault::collectKeys() {
-  auto entrance = findEntrance(vault_);
   VaultMap map = vault_;
-  map[entrance] = Open{};
+  auto entrance = findEntrance(map);
+  auto doors = allDoors(map);
 
   std::map<Path, int> steps;
   std::map<MapPosition, char> keys;
-  auto doors = allDoors(map);
   std::map<Path, int> allKeyDistances;
-
-  nextKeys(keys, map, {}, entrance, {1, 0}, 0);
   std::map<Path, std::map<MapPosition, char>> keyPaths;
-  int minimum = 1000000;
-  std::for_each(std::begin(keys), std::end(keys), [&](auto const &key) {
-    auto distance = shortestPath(map, entrance, key.first);
-    auto length = allfrom(steps, keyPaths, map, allKeyDistances, doors,
-                          key.first, {}, distance);
-    if (length < minimum)
-      minimum = length;
-  });
 
-  return minimum;
+  return allfrom(steps, keyPaths, map, allKeyDistances, doors, entrance, {}, 0);
 }

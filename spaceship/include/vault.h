@@ -8,14 +8,12 @@
 
 namespace AdventOfCode {
 
-struct Entrance{};
 struct Wall{};
 struct Open{};
 struct Key{char key;};
 struct Door{char door;};
 
-using VaultField = std::variant<Entrance, Wall, Open, Key, Door>;
-
+using VaultField = std::variant<Wall, Open, Key, Door>;
 using VaultMap = std::map<MapPosition, VaultField>;
 
 class Vault {
