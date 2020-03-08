@@ -8,42 +8,41 @@
 
 using namespace AdventOfCode;
 
-Vault::Vault(std::istream &map) : vault_{} {
-  std::string line;
-
-  int height = 0;
-  int width = 0;
-  while (std::getline(map, line)) {
-    width = 0;
-    for (char c : line) {
-      if (c == '#')
-        vault_[{width, height}] = Wall{};
-      if (c == '.')
-        vault_[{width, height}] = Open{};
-      if (c == '@')
-        vault_[{width, height}] = Key{c};
-      if (c >= 'a' && c <= 'z')
-        vault_[{width, height}] = Key{c};
-      if (c >= 'A' && c <= 'Z')
-        vault_[{width, height}] = Door{c};
-
-      width++;
-    }
-    height++;
-  }
-}
-
 namespace {
 using Path = std::string;
 
-MapPosition findEntrance(VaultMap const &map) {
-  return std::find_if(std::begin(map), std::end(map),
-                      [](auto const &field) {
-                        if (std::holds_alternative<Key>(field.second))
-                          return std::get<Key>(field.second).key == '@';
-                        return false;
-                      })
-      ->first;
+int quadrant(MapPosition const &position, int width, int height) {
+  if (position.x < width / 2)
+    if (position.y < height / 2)
+      return 0;
+    else
+      return 2;
+  else if (position.y < height / 2)
+    return 1;
+  else
+    return 3;
+}
+
+auto findEntrances(VaultMap const &map, int width, int height) {
+  std::vector<std::pair<MapPosition, VaultField>> entrances;
+  std::copy_if(std::begin(map), std::end(map), std::back_inserter(entrances),
+               [](auto const &field) {
+                 if (std::holds_alternative<Key>(field.second)) {
+                   auto key = std::get<Key>(field.second).key;
+                   return key >= '0' && key <= '9';
+                 }
+
+                 return false;
+               });
+
+  std::vector<MapPosition> positions(entrances.size());
+  std::for_each(std::begin(entrances), std::end(entrances),
+                [&](auto const &field) {
+                  auto quad = quadrant(field.first, width, height);
+                  positions[quad] = field.first;
+                });
+
+  return positions;
 }
 
 auto allDoors(VaultMap const &map) {
@@ -253,13 +252,23 @@ bool nextKeys(std::map<MapPosition, char> &keys, VaultMap const &map,
 
 int allfrom(std::map<Path, int> &steps,
             std::map<Path, std::map<MapPosition, char>> &keyPaths, VaultMap map,
+            int width, int height, std::vector<MapPosition> robots,
             std::map<Path, int> &allKeyDistances,
             std::map<char, MapPosition> const &doors, MapPosition const &start,
             Path path, int count) {
+
   auto key = std::get<Key>(map.at(start)).key;
+
+  std::for_each(std::begin(robots), std::end(robots), [&](auto const &robot) {
+    map[robot] = Robot{};
+  });
+
   map[start] = Open{};
   if (doors.count(key))
     map[doors.at(key)] = Open{};
+
+  int startQuadrant = quadrant(start, width, height);
+  robots[startQuadrant] = start;
 
   auto abstractPath = path;
   std::sort(std::begin(abstractPath), std::end(abstractPath));
@@ -269,7 +278,9 @@ int allfrom(std::map<Path, int> &steps,
   if (keyPaths.count(abstractPath))
     keys = keyPaths.at(abstractPath);
   else {
-    nextKeys(keys, map, {}, start, {-1, 0}, 0);
+    std::for_each(std::begin(robots), std::end(robots), [&](auto const &robot) {
+      nextKeys(keys, map, {}, robot, {-1, 0}, 0);
+    });
     keyPaths[abstractPath] = keys;
   }
 
@@ -288,19 +299,20 @@ int allfrom(std::map<Path, int> &steps,
     std::map<char, int> pathLengths;
     std::for_each(std::begin(keys), std::end(keys), [&](auto const &nextKey) {
       auto nextKeyPath = Path{key} + Path{nextKey.second};
+      int quad = quadrant(nextKey.first, width, height);
       int distance = 0;
       if (allKeyDistances.count(nextKeyPath))
         distance = allKeyDistances[nextKeyPath];
       else {
-        distance = shortestPath(map, start, nextKey.first);
+        distance = shortestPath(map, robots[quad], nextKey.first);
         allKeyDistances[nextKeyPath] = distance;
         std::reverse(std::begin(nextKeyPath), std::end(nextKeyPath));
         allKeyDistances[nextKeyPath] = distance;
       }
 
       pathLengths[nextKey.second] =
-          allfrom(steps, keyPaths, map, allKeyDistances, doors, nextKey.first,
-                  path, distance);
+          allfrom(steps, keyPaths, map, width, height, robots, allKeyDistances,
+                  doors, nextKey.first, path, distance);
     });
     steps[abstractPath] =
         std::min_element(std::begin(pathLengths), std::end(pathLengths),
@@ -315,9 +327,38 @@ int allfrom(std::map<Path, int> &steps,
 
 } // namespace
 
+Vault::Vault(std::istream &map) : vault_{} {
+  std::string line;
+
+  int height = 0;
+  int width = 0;
+  int robot = 0;
+  while (std::getline(map, line)) {
+    width = 0;
+    for (char c : line) {
+      if (c == '#')
+        vault_[{width, height}] = Wall{};
+      if (c == '.')
+        vault_[{width, height}] = Open{};
+      if (c == '@')
+        vault_[{width, height}] = Key{static_cast<char>('0' + robot++)};
+      if (c >= 'a' && c <= 'z')
+        vault_[{width, height}] = Key{c};
+      if (c >= 'A' && c <= 'Z')
+        vault_[{width, height}] = Door{c};
+
+      width++;
+    }
+    height++;
+  }
+
+  width_ = width;
+  height_ = height;
+}
+
 int Vault::collectKeys() {
   VaultMap map = vault_;
-  auto entrance = findEntrance(map);
+  auto entrances = findEntrances(map, width_, height_);
   auto doors = allDoors(map);
 
   std::map<Path, int> steps;
@@ -325,5 +366,6 @@ int Vault::collectKeys() {
   std::map<Path, int> allKeyDistances;
   std::map<Path, std::map<MapPosition, char>> keyPaths;
 
-  return allfrom(steps, keyPaths, map, allKeyDistances, doors, entrance, {}, 0);
+  return allfrom(steps, keyPaths, map, width_, height_, entrances,
+                 allKeyDistances, doors, entrances[0], {}, 0);
 }
