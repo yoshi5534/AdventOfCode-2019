@@ -1,5 +1,7 @@
 #pragma once
 
+#include <string>
+
 namespace AdventOfCode {
   struct MapPosition {
   int x;
@@ -18,6 +20,9 @@ namespace AdventOfCode {
   }
   constexpr MapPosition operator+(MapPosition const &other) const {
     return {x + other.x, y + other.y};
+  }
+  std::string operator()() const {
+    return std::to_string (x) + "," + std::to_string(y);
   }
 };
 }
