@@ -58,18 +58,11 @@ auto allDoors(VaultMap const &map) {
 
 bool isReachable(VaultMap const &map, MapPosition const &field) {
   return (std::holds_alternative<Open>(map.at(field)) ||
-          std::holds_alternative<Key>(map.at(field)) ||
-          std::holds_alternative<Robot>(map.at(field)));
+          std::holds_alternative<Key>(map.at(field)));
 }
 
 bool isKey(VaultMap const &map, MapPosition const &field) {
   return std::holds_alternative<Key>(map.at(field));
-}
-
-bool hasKeys(VaultMap const &map) {
-  return std::find_if(std::begin(map), std::end(map), [](auto const &field) {
-           return std::holds_alternative<Key>(field.second);
-         }) != std::end(map);
 }
 
 MapPosition left(MapPosition const &dir) {

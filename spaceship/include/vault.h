@@ -12,9 +12,8 @@ struct Wall{};
 struct Open{};
 struct Key{char key;};
 struct Door{char door;};
-struct Robot{};
 
-using VaultField = std::variant<Wall, Open, Key, Door, Robot>;
+using VaultField = std::variant<Wall, Open, Key, Door>;
 using VaultMap = std::map<MapPosition, VaultField>;
 
 class Vault {
