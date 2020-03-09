@@ -11,7 +11,7 @@ struct Object {
   std::vector<Object *> orbiters;
 };
 
-class Map {
+class Orbit {
 public:
   void addObject(std::string const &name);
   void addOrbit(std::string const &mapEntry);

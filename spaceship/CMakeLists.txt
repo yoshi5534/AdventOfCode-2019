@@ -8,6 +8,7 @@ add_library (spaceship
   include/droid.h src/droid.cpp
   include/fuel.h src/fuel.cpp
   include/fft.h src/fft.cpp
+  include/map.h src/map.cpp
   include/motion.h src/motion.cpp
   include/orbit.h src/orbit.cpp
   include/password.h src/password.cpp

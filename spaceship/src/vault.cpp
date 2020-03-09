@@ -364,7 +364,6 @@ int Vault::collectKeys() {
   auto doors = allDoors(map);
 
   std::map<Path, int> steps;
-  std::map<MapPosition, char> keys;
   std::map<Path, int> allKeyDistances;
   std::map<Path, std::map<MapPosition, char>> keyPaths;
 

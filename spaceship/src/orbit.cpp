@@ -7,7 +7,7 @@ using namespace AdventOfCode;
 
 Object::Object(std::string const &obj) : name{obj}, orbiters{} {}
 
-void Map::addObject(std::string const &name) {
+void Orbit::addObject(std::string const &name) {
   auto it = orbits_.find(name);
   if (it == orbits_.end()) {
     orbits_[name] = new Object{name};
@@ -21,7 +21,7 @@ std::tuple<std::string, std::string> splitEntry(std::string const &entry) {
   return {splitEntry[0], splitEntry[1]};
 }
 
-void Map::addOrbit(std::string const &mapEntry) {
+void Orbit::addOrbit(std::string const &mapEntry) {
   if (mapEntry.empty())
     return;
 
@@ -35,7 +35,7 @@ void Map::addOrbit(std::string const &mapEntry) {
   c->orbiters.push_back(o);
 }
 
-int Map::checksum() const {
+int Orbit::checksum() const {
   int sum = 0;
   for (auto const obj : orbits_) {
     sum += findPath("COM", obj.first);
@@ -44,7 +44,7 @@ int Map::checksum() const {
   return sum;
 }
 
-int Map::minimumOrbitalTransfer(std::string const &start,
+int Orbit::minimumOrbitalTransfer(std::string const &start,
                                 std::string const &target) const {
 
   int minimum = INT_MAX;
@@ -81,7 +81,7 @@ int length(std::string const &name, std::vector<Object *> orbiters, int path) {
 }
 } // namespace
 
-int Map::findPath(std::string const &start, std::string const &name) const {
+int Orbit::findPath(std::string const &start, std::string const &name) const {
   int path = 0;
   if (start == name)
     return path;

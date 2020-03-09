@@ -159,7 +159,7 @@ void solve6() {
   std::ifstream input;
   getInput(input, 6);
 
-  Map map;
+  Orbit map;
 
   std::string entry;
   while (std::getline(input, entry))
