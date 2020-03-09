@@ -77,3 +77,55 @@ TEST_CASE("Collect all keys in example 5") {
   int expected = 81;
   REQUIRE(expected == steps);
 }
+
+TEST_CASE("Collect by multiple robots 1") {
+  std::stringstream map;
+  map << "#######\n"
+         "#a.#Cd#\n"
+         "##@#@##\n"
+         "#######\n"
+         "##@#@##\n"
+         "#cB#Ab#\n"
+         "#######\n";
+
+  Vault vault{map};
+  auto steps = vault.collectKeys();
+  int expected = 8;
+  REQUIRE(expected == steps);
+}
+
+TEST_CASE("Collect by multiple robots 2") {
+  std::stringstream map;
+
+  map << "###############\n"
+         "#d.ABC.#.....a#\n"
+         "######@#@######\n"
+         "###############\n"
+         "######@#@######\n"
+         "#b.....#.....c#\n"
+         "###############\n";
+
+  Vault vault{map};
+  auto steps = vault.collectKeys();
+  int expected = 24;
+  REQUIRE(expected == steps);
+}
+
+TEST_CASE("Collect by multiple robots 4") {
+  std::stringstream map;
+
+  map << "#############\n"
+         "#g#f.D#..h#l#\n"
+         "#F###e#E###.#\n"
+         "#dCba@#@BcIJ#\n"
+         "#############\n"
+         "#nK.L@#@G...#\n"
+         "#M###N#H###.#\n"
+         "#o#m..#i#jk.#\n"
+         "#############\n";
+
+  Vault vault{map};
+  auto steps = vault.collectKeys();
+  int expected = 72;
+  REQUIRE(expected == steps);
+}

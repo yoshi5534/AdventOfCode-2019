@@ -35,12 +35,12 @@ auto findEntrances(VaultMap const &map, int width, int height) {
                  return false;
                });
 
+  if (entrances.size() == 1)
+    return std::vector{entrances.begin()->first};
+
   std::vector<MapPosition> positions(entrances.size());
-  std::for_each(std::begin(entrances), std::end(entrances),
-                [&](auto const &field) {
-                  auto quad = quadrant(field.first, width, height);
-                  positions[quad] = field.first;
-                });
+  for (auto const &field : entrances)
+    positions[quadrant(field.first, width, height)] = field.first;
 
   return positions;
 }
@@ -216,9 +216,8 @@ int shortestPath(VaultMap const &map, MapPosition const &start,
 }
 
 bool nextKeys(std::map<MapPosition, char> &keys, VaultMap const &map,
-              std::vector<MapPosition> visited,
-              MapPosition const &current, MapPosition const &direction,
-              int count) {
+              std::vector<MapPosition> visited, MapPosition const &current,
+              MapPosition const &direction, int count) {
   if (std::find(std::begin(visited), std::end(visited), current) !=
       std::end(visited))
     return false;
@@ -228,12 +227,12 @@ bool nextKeys(std::map<MapPosition, char> &keys, VaultMap const &map,
   if (!isKey(map, current)) {
     count++;
     if (isReachable(map, current + right(direction)))
-      nextKeys(keys, map, visited, current + right(direction),
-               right(direction), count);
+      nextKeys(keys, map, visited, current + right(direction), right(direction),
+               count);
 
     if (isReachable(map, current + left(direction)))
-      nextKeys(keys, map, visited, current + left(direction),
-               left(direction), count);
+      nextKeys(keys, map, visited, current + left(direction), left(direction),
+               count);
 
     if (isReachable(map, current + direction))
       nextKeys(keys, map, visited, current + direction, direction, count);
@@ -258,14 +257,17 @@ int allfrom(std::map<Path, int> &steps,
 
   auto key = std::get<Key>(map.at(start)).key;
 
-  std::for_each(std::begin(robots), std::end(robots),
-                [&](auto const &robot) { map[robot] = Open{}; });
+  for (auto const &robot : robots)
+    map[robot] = Open{};
 
   map[start] = Open{};
   if (doors.count(key))
     map[doors.at(key)] = Open{};
 
-  int startQuadrant = quadrant(start, width, height);
+  int startQuadrant = 0;
+  if (robots.size() == 4)
+    startQuadrant = quadrant(start, width, height);
+
   robots[startQuadrant] = start;
 
   auto abstractPath = path;
@@ -276,33 +278,35 @@ int allfrom(std::map<Path, int> &steps,
   if (keyPaths.count(abstractPath))
     keys = keyPaths.at(abstractPath);
   else {
-    std::for_each(std::begin(robots), std::end(robots), [&](auto const &robot) {
+    for (auto const &robot : robots)
       nextKeys(keys, map, {}, robot, {-1, 0}, 0);
-    });
     keyPaths[abstractPath] = keys;
   }
 
   path.push_back(key);
 
   if (keys.empty()) {
-    // for (auto const &c : path)
-    //   std::cout << c;
-    // std::cout << ": " << count << "\n";
-    if (!steps.count(".") || count < steps["."])
-      steps["."] = count;
     return count;
   }
 
-  abstractPath +=robots[0]();
-  abstractPath +=robots[1]();
-  abstractPath +=robots[2]();
-  abstractPath +=robots[3]();
+  for (auto const robot : robots)
+    abstractPath += robot();
+
   if (!steps.count(abstractPath)) {
     int minimum = 1000000;
-    std::for_each(std::begin(keys), std::end(keys), [&](auto const &nextKey) {  
-      int const quad = quadrant(nextKey.first, width, height);
-      auto nextKeyPath = std::to_string (robots[quad].x) + "," + std::to_string (robots[quad].y) + "," + std::to_string (nextKey.first.x) + "," + std::to_string (nextKey.first.y);
-      auto backKeyPath =  std::to_string (nextKey.first.x) + "," + std::to_string (nextKey.first.y)+ "," + std::to_string (robots[quad].x) + "," + std::to_string (robots[quad].y);
+    std::for_each(std::begin(keys), std::end(keys), [&](auto const &nextKey) {
+      int quad = 0;
+      if (robots.size() == 4)
+        quad = quadrant(nextKey.first, width, height);
+
+      auto nextKeyPath = std::to_string(robots[quad].x) + "," +
+                         std::to_string(robots[quad].y) + "," +
+                         std::to_string(nextKey.first.x) + "," +
+                         std::to_string(nextKey.first.y);
+      auto backKeyPath = std::to_string(nextKey.first.x) + "," +
+                         std::to_string(nextKey.first.y) + "," +
+                         std::to_string(robots[quad].x) + "," +
+                         std::to_string(robots[quad].y);
       int distance = 0;
       if (allKeyDistances.count(nextKeyPath))
         distance = allKeyDistances[nextKeyPath];
@@ -311,8 +315,6 @@ int allfrom(std::map<Path, int> &steps,
         allKeyDistances[nextKeyPath] = distance;
         allKeyDistances[backKeyPath] = distance;
       }
-
-      //auto const distance = shortestPath(map, robots[quad], nextKey.first);
 
       auto const length =
           allfrom(steps, keyPaths, map, width, height, robots, allKeyDistances,
@@ -323,9 +325,6 @@ int allfrom(std::map<Path, int> &steps,
     });
     steps[abstractPath] = minimum;
   }
-  // for (auto const &c : path)
-  //   std::cout << c;
-  // std::cout << ": " << count << "\n";
 
   return steps[abstractPath] + count;
 }
@@ -372,7 +371,7 @@ int Vault::collectKeys() {
   std::map<Path, std::map<MapPosition, char>> keyPaths;
 
   auto length = allfrom(steps, keyPaths, map, width_, height_, entrances,
-                        allKeyDistances, doors, entrances[3], {}, 0);
+                        allKeyDistances, doors, entrances[0], {}, 0);
 
   return length;
 }
