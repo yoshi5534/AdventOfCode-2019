@@ -371,19 +371,25 @@ void solve17() {
 
   ASCII ascii(program);
 
-  std::cout << "The sum of all crossings is: " << ascii.findIntersections() << std::endl;
+  std::cout << "The sum of all crossings is: " << ascii.findIntersections()
+            << std::endl;
   std::cout << "The shortest path for vacuuming: " << std::endl;
-  ascii.shortestPath ();
-  std::cout << "The collected amount of dust: " << ascii.searchRobots() << std::endl;
+  ascii.shortestPath();
+  std::cout << "The collected amount of dust: " << ascii.searchRobots()
+            << std::endl;
 }
-
 
 void solve18() {
   std::ifstream input;
   getInput(input, 18);
 
   Vault vault{input};
-  std::cout << "The shortest path to all keys has " << vault.collectKeys() << " steps." << std::endl;
+  std::cout << "The shortest path to all keys has " << vault.collectKeys()
+            << " steps." << std::endl;
+
+  vault.deployRobots();
+  std::cout << "After deploying 4 robots, the shortest path has "
+            << vault.collectKeys() << " steps." << std::endl;
 }
 
 void solve(int puzzleId, std::string const &) {

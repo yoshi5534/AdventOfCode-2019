@@ -20,6 +20,7 @@ class Vault {
 public:
   Vault(std::istream &map);
   int collectKeys();
+  void deployRobots();
 
 private:
   VaultMap vault_;

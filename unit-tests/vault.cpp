@@ -82,13 +82,14 @@ TEST_CASE("Collect by multiple robots 1") {
   std::stringstream map;
   map << "#######\n"
          "#a.#Cd#\n"
-         "##@#@##\n"
-         "#######\n"
-         "##@#@##\n"
+         "##...##\n"
+         "##.@.##\n"
+         "##...##\n"
          "#cB#Ab#\n"
          "#######\n";
 
   Vault vault{map};
+  vault.deployRobots();
   auto steps = vault.collectKeys();
   int expected = 8;
   REQUIRE(expected == steps);

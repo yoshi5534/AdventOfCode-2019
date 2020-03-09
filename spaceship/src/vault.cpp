@@ -256,19 +256,17 @@ int allfrom(std::map<Path, int> &steps,
             Path path, int count) {
 
   auto key = std::get<Key>(map.at(start)).key;
-
-  for (auto const &robot : robots)
-    map[robot] = Open{};
-
-  map[start] = Open{};
-  if (doors.count(key))
-    map[doors.at(key)] = Open{};
-
   int startQuadrant = 0;
   if (robots.size() == 4)
     startQuadrant = quadrant(start, width, height);
 
   robots[startQuadrant] = start;
+
+  for (auto const &robot : robots)
+    map[robot] = Open{};
+
+  if (doors.count(key))
+    map[doors.at(key)] = Open{};
 
   auto abstractPath = path;
   std::sort(std::begin(abstractPath), std::end(abstractPath));
@@ -374,4 +372,17 @@ int Vault::collectKeys() {
                         allKeyDistances, doors, entrances[0], {}, 0);
 
   return length;
+}
+
+void Vault::deployRobots() {
+  auto entrance = *findEntrances(vault_, width_, height_).begin();
+  vault_[entrance + MapPosition{-1, -1}] = Key{static_cast<char>('0')};
+  vault_[entrance + MapPosition{0, -1}] = Wall{};
+  vault_[entrance + MapPosition{1, -1}] = Key{static_cast<char>('1')};
+  vault_[entrance + MapPosition{-1, 0}] = Wall{};
+  vault_[entrance + MapPosition{0, 0}] = Wall{};
+  vault_[entrance + MapPosition{1, 0}] = Wall{};
+  vault_[entrance + MapPosition{-1, 1}] = Key{static_cast<char>('2')};
+  vault_[entrance + MapPosition{0, 1}] = Wall{};
+  vault_[entrance + MapPosition{1, 1}] = Key{static_cast<char>('3')};
 }
