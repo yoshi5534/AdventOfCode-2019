@@ -1,6 +1,7 @@
 #pragma once
 
 #include <iosfwd>
+#include <map>
 #include <string>
 #include <vector>
 
@@ -28,11 +29,18 @@ struct MapPosition {
   }
 };
 
+using Positions = std::map <MapPosition, char>;
+
 class Map {
 public:
   Map(std::istream &map);
-  char at(int x, int y) const;
-  void set(int x, int y, char c);
+  std::vector<char>& fields();
+  int width() const;
+  int height() const;
+  char at(MapPosition const &pos) const;
+  void set(MapPosition const &pos, char c);
+  int shortestPath(MapPosition const &start, MapPosition const &end) const;
+  Positions find (std::vector<char> const& items, MapPosition const &start) const;
 
 private:
   std::vector<char> fields_;
