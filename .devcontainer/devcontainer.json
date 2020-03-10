@@ -32,6 +32,7 @@
 		"hbenl.vscode-test-explorer",
 		"matepek.vscode-catch2-test-adapter",
 		"llvm-vs-code-extensions.vscode-clangd",
-		"donjayamanne.githistory"
+		"donjayamanne.githistory",
+		"eamodio.gitlens"
 	]
 }
