@@ -24,7 +24,7 @@ auto getLines(Program const &program) {
   lines.resize(1000);
   int first = 0;
   int last = 100;
-  int x = 0, y = lines.size();
+  int y = lines.size();
   while (last - first < 200) {
     std::vector<int> line;
     for (int x = first; x < last + 10; ++x) {
@@ -44,13 +44,13 @@ auto getLines(Program const &program) {
     y++;
   }
 
-  return std::move(lines);
+  return lines;
 }
 } // namespace
 
 std::pair<int, int> TractorBeam::minimumDistance(Program const &program) {
   auto lines = getLines(program);
-  for (int row = 0; row < lines.size() - 100; ++row) {
+  for (int row = 0; row < static_cast<int>(lines.size() - 100); ++row) {
     auto &&line = lines[row];
     if (line.second - line.first < 100)
       continue;
