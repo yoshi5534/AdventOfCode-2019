@@ -1,6 +1,7 @@
 #include <map.h>
 
 #include <algorithm>
+#include <iostream>
 #include <set>
 #include <sstream>
 
@@ -211,4 +212,12 @@ Positions Map::find(std::vector<char> const &items,
   Positions positions;
   findItems(positions, *this, items, {}, start, {1, 0});
   return positions;
+}
+
+void Map::print() const {
+  for (int y = 0; y < height_; ++y) {
+    for (int x = 0; x < width_; ++x) 
+        std::cout << at({x,y});
+    std::cout << '\n';
+  }
 }
