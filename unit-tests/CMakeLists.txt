@@ -6,6 +6,7 @@ add_executable(
   computer.cpp
   fft.cpp
   fuel.cpp
+  maze.cpp
   motion.cpp
   orbit.cpp
   password.cpp
