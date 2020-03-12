@@ -5,7 +5,7 @@ project(AdventOfCode)
 if(MSVC)
   add_compile_options(/std:c++latest /W4 /WX)
 else()
-  add_compile_options(-std=c++17 -Wall -Wextra -pedantic)
+  add_compile_options(-std=gnu++17 -Wall -Wextra -pedantic)
 endif()
 
 include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)

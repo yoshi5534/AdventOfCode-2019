@@ -6,6 +6,7 @@ add_executable(
   computer.cpp
   fft.cpp
   fuel.cpp
+  maze.cpp
   motion.cpp
   orbit.cpp
   password.cpp
@@ -14,5 +15,6 @@ add_executable(
   wires.cpp)
 
 target_link_libraries(AOCtests spaceship doctest::doctest)
+target_compile_options(AOCtests PRIVATE -std=c++17)
 
 doctest_discover_tests(AOCtests)

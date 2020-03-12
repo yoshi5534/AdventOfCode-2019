@@ -21,6 +21,9 @@ struct MapPosition {
   constexpr bool operator==(MapPosition const &other) const {
     return ((x == other.x) && (y == other.y));
   }
+  constexpr bool operator!=(MapPosition const &other) const {
+    return ((x != other.x) || (y != other.y));
+  }
   constexpr MapPosition operator+(MapPosition const &other) const {
     return {x + other.x, y + other.y};
   }
@@ -41,7 +44,7 @@ public:
   void set(MapPosition const &pos, char c);
   int shortestPath(MapPosition const &start, MapPosition const &end) const;
   Positions find (std::vector<char> const& items, MapPosition const &start) const;
-
+  void print() const;
 private:
   std::vector<char> fields_;
   int width_;

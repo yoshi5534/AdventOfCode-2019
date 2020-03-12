@@ -13,6 +13,7 @@
 #include <droid.h>
 #include <fft.h>
 #include <fuel.h>
+#include <maze.h>
 #include <motion.h>
 #include <orbit.h>
 #include <password.h>
@@ -402,13 +403,24 @@ void solve19() {
   while (std::getline(input, line, ','))
     program.push_back(std::stol(line));
 
-  auto affected = TractorBeam::scan (program);
+  auto affected = TractorBeam::scan(program);
   std::cout << "The number of affected points is: " << affected << std::endl;
 
   auto closest = TractorBeam::minimumDistance(program);
-  std::cout << "The closest point to the emitter is (" 
-  << closest.first << "," << closest.second << ") -> " 
-  << closest.first * 10000 + closest.second << std::endl;
+  std::cout << "The closest point to the emitter is (" << closest.first << ","
+            << closest.second << ") -> "
+            << closest.first * 10000 + closest.second << std::endl;
+}
+
+void solve20() {
+  std::ifstream input;
+  getInput(input, 20);
+
+  Maze maze{input};
+  std::cout << "The shortest path is " << maze.shortestPath() << " steps."
+            << std::endl;
+  std::cout << "The shortest recursive path is " << maze.recursivePath() << " steps."
+            << std::endl;
 }
 
 void solve(int puzzleId, std::string const &inputFile) {
@@ -465,6 +477,10 @@ void solve(int puzzleId, std::string const &inputFile) {
 
   if (puzzleId == 18)
     solve18();
+
   if (puzzleId == 19)
     solve19();
+
+  if (puzzleId == 20)
+    solve20();
 }
