@@ -427,6 +427,11 @@ void solve20() {
 void solve21() {
   std::ifstream input;
   getInput(input, 21);
+
+  Program program{};
+  std::string line{};
+  while (std::getline(input, line, ','))
+    program.push_back(std::stol(line));
   
   {
     SpringScript script{"NOT A J", "NOT B T", "AND T J", "NOT C T", "AND T J",
