@@ -419,6 +419,8 @@ void solve20() {
   Maze maze{input};
   std::cout << "The shortest path is " << maze.shortestPath() << " steps."
             << std::endl;
+  std::cout << "The shortest recursive path is " << maze.recursivePath() << " steps."
+            << std::endl;
 }
 
 void solve(int puzzleId, std::string const &inputFile) {

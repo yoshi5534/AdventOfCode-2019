@@ -85,8 +85,6 @@ auto findPortals(Map &maze) {
       }
     }
   }
-
-  maze.print();
   return std::tuple{start, end, portals};
 }
 
@@ -113,12 +111,71 @@ int findExit(Map maze, std::vector<MapPosition> visited,
   }
   return minimum;
 }
+
+bool isOuter(MapPosition portal, int width, int height) {
+  if (portal.x == 2 || portal.x == width - 3 || portal.y == 2 ||
+      portal.y == height - 3)
+    return true;
+  return false;
+}
+
+int findRecursiveExit(Map maze,
+                      std::vector<std::tuple<MapPosition, int>> visited,
+                      MapPosition const &current, MapPosition const &start,
+                      MapPosition const &end,
+                      std::map<MapPosition, MapPosition> const &portals,
+                      int count = 0, int level = 0) {
+  if (level < 0 || level > 30)
+    return 999999;
+
+  maze.set(current, OPEN);
+  auto reachable = maze.find({PORTAL}, current);
+  maze.set(current, PORTAL);
+
+  int minimum = 11000;
+  for (auto const &pos : reachable) {
+    if (std::find(std::begin(visited), std::end(visited),
+                  std::tuple{pos.first, level}) != std::end(visited))
+      continue;
+
+    if (pos.first == start)
+      continue;
+
+    if (pos.first == end && level != 0)
+      continue;
+
+    int length = maze.shortestPath(current, pos.first);
+    if (count + length > minimum)
+      continue;
+
+    if (pos.first != end) {
+      visited.push_back({pos.first, level});
+      if (isOuter(pos.first, maze.width(), maze.height()))
+        length += findRecursiveExit(maze, visited, portals.at(pos.first), start,
+                                    end, portals, count + length, level - 1) +
+                  1;
+      else
+        length += findRecursiveExit(maze, visited, portals.at(pos.first), start,
+                                    end, portals, count + length, level + 1) +
+                  1;
+    }
+
+    if (length < minimum)
+      minimum = length;
+  }
+  return minimum;
+}
 } // namespace
 
-Maze::Maze(std::istream &map) : maze_{map} {}
-
-int Maze::shortestPath() {
+Maze::Maze(std::istream &map) : maze_{map} {
   auto [start, end, portals] = findPortals(maze_);
+  start_ = start;
+  end_ = end;
+  portals_ = portals;
+}
 
-  return findExit(maze_, {}, start, end, portals);
+int Maze::shortestPath() { return findExit(maze_, {}, start_, end_, portals_); }
+
+int Maze::recursivePath() {
+  return findRecursiveExit(maze_, {}, start_, start_, end_, portals_);
 }
