@@ -96,12 +96,12 @@ int findExit(Map maze, std::vector<MapPosition> visited,
   maze.set(start, OPEN);
   auto reachable = maze.find({PORTAL}, start);
 
-  int minimum = 1000;
+  int minimum = 100000;
   for (auto const &pos : reachable) {
     if (std::find(std::begin(visited), std::end(visited), pos.first) !=
         std::end(visited))
       continue;
-      
+
     visited.push_back(pos.first);
     int length = maze.shortestPath(start, pos.first);
     if (pos.first != end)
