@@ -138,10 +138,7 @@ int findRecursiveExit(Map maze,
                   std::tuple{pos.first, level}) != std::end(visited))
       continue;
 
-    if (pos.first == start)
-      continue;
-
-    if (pos.first == end && level != 0)
+    if ((pos.first == start) || (pos.first == end && level != 0))
       continue;
 
     int length = maze.shortestPath(current, pos.first);
@@ -150,14 +147,10 @@ int findRecursiveExit(Map maze,
 
     if (pos.first != end) {
       visited.push_back({pos.first, level});
-      if (isOuter(pos.first, maze.width(), maze.height()))
-        length += findRecursiveExit(maze, visited, portals.at(pos.first), start,
-                                    end, portals, count + length, level - 1) +
-                  1;
-      else
-        length += findRecursiveExit(maze, visited, portals.at(pos.first), start,
-                                    end, portals, count + length, level + 1) +
-                  1;
+      auto const outer = isOuter(pos.first, maze.width(), maze.height());
+      length += 1 + findRecursiveExit(maze, visited, portals.at(pos.first),
+                                      start, end, portals, count + length,
+                                      outer ? level - 1 : level + 1);
     }
 
     if (length < minimum)
