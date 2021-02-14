@@ -105,7 +105,7 @@ int AdventOfCode::minimalSignalDelay(WirePath const &path1,
                                      WirePath const &path2,
                                      Intersections const &crossings) {
   std::vector<int> steps{};
-  for (auto const location : crossings) {
+  for (auto const& location : crossings) {
     auto steps1 =
         std::find(std::begin(path1), std::end(path1), location) - path1.begin();
     auto steps2 =
