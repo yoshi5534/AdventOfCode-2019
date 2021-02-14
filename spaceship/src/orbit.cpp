@@ -37,7 +37,7 @@ void Orbit::addOrbit(std::string const &mapEntry) {
 
 int Orbit::checksum() const {
   int sum = 0;
-  for (auto const obj : orbits_) {
+  for (auto const &obj : orbits_) {
     sum += findPath("COM", obj.first);
   }
 
@@ -49,7 +49,7 @@ int Orbit::minimumOrbitalTransfer(std::string const &start,
 
   int minimum = INT_MAX;
 
-  for (auto const obj : orbits_) {
+  for (auto const &obj : orbits_) {
     int pathStart = findPath(obj.first, start);
     if (pathStart == 0)
       continue;
@@ -89,11 +89,9 @@ int Orbit::findPath(std::string const &start, std::string const &name) const {
   if (it == orbits_.end())
     return path;
 
-  for (auto const obj : orbits_) {
-    int l = length(name, orbits_.find(start)->second->orbiters, 0);
-    if (l > 0)
-      return l;
-  }
+  int l = length(name, orbits_.find(start)->second->orbiters, 0);
+  if (l > 0)
+    return l;
 
   return 0;
 }

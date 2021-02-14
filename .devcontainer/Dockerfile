@@ -2,29 +2,33 @@
 # Copyright (c) Microsoft Corporation. All rights reserved.
 # Licensed under the MIT License. See https://go.microsoft.com/fwlink/?linkid=2090316 for license information.
 #-------------------------------------------------------------------------------------------------------------
-
 FROM debian:10
 
 # Avoid warnings by switching to noninteractive
 ENV DEBIAN_FRONTEND=noninteractive
 
-# This Dockerfile adds a non-root 'vscode' user with sudo access. However, for Linux,
-# this user's GID/UID must match your local user UID/GID to avoid permission issues
-# with bind mounts. Update USER_UID / USER_GID if yours is not 1000. See
-# https://aka.ms/vscode-remote/containers/non-root-user for details.
 ARG USERNAME=vscode
 ARG USER_UID=1000
 ARG USER_GID=$USER_UID
-
 # Configure apt and install packages
 RUN apt-get update \
-    && apt-get -y install --no-install-recommends apt-utils dialog 2>&1 \
+    && apt-get -y install --no-install-recommends apt-utils dialog software-properties-common 2>&1 \
     # 
     # Verify git, process tools, lsb-release (useful for CLI installs) installed
-    && apt-get -y install git iproute2 procps lsb-release wget \
+    && apt-get -y install git iproute2 procps lsb-release wget gnupg2 \
     #
     # Install C++ tools
-    && apt-get -y install build-essential cmake cppcheck valgrind clang-tools-7 \
+    && apt-get -y install build-essential cmake cppcheck valgrind
+    #
+    # Install current clang compiler
+    RUN wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key| apt-key add \
+    # Fingerprint: 6084 F3CF 814B 57C1 CF12 EFD5 15CF 4D18 AF4F 7421 \
+    && add-apt-repository -y 'deb http://apt.llvm.org/buster/ llvm-toolchain-buster main' \
+    && apt-get update \
+    && apt-get -y install clang-format clang-tidy clang clangd \
+      libc++-dev libc++1 libc++abi-dev libc++abi1 libclang-dev libclang1 \
+      liblldb-dev libllvm-ocaml-dev libomp-dev libomp5 lld lldb \
+      llvm-dev llvm-runtime llvm python-clang \
     #
     # Install Python tools
     && apt-get -y install python3-venv python3-pip \

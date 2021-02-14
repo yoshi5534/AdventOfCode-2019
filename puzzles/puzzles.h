@@ -1,4 +1,5 @@
 #pragma once
+#include <algorithm>
 #include <cstdint>
 #include <fstream>
 #include <iostream>
@@ -453,7 +454,7 @@ void solve21() {
   }
 }
 
-void solve(int puzzleId, std::string const &inputFile) {
+void solve(int puzzleId, std::string const &) {
   if (puzzleId == 1)
     solve1();
 

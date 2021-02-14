@@ -10,7 +10,6 @@ namespace {
 const char OPEN = '.';
 const char PORTAL = '+';
 const char WALL = '#';
-const char EMPTY = ' ';
 
 auto horizontalPortal(Map &maze, MapPosition entry) {
   MapPosition portal;
